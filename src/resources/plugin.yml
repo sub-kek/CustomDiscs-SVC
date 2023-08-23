@@ -1,11 +1,11 @@
 name: CustomDiscs
-version: '${version}'
-main: me.Navoei.customdiscsplugin.CustomDiscs
-api-version: '${bukkit_api_version}'
+version: '${project.version}'
+main: org.bamboodevs.customdiscsplugin.CustomDiscs
+api-version: 1.16
 prefix: CustomDiscs
-authors: [ "Navoei" ]
+authors: [Bamboo-Developers]
 description: A plugin which uses the Simple Voice Chat API to add custom music discs. Remaster to 1.16.5 _SubTqoz, yiski.
-depend: [ "voicechat", "ProtocolLib" ]
+depend: ["voicechat", "ProtocolLib"]
 dependencies:
   server:
     voicechat:
@@ -21,3 +21,13 @@ commands:
   customdisc:
     description: The custom discs command.
     aliases: cd
+
+permissions:
+  customdiscs.*:
+    children:
+      - customdiscs.download: true
+      - customdiscs.create: true
+  customdiscs.download:
+    default: op
+  customdiscs.create:
+    default: op

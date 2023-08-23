@@ -1,4 +1,4 @@
-package me.Navoei.customdiscsplugin;
+package org.bamboodevs.customdiscsplugin;
 
 import de.maxhenkel.voicechat.api.ServerPlayer;
 import de.maxhenkel.voicechat.api.VoicechatServerApi;
