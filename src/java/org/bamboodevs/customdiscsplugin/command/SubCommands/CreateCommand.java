@@ -99,7 +99,7 @@ public class CreateCommand extends SubCommand {
                 player.sendMessage("§fИмя диска: §3" + customName(readQuotes(args)));
 
             } else {
-                player.sendMessage("§fНедостаточно аргументов! (§3/cd create \"+filename+\" \"Название - описание\"§f)");
+                player.sendMessage("§fНедостаточно аргументов! (§3/cd create <Имя файла> \"Название - описание\"§f)");
             }
         } else {
             player.sendMessage("§fСначала возьмите диск в руку!");
