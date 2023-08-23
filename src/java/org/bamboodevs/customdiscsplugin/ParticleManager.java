@@ -1,9 +1,8 @@
-package me.Navoei.customdiscsplugin;
+package org.bamboodevs.customdiscsplugin;
 
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.block.Jukebox;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;

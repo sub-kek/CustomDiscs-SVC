@@ -1,4 +1,4 @@
-package me.Navoei.customdiscsplugin.command;
+package org.bamboodevs.customdiscsplugin.command;
 
 import org.bukkit.entity.Player;
 

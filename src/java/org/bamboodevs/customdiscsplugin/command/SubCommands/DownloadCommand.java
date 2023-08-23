@@ -1,7 +1,7 @@
-package me.Navoei.customdiscsplugin.command.SubCommands;
+package org.bamboodevs.customdiscsplugin.command.SubCommands;
 
-import me.Navoei.customdiscsplugin.CustomDiscs;
-import me.Navoei.customdiscsplugin.command.SubCommand;
+import org.bamboodevs.customdiscsplugin.CustomDiscs;
+import org.bamboodevs.customdiscsplugin.command.SubCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;

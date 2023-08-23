@@ -1,11 +1,11 @@
-package me.Navoei.customdiscsplugin.command.SubCommands;
+package org.bamboodevs.customdiscsplugin.command.SubCommands;
 
-import me.Navoei.customdiscsplugin.CustomDiscs;
-import me.Navoei.customdiscsplugin.command.SubCommand;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.bamboodevs.customdiscsplugin.CustomDiscs;
+import org.bamboodevs.customdiscsplugin.command.SubCommand;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;

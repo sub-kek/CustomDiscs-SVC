@@ -1,4 +1,4 @@
-package me.Navoei.customdiscsplugin;
+package org.bamboodevs.customdiscsplugin;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
@@ -9,10 +9,10 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.BlockPosition;
 import de.maxhenkel.voicechat.api.BukkitVoicechatService;
-import me.Navoei.customdiscsplugin.command.CommandManager;
-import me.Navoei.customdiscsplugin.event.JukeBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.bamboodevs.customdiscsplugin.command.CommandManager;
+import org.bamboodevs.customdiscsplugin.event.JukeBox;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;

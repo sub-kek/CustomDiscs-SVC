@@ -1,4 +1,4 @@
-package me.Navoei.customdiscsplugin;
+package org.bamboodevs.customdiscsplugin;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
