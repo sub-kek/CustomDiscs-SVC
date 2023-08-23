@@ -4,7 +4,7 @@ main: org.bamboodevs.customdiscsplugin.CustomDiscs
 api-version: 1.16
 prefix: CustomDiscs
 authors: [Bamboo-Developers]
-description: A plugin which uses the Simple Voice Chat API to add custom music discs. Remaster to 1.16.5 _SubTqoz, yiski.
+description: A plugin which uses the Simple Voice Chat API to add custom music discs. Remaster to 1.16.5 _SubToqz, yiski.
 depend: ["voicechat", "ProtocolLib"]
 dependencies:
   server:

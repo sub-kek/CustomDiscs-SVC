@@ -100,11 +100,9 @@ public class PlayerManager {
             audioPlayer.startPlaying();
             return audioPlayer;
         } catch (Exception e) {
-            e.printStackTrace();
-            Bukkit.getLogger().info("Error Occurred At: " + block.getLocation());
             for (ServerPlayer serverPlayer : playersInRange) {
                 Player bukkitPlayer = (Player) serverPlayer.getPlayer();
-                bukkitPlayer.sendMessage(ChatColor.RED + "An error has occurred while trying to play this disc.");
+                bukkitPlayer.sendMessage(ChatColor.RED + "Ошибка при воспроизведении диска!");
             }
             return null;
         }
