@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Class-Path: mp3spi-1.9.5.4.jar jflac-codec-1.5.2.jar plexus-utils-4.0.0.
+ jar plexus-xml-4.0.2.jar jlayer-1.0.1.4.jar tritonus-share-0.3.7.4.jar 
+ maven-xml-impl-4.0.0-alpha-7.jar maven-api-xml-4.0.0-alpha-7.jar maven-
+ api-meta-4.0.0-alpha-7.jar
+
