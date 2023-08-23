@@ -35,7 +35,7 @@ public class CreateCommand extends SubCommand {
 
     @Override
     public String getSyntax() {
-        return  "§3/cd create \"+filename+\" \"Название - описание\"";
+        return  "§3/cd create <Имя файла> \"Название - описание\"";
     }
 
     @Override
