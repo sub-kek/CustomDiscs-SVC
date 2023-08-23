@@ -54,16 +54,16 @@ public class JukeBox implements Listener{
                 String songName = PlainTextComponentSerializer.plainText().serialize(songNameComponent);
 
                 TextComponent customActionBarSongPlaying = Component.text()
-                        .content("Now Playing: " + songName)
+                        .content("Сейчас играет: " + songName)
                         .color(NamedTextColor.GOLD)
                         .build();
 
                 assert VoicePlugin.voicechatServerApi != null;
                 playerManager.playLocationalAudio(VoicePlugin.voicechatServerApi, soundFilePath, block, customActionBarSongPlaying.asComponent());
             } else {
-                player.sendMessage(ChatColor.RED + "Sound file not found.");
+                player.sendMessage(ChatColor.RED + "Файл не найден.");
                 event.setCancelled(true);
-                throw new FileNotFoundException("Sound file is missing!");
+                throw new FileNotFoundException("Звуковой файл отсутствует!");
             }
         }
     }
