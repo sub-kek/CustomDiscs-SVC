@@ -30,12 +30,12 @@ public class CreateCommand extends SubCommand {
 
     @Override
     public String getDescription() {
-        return ChatColor.GRAY + "Создает пользовательский диск с музыкой.";
+        return "§fСоздает диск с музыкой.";
     }
 
     @Override
     public String getSyntax() {
-        return ChatColor.GREEN + "/customdisc create <filename> \"Название - описание\"";
+        return  "§3/cd create \"+filename+\" \"Название - описание\"";
     }
 
     @Override
@@ -59,7 +59,7 @@ public class CreateCommand extends SubCommand {
                 }
 
                 if (customName(readQuotes(args)).equalsIgnoreCase("")) {
-                    player.sendMessage(ChatColor.RED + "Необходимо указать имя диска.");
+                    player.sendMessage("§fНеобходимо указать имя диска.");
                     return;
                 }
 
@@ -69,11 +69,11 @@ public class CreateCommand extends SubCommand {
                     if (getFileExtension(filename).equals("wav") || getFileExtension(filename).equals("mp3") || getFileExtension(filename).equals("flac")) {
                         songname = args[1];
                     } else {
-                        player.sendMessage(ChatColor.RED + "Файл может быть только в формате wav, flac или mp3!");
+                        player.sendMessage("§fФайл может быть только в формате §3wav§f, §3flac §fили §3mp3");
                         return;
                     }
                 } else {
-                    player.sendMessage(ChatColor.RED + "Файл не найден!");
+                    player.sendMessage("§fФайл не найден!");
                     return;
                 }
 
@@ -95,14 +95,14 @@ public class CreateCommand extends SubCommand {
 
                 player.getInventory().getItemInMainHand().setItemMeta(meta);
 
-                player.sendMessage("имя вашего файла: " + ChatColor.GRAY + songname);
-                player.sendMessage("имя вашего кастом диска: " + ChatColor.GRAY + customName(readQuotes(args)));
+                player.sendMessage("§fИмя файла: §3" + songname);
+                player.sendMessage("§fИмя диска: §3" + customName(readQuotes(args)));
 
             } else {
-                player.sendMessage(ChatColor.RED + "Недостаточно аргументов! ( /customdisc create <имя файла> \"Название - описание\" )");
+                player.sendMessage("§fНедостаточно аргументов! (§3/cd create \"+filename+\" \"Название - описание\"§f)");
             }
         } else {
-            player.sendMessage(ChatColor.RED + "Вы не держите диск в руке!");
+            player.sendMessage("§fСначала возьмите диск в руку!");
         }
     }
 

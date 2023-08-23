@@ -40,11 +40,10 @@ public class CommandManager implements CommandExecutor, TabCompleter {
                 }
             }
         } else {
-            player.sendMessage(ChatColor.AQUA + "----[ Кастом диски ]----");
+            player.sendMessage(ChatColor.AQUA + "§8Кастомные пластинки");
             for (int i = 0; i < getSubCommands().size(); i++) {
-                player.sendMessage(getSubCommands().get(i).getSyntax() + ChatColor.DARK_GRAY + " - " + getSubCommands().get(i).getDescription());
+                player.sendMessage(getSubCommands().get(i).getSyntax() + "§f: " + getSubCommands().get(i).getDescription());
             }
-            player.sendMessage(ChatColor.AQUA + "---------------------");
             return true;
         }
 

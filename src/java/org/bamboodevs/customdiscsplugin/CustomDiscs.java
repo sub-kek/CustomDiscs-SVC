@@ -14,8 +14,10 @@ import org.apache.logging.log4j.Logger;
 import org.bamboodevs.customdiscsplugin.command.CommandManager;
 import org.bamboodevs.customdiscsplugin.event.JukeBox;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.block.Jukebox;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -77,7 +79,13 @@ public final class CustomDiscs extends JavaPlugin {
                     World world = event.getPlayer().getWorld();
                     BlockPosition blockPosition = packet.getBlockPositionModifier().read(0);
                     Location loc = new Location(world, blockPosition.getX(), blockPosition.getY(), blockPosition.getZ());
-                    Jukebox jukebox = (Jukebox) world.getBlockAt(loc).getState();
+                    Block block = world.getBlockAt(loc);
+                    Jukebox jukebox;
+                    if (block.getType().equals(Material.JUKEBOX)) {
+                        jukebox = (Jukebox) block.getState();
+                    } else {
+                        return;
+                    }
 
                     if (!jukebox.getRecord().hasItemMeta()) return;
 

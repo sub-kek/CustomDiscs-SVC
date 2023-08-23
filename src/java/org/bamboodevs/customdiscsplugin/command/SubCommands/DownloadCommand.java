@@ -24,12 +24,12 @@ public class DownloadCommand extends SubCommand {
 
     @Override
     public String getDescription() {
-        return ChatColor.GRAY + "Загружает файл с указанного URL.";
+        return  "§fЗагружает файл c музыкой с указанного URL.";
     }
 
     @Override
     public String getSyntax() {
-        return ChatColor.GREEN + "/customdisc download <url> <имяфайла.формат>";
+        return "§3/cd download <ссылка> <имя.разширение>";
     }
 
     @Override
@@ -42,8 +42,8 @@ public class DownloadCommand extends SubCommand {
             return;
         }
 
-        if (args.length!=3) {
-            player.sendMessage(ChatColor.RED + "Неверные аргументы! ( /customdisc download <url> <имяфайла.формат> )");
+        if (args.length<3) {
+            player.sendMessage("§fНеверные аргументы! (§3/cd download <ссылка> <имя.расширение>§f)");
             return;
         }
 
@@ -59,7 +59,7 @@ public class DownloadCommand extends SubCommand {
                 System.out.println(filename);
 
                 if (!getFileExtension(filename).equals("wav") && !getFileExtension(filename).equals("mp3") && !getFileExtension(filename).equals("flac")) {
-                    player.sendMessage(ChatColor.RED + "Файл должен иметь расширение wav, flac или mp3!");
+                    player.sendMessage("§fФайл должен иметь расширение §3wav§f, §3flac §fили §3mp3§f!");
                     return;
                 }
 
@@ -79,11 +79,10 @@ public class DownloadCommand extends SubCommand {
 
                 FileUtils.copyURLToFile(fileURL, downloadFile);
 
-                player.sendMessage(ChatColor.GREEN + "Файл успешно загружен в " + ChatColor.GRAY + "папку musicdata"+ filename + ChatColor.GREEN + " .");
-                player.sendMessage(ChatColor.GREEN + "Создайте диск, выполнив команду " + ChatColor.GRAY + "/cd create "+filename+" \"Название - описание\" " + ChatColor.GREEN + ".");
-            } catch (IOException e) {
+                player.sendMessage("§7Файл успешно загружен");
+                player.sendMessage("§fСоздайте диск, выполнив команду §3/cd create "+filename+" \"Название - описание\"");
+            } catch (Exception e) {
                 player.sendMessage(ChatColor.RED + "При загрузке произошла ошибка.");
-                e.printStackTrace();
             }
         });
     }
