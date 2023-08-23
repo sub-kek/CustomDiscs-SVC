@@ -29,7 +29,7 @@ public class DownloadCommand extends SubCommand {
 
     @Override
     public String getSyntax() {
-        return "§3/cd download <ссылка> <имя.разширение>";
+        return "§3/cd download <ссылка> <имя.расширение>";
     }
 
     @Override
