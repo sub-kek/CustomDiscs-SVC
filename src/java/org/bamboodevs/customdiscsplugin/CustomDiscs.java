@@ -36,9 +36,6 @@ public final class CustomDiscs extends JavaPlugin {
     @Nullable
     private VoicePlugin voicechatPlugin;
 
-    public float musicDiscDistance;
-    public float musicDiscVolume;
-
     @Override
     public void onEnable() {
 
@@ -65,9 +62,6 @@ public final class CustomDiscs extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new HopperManager(), this);
         getCommand("customdisc").setExecutor(new CommandManager());
 
-        musicDiscDistance = getConfig().getInt("music-disc-distance");
-        musicDiscVolume = Float.parseFloat(Objects.requireNonNull(getConfig().getString("music-disc-volume")));
-
         ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
 
         protocolManager.addPacketListener(new PacketAdapter(this, ListenerPriority.NORMAL, PacketType.Play.Server.WORLD_EVENT) {
@@ -90,6 +84,9 @@ public final class CustomDiscs extends JavaPlugin {
                     if (!jukebox.getRecord().hasItemMeta()) return;
 
                     if (jukebox.getRecord().getItemMeta().getPersistentDataContainer().has(new NamespacedKey(CustomDiscs.getInstance(), "customdisc"), PersistentDataType.STRING)) {
+                        event.setCancelled(true);
+                    }
+                    if (jukebox.getRecord().getItemMeta().getPersistentDataContainer().has(new NamespacedKey(CustomDiscs.getInstance(), "customdiscyt"), PersistentDataType.STRING)) {
                         event.setCancelled(true);
                     }
 

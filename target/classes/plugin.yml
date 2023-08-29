@@ -1,0 +1,33 @@
+name: CustomDiscs
+version: '2.4.1'
+main: org.bamboodevs.customdiscsplugin.CustomDiscs
+api-version: 1.16
+prefix: CustomDiscs
+authors: [Bamboo-Developers]
+description: Кастомные пластинки на 1.16.5 от _SubToqz и yiski.
+depend: ["voicechat", "ProtocolLib"]
+dependencies:
+  server:
+    voicechat:
+      load: BEFORE
+      required: true
+      join-classpath: true
+    ProtocolLib:
+      load: BEFORE
+      required: true
+      join-classpath: true
+
+commands:
+  customdisc:
+    description: The custom discs command.
+    aliases: cd
+
+permissions:
+  customdiscs.*:
+    children:
+      - customdiscs.download: true
+      - customdiscs.create: true
+  customdiscs.download:
+    default: op
+  customdiscs.create:
+    default: op

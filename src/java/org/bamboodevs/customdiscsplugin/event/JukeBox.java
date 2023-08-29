@@ -42,7 +42,10 @@ public class JukeBox implements Listener{
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK || event.getClickedBlock() == null || event.getItem() == null || event.getItem().getItemMeta() == null || block == null) return;
         if (event.getClickedBlock().getType() != Material.JUKEBOX) return;
 
-        if (isCustomMusicDisc(event) && !jukeboxContainsDisc(block)) {
+        boolean isCustomDisc = isCustomMusicDisc(event);
+        boolean isYouTubeCustomDisc = isCustomMusicDiscYouTube(event);
+
+        if (isCustomDisc && !jukeboxContainsDisc(block)) {
 
             String soundFileName = event.getItem().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(customDiscs, "customdisc"), PersistentDataType.STRING);
 
@@ -65,6 +68,23 @@ public class JukeBox implements Listener{
                 event.setCancelled(true);
                 throw new FileNotFoundException("Звуковой файл отсутствует!");
             }
+        }
+
+        if (isYouTubeCustomDisc && !jukeboxContainsDisc(block)) {
+            String soundLink = event.getItem().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(customDiscs, "customdiscyt"), PersistentDataType.STRING);
+
+            System.out.println(soundLink);
+
+            Component songNameComponent = Objects.requireNonNull(event.getItem().getItemMeta().lore()).get(0).asComponent();
+            String songName = PlainTextComponentSerializer.plainText().serialize(songNameComponent);
+
+            TextComponent customActionBarSongPlaying = Component.text()
+                    .content("Сейчас играет: " + songName)
+                    .color(NamedTextColor.GOLD)
+                    .build();
+
+            assert VoicePlugin.voicechatServerApi != null;
+            playerManager.playLocationalAudioYoutube(VoicePlugin.voicechatServerApi, soundLink, block, customActionBarSongPlaying.asComponent());
         }
     }
 
@@ -131,6 +151,28 @@ public class JukeBox implements Listener{
         if (e.getItem()==null) return false;
 
         return e.getItem().getItemMeta().getPersistentDataContainer().has(new NamespacedKey(customDiscs, "customdisc"), PersistentDataType.STRING) &&
+                (
+                        e.getItem().getType().equals(Material.MUSIC_DISC_13) ||
+                                e.getItem().getType().equals(Material.MUSIC_DISC_CAT) ||
+                                e.getItem().getType().equals(Material.MUSIC_DISC_BLOCKS) ||
+                                e.getItem().getType().equals(Material.MUSIC_DISC_CHIRP) ||
+                                e.getItem().getType().equals(Material.MUSIC_DISC_FAR) ||
+                                e.getItem().getType().equals(Material.MUSIC_DISC_MALL) ||
+                                e.getItem().getType().equals(Material.MUSIC_DISC_MELLOHI) ||
+                                e.getItem().getType().equals(Material.MUSIC_DISC_STAL) ||
+                                e.getItem().getType().equals(Material.MUSIC_DISC_STRAD) ||
+                                e.getItem().getType().equals(Material.MUSIC_DISC_WARD) ||
+                                e.getItem().getType().equals(Material.MUSIC_DISC_11) ||
+                                e.getItem().getType().equals(Material.MUSIC_DISC_WAIT) ||
+                                e.getItem().getType().equals(Material.MUSIC_DISC_PIGSTEP)
+                );
+    }
+
+    public boolean isCustomMusicDiscYouTube(PlayerInteractEvent e) {
+
+        if (e.getItem()==null) return false;
+
+        return e.getItem().getItemMeta().getPersistentDataContainer().has(new NamespacedKey(customDiscs, "customdiscyt"), PersistentDataType.STRING) &&
                 (
                         e.getItem().getType().equals(Material.MUSIC_DISC_13) ||
                                 e.getItem().getType().equals(Material.MUSIC_DISC_CAT) ||

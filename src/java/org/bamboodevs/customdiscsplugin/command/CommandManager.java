@@ -1,12 +1,15 @@
 package org.bamboodevs.customdiscsplugin.command;
 
 import org.bamboodevs.customdiscsplugin.command.SubCommands.CreateCommand;
+import org.bamboodevs.customdiscsplugin.command.SubCommands.CreateYtCommand;
 import org.bamboodevs.customdiscsplugin.command.SubCommands.DownloadCommand;
+import org.bamboodevs.customdiscsplugin.command.SubCommands.ReloadCommand;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.entity.Creature;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -21,6 +24,8 @@ public class CommandManager implements CommandExecutor, TabCompleter {
     public CommandManager() {
         subCommands.add(new CreateCommand());
         subCommands.add(new DownloadCommand());
+        subCommands.add(new ReloadCommand());
+        subCommands.add(new CreateYtCommand());
     }
 
     @Override

@@ -1,14 +1,24 @@
 package org.bamboodevs.customdiscsplugin;
 
+import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
+import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
+import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
+import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import com.sedmelluq.discord.lavaplayer.track.playback.AudioFrame;
 import de.maxhenkel.voicechat.api.ServerPlayer;
 import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.audiochannel.AudioChannel;
 import de.maxhenkel.voicechat.api.audiochannel.AudioPlayer;
 import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
+import de.maxhenkel.voicechat.api.packets.MicrophonePacket;
 import javazoom.spi.mpeg.sampled.convert.MpegFormatConversionProvider;
 import javazoom.spi.mpeg.sampled.file.MpegAudioFileReader;
+import net.dv8tion.jda.api.audio.AudioSendHandler;
+import net.dv8tion.jda.api.audio.OpusPacket;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -18,14 +28,15 @@ import org.jflac.sound.spi.FlacAudioFileReader;
 
 import javax.annotation.Nullable;
 import javax.sound.sampled.*;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -34,6 +45,7 @@ public class PlayerManager {
     private final Map<UUID, Stoppable> playerMap;
     private final ExecutorService executorService;
     private static final AudioFormat FORMAT = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 48000F, 16, 1, 2, 48000F, false);
+    private final AudioPlayerManager lavaPlayer = new DefaultAudioPlayerManager();
 
     public PlayerManager() {
         this.playerMap = new ConcurrentHashMap<>();
@@ -42,6 +54,7 @@ public class PlayerManager {
             thread.setDaemon(true);
             return thread;
         });
+        lavaPlayer.registerSourceManager(new YoutubeAudioSourceManager());
     }
 
     public void playLocationalAudio(VoicechatServerApi api, Path soundFilePath, Block block, Component actionbarComponent) {
@@ -52,7 +65,7 @@ public class PlayerManager {
         if (audioChannel == null) return;
 
         audioChannel.setCategory(VoicePlugin.MUSIC_DISC_CATEGORY);
-        audioChannel.setDistance(CustomDiscs.getInstance().musicDiscDistance);
+        audioChannel.setDistance(CustomDiscs.getInstance().getConfig().getInt("music-disc-distance"));
 
         AtomicBoolean stopped = new AtomicBoolean();
         AtomicReference<de.maxhenkel.voicechat.api.audiochannel.AudioPlayer> player = new AtomicReference<>();
@@ -68,9 +81,57 @@ public class PlayerManager {
         });
 
         executorService.execute(() -> {
-            Collection<ServerPlayer> playersInRange = api.getPlayersInRange(api.fromServerLevel(block.getWorld()), api.createPosition(block.getLocation().getX() + 0.5d, block.getLocation().getY() + 0.5d, block.getLocation().getZ() + 0.5d), CustomDiscs.getInstance().musicDiscDistance);
+            Collection<ServerPlayer> playersInRange = api.getPlayersInRange(api.fromServerLevel(block.getWorld()), api.createPosition(block.getLocation().getX() + 0.5d, block.getLocation().getY() + 0.5d, block.getLocation().getZ() + 0.5d), CustomDiscs.getInstance().getConfig().getInt("music-disc-distance"));
 
             de.maxhenkel.voicechat.api.audiochannel.AudioPlayer audioPlayer = playChannel(api, audioChannel, block, soundFilePath, playersInRange);
+
+            for (ServerPlayer serverPlayer : playersInRange) {
+                Player bukkitPlayer = (Player) serverPlayer.getPlayer();
+                bukkitPlayer.sendActionBar(actionbarComponent);
+            }
+
+            if (audioPlayer == null) {
+                playerMap.remove(id);
+                return;
+            }
+
+            synchronized (stopped) {
+                if (!stopped.get()) {
+                    player.set(audioPlayer);
+                } else {
+                    audioPlayer.stopPlaying();
+                }
+            }
+        });
+    }
+
+    public void playLocationalAudioYoutube(VoicechatServerApi api, String ytUrl, Block block, Component actionbarComponent) {
+        UUID id = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
+
+        LocationalAudioChannel audioChannel = api.createLocationalAudioChannel(id, api.fromServerLevel(block.getWorld()), api.createPosition(block.getLocation().getX() + 0.5d, block.getLocation().getY() + 0.5d, block.getLocation().getZ() + 0.5d));
+
+        if (audioChannel == null) return;
+
+        audioChannel.setCategory(VoicePlugin.MUSIC_DISC_CATEGORY);
+        audioChannel.setDistance(CustomDiscs.getInstance().getConfig().getInt("music-disc-distance"));
+
+        AtomicBoolean stopped = new AtomicBoolean();
+        AtomicReference<de.maxhenkel.voicechat.api.audiochannel.AudioPlayer> player = new AtomicReference<>();
+
+        playerMap.put(id, () -> {
+            synchronized (stopped) {
+                stopped.set(true);
+                de.maxhenkel.voicechat.api.audiochannel.AudioPlayer audioPlayer = player.get();
+                if (audioPlayer != null) {
+                    audioPlayer.stopPlaying();
+                }
+            }
+        });
+
+        executorService.execute(() -> {
+            Collection<ServerPlayer> playersInRange = api.getPlayersInRange(api.fromServerLevel(block.getWorld()), api.createPosition(block.getLocation().getX() + 0.5d, block.getLocation().getY() + 0.5d, block.getLocation().getZ() + 0.5d), CustomDiscs.getInstance().getConfig().getInt("music-disc-distance"));
+
+            de.maxhenkel.voicechat.api.audiochannel.AudioPlayer audioPlayer = playChannelYt(api, audioChannel, ytUrl, playersInRange);
 
             for (ServerPlayer serverPlayer : playersInRange) {
                 Player bukkitPlayer = (Player) serverPlayer.getPlayer();
@@ -108,6 +169,66 @@ public class PlayerManager {
         }
     }
 
+    @Nullable
+    private de.maxhenkel.voicechat.api.audiochannel.AudioPlayer playChannelYt(VoicechatServerApi api, AudioChannel audioChannel, String YtUrl, Collection<ServerPlayer> playersInRange) {
+        try {
+            CompletableFuture<AudioTrack> trackFuture = new CompletableFuture<>();
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+            lavaPlayer.loadItem(YtUrl, new AudioLoadResultHandler() {
+                @Override
+                public void trackLoaded(AudioTrack audioTrack) {
+                    trackFuture.complete(audioTrack);
+                }
+
+                @Override
+                public void playlistLoaded(AudioPlaylist audioPlaylist) {
+
+                }
+
+                @Override
+                public void noMatches() {
+
+                }
+
+                @Override
+                public void loadFailed(FriendlyException e) {
+
+                }
+            });
+
+            AudioTrack audioTrack = trackFuture.get();
+            System.out.println("done?");
+            System.out.println("loaded "+audioTrack.getInfo().title);
+
+            com.sedmelluq.discord.lavaplayer.player.AudioPlayer player = lavaPlayer.createPlayer();
+            player.setVolume(1);
+            player.playTrack(audioTrack);
+
+            while (player.getPlayingTrack() != null) {
+                byte[] data;
+                try {
+                    data = player.provide().getData();
+                } catch (Exception e) {
+                    TimeUnit.MILLISECONDS.sleep(20);
+                    continue;
+                }
+
+                audioChannel.send(data);
+                TimeUnit.MILLISECONDS.sleep(20);
+            }
+
+            return null;
+        } catch (Exception e) {
+            for (ServerPlayer serverPlayer : playersInRange) {
+                Player bukkitPlayer = (Player) serverPlayer.getPlayer();
+                bukkitPlayer.sendMessage(ChatColor.RED + "Ошибка при воспроизведении диска!");
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
+
     private static short[] readSoundFile(Path file) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
         return VoicePlugin.voicechatApi.getAudioConverter().bytesToShorts(convertFormat(file, FORMAT));
     }
@@ -136,13 +257,13 @@ public class PlayerManager {
 
         assert finalInputStream != null;
 
-        return adjustVolume(finalInputStream.readAllBytes(), CustomDiscs.getInstance().musicDiscVolume);
+        return adjustVolume(finalInputStream.readAllBytes(), Float.parseFloat(Objects.requireNonNull(CustomDiscs.getInstance().getConfig().getString("music-disc-volume"))));
     }
 
     private static byte[] adjustVolume(byte[] audioSamples, double volume) {
 
         if (volume > 1d || volume < 0d) {
-            CustomDiscs.getInstance().getServer().getLogger().info("Error: The volume must be between 0 and 1 in the config!");
+            CustomDiscs.getInstance().getServer().getLogger().severe("The volume must be between 0 and 1 in the config!");
             return null;
         }
 

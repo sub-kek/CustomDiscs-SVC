@@ -56,8 +56,6 @@ public class DownloadCommand extends SubCommand {
                     return;
                 }
 
-                System.out.println(filename);
-
                 if (!getFileExtension(filename).equals("wav") && !getFileExtension(filename).equals("mp3") && !getFileExtension(filename).equals("flac")) {
                     player.sendMessage("§fФайл должен иметь расширение §3wav§f, §3flac §fили §3mp3§f!");
                     return;
