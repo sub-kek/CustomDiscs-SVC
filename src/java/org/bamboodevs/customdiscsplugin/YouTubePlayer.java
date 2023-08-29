@@ -26,7 +26,7 @@ import java.util.concurrent.*;
 
 public class YouTubePlayer {
     private final AudioPlayerManager lavaPlayerManager = new DefaultAudioPlayerManager();
-    static ExecutorService executorService;
+    public ExecutorService executorService;
     public UUID uuid;
     public static Map<UUID, YouTubePlayer> playerMap = new ConcurrentHashMap<>();;
     public AudioPlayer audioPlayer;
@@ -146,9 +146,10 @@ public class YouTubePlayer {
         if (playerMap.containsKey(_uuid)) {
             YouTubePlayer tubePlayer = playerMap.get(_uuid);
 
+            tubePlayer.audioPlayer.getPlayingTrack().stop();
             tubePlayer.audioPlayer.stopTrack();
             tubePlayer.audioPlayer.destroy();
-            executorService.shutdownNow();
+            tubePlayer.executorService.shutdownNow();
 
             playerMap.remove(tubePlayer.uuid);
         }

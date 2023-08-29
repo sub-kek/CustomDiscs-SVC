@@ -79,6 +79,7 @@ public class CreateCommand extends SubCommand {
 
                 //Sets the lore of the item to the quotes from the command.
                 ItemStack disc = new ItemStack(player.getInventory().getItemInMainHand());
+
                 ItemMeta meta = disc.getItemMeta();
 
                 meta.setDisplayName("§rМузыкальная пластинка");
@@ -98,6 +99,8 @@ public class CreateCommand extends SubCommand {
                 if (data.has(discYtMeta, PersistentDataType.STRING))
                     data.remove(new NamespacedKey(CustomDiscs.getInstance(), "customdiscyt"));
                 data.set(new NamespacedKey(CustomDiscs.getInstance(), "customdisc"), PersistentDataType.STRING, filename);
+
+                disc.addItemFlags();
 
                 player.getInventory().getItemInMainHand().setItemMeta(meta);
 

@@ -12,6 +12,7 @@ import de.maxhenkel.voicechat.api.BukkitVoicechatService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bamboodevs.customdiscsplugin.command.CommandManager;
+import org.bamboodevs.customdiscsplugin.event.ClearDiscs;
 import org.bamboodevs.customdiscsplugin.event.JukeBox;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -24,8 +25,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.annotation.Nullable;
 import java.io.File;
-import java.util.Map;
-import java.util.Objects;
 
 
 public final class CustomDiscs extends JavaPlugin {
@@ -60,7 +59,7 @@ public final class CustomDiscs extends JavaPlugin {
         }
 
         getServer().getPluginManager().registerEvents(new JukeBox(), this);
-        getServer().getPluginManager().registerEvents(new HopperManager(), this);
+        getServer().getPluginManager().registerEvents(new ClearDiscs(), this);
         getCommand("customdisc").setExecutor(new CommandManager());
 
         ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
