@@ -7,6 +7,7 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bamboodevs.customdiscsplugin.CustomDiscs;
 import org.bamboodevs.customdiscsplugin.PlayerManager;
 import org.bamboodevs.customdiscsplugin.VoicePlugin;
+import org.bamboodevs.customdiscsplugin.YouTubePlayerManager;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -32,6 +33,7 @@ public class JukeBox implements Listener{
 
     CustomDiscs customDiscs = CustomDiscs.getInstance();
     PlayerManager playerManager = PlayerManager.instance();
+    YouTubePlayerManager youTubePlayerManager = YouTubePlayerManager.instance();
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onInsert(PlayerInteractEvent event) throws IOException {
@@ -42,8 +44,8 @@ public class JukeBox implements Listener{
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK || event.getClickedBlock() == null || event.getItem() == null || event.getItem().getItemMeta() == null || block == null) return;
         if (event.getClickedBlock().getType() != Material.JUKEBOX) return;
 
-        boolean isCustomDisc = isCustomMusicDisc(event);
-        boolean isYouTubeCustomDisc = isCustomMusicDiscYouTube(event);
+        boolean isCustomDisc = isCustomMusicDisc(event.getItem());
+        boolean isYouTubeCustomDisc = isCustomMusicDiscYouTube(event.getItem());
 
         if (isCustomDisc && !jukeboxContainsDisc(block)) {
 
@@ -84,7 +86,7 @@ public class JukeBox implements Listener{
                     .build();
 
             assert VoicePlugin.voicechatServerApi != null;
-            playerManager.playLocationalAudioYoutube(VoicePlugin.voicechatServerApi, soundLink, block, customActionBarSongPlaying.asComponent());
+            youTubePlayerManager.playLocationalAudioYoutube(VoicePlugin.voicechatServerApi, soundLink, block, customActionBarSongPlaying);
         }
     }
 
@@ -115,7 +117,11 @@ public class JukeBox implements Listener{
             }
 
             if (player.isSneaking() && !itemInvolvedInEvent.getType().equals(Material.AIR)) return;
-            stopDisc(block);
+
+            if (jukeboxContainsDisc(block)) {
+                stopDisc(block);
+                stopYtDisc(block);
+            }
         }
     }
 
@@ -128,6 +134,7 @@ public class JukeBox implements Listener{
         if (block.getType() != Material.JUKEBOX) return;
 
         stopDisc(block);
+        stopYtDisc(block);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -136,6 +143,7 @@ public class JukeBox implements Listener{
         for (Block explodedBlock : event.blockList()) {
             if (explodedBlock.getType() == Material.JUKEBOX) {
                 stopDisc(explodedBlock);
+                stopYtDisc(explodedBlock);
             }
         }
 
@@ -146,47 +154,47 @@ public class JukeBox implements Listener{
         return jukebox.getRecord().getType() != Material.AIR;
     }
 
-    public boolean isCustomMusicDisc(PlayerInteractEvent e) {
+    public boolean isCustomMusicDisc(ItemStack item) {
 
-        if (e.getItem()==null) return false;
+        if (item==null) return false;
 
-        return e.getItem().getItemMeta().getPersistentDataContainer().has(new NamespacedKey(customDiscs, "customdisc"), PersistentDataType.STRING) &&
+        return item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(customDiscs, "customdisc"), PersistentDataType.STRING) &&
                 (
-                        e.getItem().getType().equals(Material.MUSIC_DISC_13) ||
-                                e.getItem().getType().equals(Material.MUSIC_DISC_CAT) ||
-                                e.getItem().getType().equals(Material.MUSIC_DISC_BLOCKS) ||
-                                e.getItem().getType().equals(Material.MUSIC_DISC_CHIRP) ||
-                                e.getItem().getType().equals(Material.MUSIC_DISC_FAR) ||
-                                e.getItem().getType().equals(Material.MUSIC_DISC_MALL) ||
-                                e.getItem().getType().equals(Material.MUSIC_DISC_MELLOHI) ||
-                                e.getItem().getType().equals(Material.MUSIC_DISC_STAL) ||
-                                e.getItem().getType().equals(Material.MUSIC_DISC_STRAD) ||
-                                e.getItem().getType().equals(Material.MUSIC_DISC_WARD) ||
-                                e.getItem().getType().equals(Material.MUSIC_DISC_11) ||
-                                e.getItem().getType().equals(Material.MUSIC_DISC_WAIT) ||
-                                e.getItem().getType().equals(Material.MUSIC_DISC_PIGSTEP)
+                        item.getType().equals(Material.MUSIC_DISC_13) ||
+                                item.getType().equals(Material.MUSIC_DISC_CAT) ||
+                                item.getType().equals(Material.MUSIC_DISC_BLOCKS) ||
+                                item.getType().equals(Material.MUSIC_DISC_CHIRP) ||
+                                item.getType().equals(Material.MUSIC_DISC_FAR) ||
+                                item.getType().equals(Material.MUSIC_DISC_MALL) ||
+                                item.getType().equals(Material.MUSIC_DISC_MELLOHI) ||
+                                item.getType().equals(Material.MUSIC_DISC_STAL) ||
+                                item.getType().equals(Material.MUSIC_DISC_STRAD) ||
+                                item.getType().equals(Material.MUSIC_DISC_WARD) ||
+                                item.getType().equals(Material.MUSIC_DISC_11) ||
+                                item.getType().equals(Material.MUSIC_DISC_WAIT) ||
+                                item.getType().equals(Material.MUSIC_DISC_PIGSTEP)
                 );
     }
 
-    public boolean isCustomMusicDiscYouTube(PlayerInteractEvent e) {
+    public boolean isCustomMusicDiscYouTube(ItemStack item) {
 
-        if (e.getItem()==null) return false;
+        if (item==null) return false;
 
-        return e.getItem().getItemMeta().getPersistentDataContainer().has(new NamespacedKey(customDiscs, "customdiscyt"), PersistentDataType.STRING) &&
+        return item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(customDiscs, "customdiscyt"), PersistentDataType.STRING) &&
                 (
-                        e.getItem().getType().equals(Material.MUSIC_DISC_13) ||
-                                e.getItem().getType().equals(Material.MUSIC_DISC_CAT) ||
-                                e.getItem().getType().equals(Material.MUSIC_DISC_BLOCKS) ||
-                                e.getItem().getType().equals(Material.MUSIC_DISC_CHIRP) ||
-                                e.getItem().getType().equals(Material.MUSIC_DISC_FAR) ||
-                                e.getItem().getType().equals(Material.MUSIC_DISC_MALL) ||
-                                e.getItem().getType().equals(Material.MUSIC_DISC_MELLOHI) ||
-                                e.getItem().getType().equals(Material.MUSIC_DISC_STAL) ||
-                                e.getItem().getType().equals(Material.MUSIC_DISC_STRAD) ||
-                                e.getItem().getType().equals(Material.MUSIC_DISC_WARD) ||
-                                e.getItem().getType().equals(Material.MUSIC_DISC_11) ||
-                                e.getItem().getType().equals(Material.MUSIC_DISC_WAIT) ||
-                                e.getItem().getType().equals(Material.MUSIC_DISC_PIGSTEP)
+                        item.getType().equals(Material.MUSIC_DISC_13) ||
+                                item.getType().equals(Material.MUSIC_DISC_CAT) ||
+                                item.getType().equals(Material.MUSIC_DISC_BLOCKS) ||
+                                item.getType().equals(Material.MUSIC_DISC_CHIRP) ||
+                                item.getType().equals(Material.MUSIC_DISC_FAR) ||
+                                item.getType().equals(Material.MUSIC_DISC_MALL) ||
+                                item.getType().equals(Material.MUSIC_DISC_MELLOHI) ||
+                                item.getType().equals(Material.MUSIC_DISC_STAL) ||
+                                item.getType().equals(Material.MUSIC_DISC_STRAD) ||
+                                item.getType().equals(Material.MUSIC_DISC_WARD) ||
+                                item.getType().equals(Material.MUSIC_DISC_11) ||
+                                item.getType().equals(Material.MUSIC_DISC_WAIT) ||
+                                item.getType().equals(Material.MUSIC_DISC_PIGSTEP)
                 );
     }
 
@@ -194,4 +202,7 @@ public class JukeBox implements Listener{
         playerManager.stopLocationalAudio(block.getLocation());
     }
 
+    private void stopYtDisc(Block block) {
+        youTubePlayerManager.stopLocationalAudio(block.getLocation());
+    }
 }

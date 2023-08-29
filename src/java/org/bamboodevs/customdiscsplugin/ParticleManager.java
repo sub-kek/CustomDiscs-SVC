@@ -10,6 +10,7 @@ import java.util.HashMap;
 public class ParticleManager extends BukkitRunnable {
 
     static PlayerManager playerManager = PlayerManager.instance();
+    static YouTubePlayerManager youTubePlayerManager = YouTubePlayerManager.instance();
     static HashMap<Location, ParticleManager> locationParticleManager = new HashMap<>();
 
         public static void start(Jukebox jukebox) {
@@ -27,7 +28,7 @@ public class ParticleManager extends BukkitRunnable {
         @Override
         public void run() {
 
-                if (!playerManager.isAudioPlayerPlaying(jukebox.getLocation())) {
+                if (!youTubePlayerManager.isAudioPlayerPlaying(jukebox.getLocation()) || !playerManager.isAudioPlayerPlaying(jukebox.getLocation())) {
                     locationParticleManager.remove(jukebox.getLocation());
                     cancel();
                 } else {

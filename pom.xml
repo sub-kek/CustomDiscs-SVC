@@ -31,9 +31,9 @@
             <url>https://maven.maxhenkel.de/repository/public</url>
         </repository>
         <repository>
-            <id>dv8tion</id>
-            <name>m2-dv8tion</name>
-            <url>https://m2.dv8tion.net/releases</url>
+        <id>dv8tion</id>
+        <name>m2-dv8tion</name>
+        <url>https://m2.dv8tion.net/releases</url>
         </repository>
     </repositories>
 
@@ -85,7 +85,7 @@
         <dependency>
             <groupId>com.sedmelluq</groupId>
             <artifactId>lavaplayer</artifactId>
-            <version>1.3.78</version>
+            <version>LATEST</version>
         </dependency>
         <!--        <dependency>-->
 <!--            <groupId>com.google.apis</groupId>-->

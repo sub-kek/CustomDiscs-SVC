@@ -7,17 +7,13 @@ import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import com.sedmelluq.discord.lavaplayer.track.playback.AudioFrame;
 import de.maxhenkel.voicechat.api.ServerPlayer;
 import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.audiochannel.AudioChannel;
 import de.maxhenkel.voicechat.api.audiochannel.AudioPlayer;
 import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
-import de.maxhenkel.voicechat.api.packets.MicrophonePacket;
 import javazoom.spi.mpeg.sampled.convert.MpegFormatConversionProvider;
 import javazoom.spi.mpeg.sampled.file.MpegAudioFileReader;
-import net.dv8tion.jda.api.audio.AudioSendHandler;
-import net.dv8tion.jda.api.audio.OpusPacket;
 import net.kyori.adventure.text.Component;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -30,7 +26,6 @@ import javax.annotation.Nullable;
 import javax.sound.sampled.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Map;
@@ -45,7 +40,6 @@ public class PlayerManager {
     private final Map<UUID, Stoppable> playerMap;
     private final ExecutorService executorService;
     private static final AudioFormat FORMAT = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 48000F, 16, 1, 2, 48000F, false);
-    private final AudioPlayerManager lavaPlayer = new DefaultAudioPlayerManager();
 
     public PlayerManager() {
         this.playerMap = new ConcurrentHashMap<>();
@@ -54,7 +48,6 @@ public class PlayerManager {
             thread.setDaemon(true);
             return thread;
         });
-        lavaPlayer.registerSourceManager(new YoutubeAudioSourceManager());
     }
 
     public void playLocationalAudio(VoicechatServerApi api, Path soundFilePath, Block block, Component actionbarComponent) {
@@ -105,54 +98,6 @@ public class PlayerManager {
         });
     }
 
-    public void playLocationalAudioYoutube(VoicechatServerApi api, String ytUrl, Block block, Component actionbarComponent) {
-        UUID id = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
-
-        LocationalAudioChannel audioChannel = api.createLocationalAudioChannel(id, api.fromServerLevel(block.getWorld()), api.createPosition(block.getLocation().getX() + 0.5d, block.getLocation().getY() + 0.5d, block.getLocation().getZ() + 0.5d));
-
-        if (audioChannel == null) return;
-
-        audioChannel.setCategory(VoicePlugin.MUSIC_DISC_CATEGORY);
-        audioChannel.setDistance(CustomDiscs.getInstance().getConfig().getInt("music-disc-distance"));
-
-        AtomicBoolean stopped = new AtomicBoolean();
-        AtomicReference<de.maxhenkel.voicechat.api.audiochannel.AudioPlayer> player = new AtomicReference<>();
-
-        playerMap.put(id, () -> {
-            synchronized (stopped) {
-                stopped.set(true);
-                de.maxhenkel.voicechat.api.audiochannel.AudioPlayer audioPlayer = player.get();
-                if (audioPlayer != null) {
-                    audioPlayer.stopPlaying();
-                }
-            }
-        });
-
-        executorService.execute(() -> {
-            Collection<ServerPlayer> playersInRange = api.getPlayersInRange(api.fromServerLevel(block.getWorld()), api.createPosition(block.getLocation().getX() + 0.5d, block.getLocation().getY() + 0.5d, block.getLocation().getZ() + 0.5d), CustomDiscs.getInstance().getConfig().getInt("music-disc-distance"));
-
-            de.maxhenkel.voicechat.api.audiochannel.AudioPlayer audioPlayer = playChannelYt(api, audioChannel, ytUrl, playersInRange);
-
-            for (ServerPlayer serverPlayer : playersInRange) {
-                Player bukkitPlayer = (Player) serverPlayer.getPlayer();
-                bukkitPlayer.sendActionBar(actionbarComponent);
-            }
-
-            if (audioPlayer == null) {
-                playerMap.remove(id);
-                return;
-            }
-
-            synchronized (stopped) {
-                if (!stopped.get()) {
-                    player.set(audioPlayer);
-                } else {
-                    audioPlayer.stopPlaying();
-                }
-            }
-        });
-    }
-
     @Nullable
     private de.maxhenkel.voicechat.api.audiochannel.AudioPlayer playChannel(VoicechatServerApi api, AudioChannel audioChannel, Block block, Path soundFilePath, Collection<ServerPlayer> playersInRange) {
         try {
@@ -164,66 +109,6 @@ public class PlayerManager {
             for (ServerPlayer serverPlayer : playersInRange) {
                 Player bukkitPlayer = (Player) serverPlayer.getPlayer();
                 bukkitPlayer.sendMessage(ChatColor.RED + "Ошибка при воспроизведении диска!");
-            }
-            return null;
-        }
-    }
-
-    @Nullable
-    private de.maxhenkel.voicechat.api.audiochannel.AudioPlayer playChannelYt(VoicechatServerApi api, AudioChannel audioChannel, String YtUrl, Collection<ServerPlayer> playersInRange) {
-        try {
-            CompletableFuture<AudioTrack> trackFuture = new CompletableFuture<>();
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-            lavaPlayer.loadItem(YtUrl, new AudioLoadResultHandler() {
-                @Override
-                public void trackLoaded(AudioTrack audioTrack) {
-                    trackFuture.complete(audioTrack);
-                }
-
-                @Override
-                public void playlistLoaded(AudioPlaylist audioPlaylist) {
-
-                }
-
-                @Override
-                public void noMatches() {
-
-                }
-
-                @Override
-                public void loadFailed(FriendlyException e) {
-
-                }
-            });
-
-            AudioTrack audioTrack = trackFuture.get();
-            System.out.println("done?");
-            System.out.println("loaded "+audioTrack.getInfo().title);
-
-            com.sedmelluq.discord.lavaplayer.player.AudioPlayer player = lavaPlayer.createPlayer();
-            player.setVolume(1);
-            player.playTrack(audioTrack);
-
-            while (player.getPlayingTrack() != null) {
-                byte[] data;
-                try {
-                    data = player.provide().getData();
-                } catch (Exception e) {
-                    TimeUnit.MILLISECONDS.sleep(20);
-                    continue;
-                }
-
-                audioChannel.send(data);
-                TimeUnit.MILLISECONDS.sleep(20);
-            }
-
-            return null;
-        } catch (Exception e) {
-            for (ServerPlayer serverPlayer : playersInRange) {
-                Player bukkitPlayer = (Player) serverPlayer.getPlayer();
-                bukkitPlayer.sendMessage(ChatColor.RED + "Ошибка при воспроизведении диска!");
-                e.printStackTrace();
             }
             return null;
         }
