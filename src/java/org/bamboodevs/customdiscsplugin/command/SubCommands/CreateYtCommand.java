@@ -59,6 +59,7 @@ public class CreateYtCommand extends SubCommand {
                 //Sets the lore of the item to the quotes from the command.
                 ItemStack disc = new ItemStack(player.getInventory().getItemInMainHand());
                 ItemMeta meta = disc.getItemMeta();
+
                 @Nullable List<Component> itemLore = new ArrayList<>();
                 final TextComponent customLoreSong = Component.text()
                         .decoration(TextDecoration.ITALIC, false)

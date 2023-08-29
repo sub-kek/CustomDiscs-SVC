@@ -8,7 +8,6 @@ import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrackState;
 import com.sedmelluq.discord.lavaplayer.track.playback.AudioFrame;
 import de.maxhenkel.voicechat.api.ServerPlayer;
 import de.maxhenkel.voicechat.api.VoicechatServerApi;
@@ -35,7 +34,7 @@ public class YouTubePlayerManager {
 
     public YouTubePlayerManager() {
         this.playerMap = new ConcurrentHashMap<>();
-        this.executorService = Executors.newFixedThreadPool(100, r -> {
+        this.executorService = Executors.newSingleThreadExecutor(r -> {
             Thread thread = new Thread(r, "AudioPlayerYouTubeThread");
             thread.setDaemon(true);
             return thread;
