@@ -26,16 +26,15 @@ import java.util.concurrent.*;
 
 public class YouTubePlayer {
     private final AudioPlayerManager lavaPlayerManager = new DefaultAudioPlayerManager();
-    public ExecutorService executorService;
+    static ExecutorService executorService;
     public UUID uuid;
-    public static Map<UUID, YouTubePlayer> playerMap;
+    public static Map<UUID, YouTubePlayer> playerMap = new ConcurrentHashMap<>();;
     public AudioPlayer audioPlayer;
     public Block block;
 
     public YouTubePlayer(Block block) {
-        playerMap = new ConcurrentHashMap<>();
         executorService = Executors.newSingleThreadExecutor(r -> {
-            Thread thread = new Thread(r, "AudioPlayerYouTubeThread");
+            Thread thread = new Thread(r);
             thread.setDaemon(true);
             return thread;
         });
@@ -95,17 +94,16 @@ public class YouTubePlayer {
 
             AudioTrack audioTrack = trackFuture.get();
 
-            com.sedmelluq.discord.lavaplayer.player.AudioPlayer player = lavaPlayerManager.createPlayer();
             int volume = Math.round(Float.parseFloat(CustomDiscs.getInstance().getConfig().getString("music-disc-volume"))*100);
-            player.setVolume(volume);
-            player.playTrack(audioTrack);
+            audioPlayer.setVolume(volume);
+            audioPlayer.playTrack(audioTrack);
 
             executorService.execute(() -> {
                 long start = 0L;
 
-                while (player.getPlayingTrack() != null) {
+                while (audioPlayer.getPlayingTrack() != null) {
                     try {
-                        AudioFrame frame = player.provide(5L, TimeUnit.MILLISECONDS);
+                        AudioFrame frame = audioPlayer.provide(5L, TimeUnit.MILLISECONDS);
 
                         audioChannel.send(frame.getData());
 
@@ -137,27 +135,22 @@ public class YouTubePlayer {
         return playerMap.containsKey(id);
     }
 
-    private static YouTubePlayer instance;
-
     public static YouTubePlayer instance(Block block) {
-        if (instance == null) {
-            instance = new YouTubePlayer(block);
-        }
 
-        return instance;
+        return new YouTubePlayer(block);
     }
 
     public static void stopPlaying(Block block) {
-        UUID uuid = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
+        UUID _uuid = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
 
-        try {
-            YouTubePlayer tubePlayer = playerMap.get(uuid);
+        if (playerMap.containsKey(_uuid)) {
+            YouTubePlayer tubePlayer = playerMap.get(_uuid);
 
-            tubePlayer.executorService.shutdownNow();
             tubePlayer.audioPlayer.stopTrack();
             tubePlayer.audioPlayer.destroy();
+            executorService.shutdownNow();
 
-            playerMap.remove(uuid);
-        } catch (Exception ignored){}
+            playerMap.remove(tubePlayer.uuid);
+        }
     }
 }
