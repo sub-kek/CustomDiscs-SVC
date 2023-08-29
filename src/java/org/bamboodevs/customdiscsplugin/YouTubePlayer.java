@@ -19,84 +19,55 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
-public class YouTubePlayerManager {
-    private final Map<UUID, YouTubePlayerManager.Stoppable> playerMap;
+public class YouTubePlayer {
     private final AudioPlayerManager lavaPlayerManager = new DefaultAudioPlayerManager();
-    private final ExecutorService executorService;
+    public ExecutorService executorService;
+    public UUID uuid;
+    public static Map<UUID, YouTubePlayer> playerMap;
+    public AudioPlayer audioPlayer;
+    public Block block;
 
-    public YouTubePlayerManager() {
-        this.playerMap = new ConcurrentHashMap<>();
-        this.executorService = Executors.newSingleThreadExecutor(r -> {
+    public YouTubePlayer(Block block) {
+        playerMap = new ConcurrentHashMap<>();
+        executorService = Executors.newSingleThreadExecutor(r -> {
             Thread thread = new Thread(r, "AudioPlayerYouTubeThread");
             thread.setDaemon(true);
             return thread;
         });
         lavaPlayerManager.registerSourceManager(new YoutubeAudioSourceManager());
+        audioPlayer = lavaPlayerManager.createPlayer();
+        uuid = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
+        this.block = block;
+        playerMap.put(uuid, this);
     }
 
 
-    public void playLocationalAudioYoutube(VoicechatServerApi api, String ytUrl, Block block, Component actionbarComponent) {
-        UUID id = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
-
-        LocationalAudioChannel audioChannel = api.createLocationalAudioChannel(id, api.fromServerLevel(block.getWorld()), api.createPosition(block.getLocation().getX() + 0.5d, block.getLocation().getY() + 0.5d, block.getLocation().getZ() + 0.5d));
+    public void playLocationalAudioYoutube(VoicechatServerApi api, String ytUrl, Component actionbarComponent) {
+        LocationalAudioChannel audioChannel = api.createLocationalAudioChannel(uuid, api.fromServerLevel(block.getWorld()), api.createPosition(block.getLocation().getX() + 0.5d, block.getLocation().getY() + 0.5d, block.getLocation().getZ() + 0.5d));
 
         if (audioChannel == null) return;
 
         audioChannel.setCategory(VoicePlugin.MUSIC_DISC_CATEGORY);
         audioChannel.setDistance(CustomDiscs.getInstance().getConfig().getInt("music-disc-distance"));
 
-        AtomicBoolean stopped = new AtomicBoolean();
-        AtomicReference<AudioPlayer> player = new AtomicReference<>();
-
-        playerMap.put(id, () -> {
-            synchronized (stopped) {
-                stopped.set(true);
-                AudioPlayer audioPlayer = player.get();
-                if (audioPlayer != null) {
-                    audioPlayer.getPlayingTrack().stop();
-                    audioPlayer.stopTrack();
-                    audioPlayer.destroy();
-                }
-            }
-        });
-
         executorService.execute(() -> {
             Collection<ServerPlayer> playersInRange = api.getPlayersInRange(api.fromServerLevel(block.getWorld()), api.createPosition(block.getLocation().getX() + 0.5d, block.getLocation().getY() + 0.5d, block.getLocation().getZ() + 0.5d), CustomDiscs.getInstance().getConfig().getInt("music-disc-distance"));
 
-            AudioPlayer audioPlayer = playChannelYt(audioChannel, ytUrl, playersInRange);
+            playChannelYt(audioChannel, ytUrl, playersInRange);
 
             for (ServerPlayer serverPlayer : playersInRange) {
                 Player bukkitPlayer = (Player) serverPlayer.getPlayer();
                 bukkitPlayer.sendActionBar(actionbarComponent);
             }
-
-            if (audioPlayer == null) {
-                playerMap.remove(id);
-                return;
-            }
-
-            synchronized (stopped) {
-                if (!stopped.get()) {
-                    player.set(audioPlayer);
-                } else {
-                    audioPlayer.getPlayingTrack().stop();
-                    audioPlayer.stopTrack();
-                    audioPlayer.destroy();
-                }
-            }
         });
     }
 
-    @Nullable
-    private com.sedmelluq.discord.lavaplayer.player.AudioPlayer playChannelYt(AudioChannel audioChannel, String YtUrl, Collection<ServerPlayer> playersInRange) {
+    private void playChannelYt(AudioChannel audioChannel, String YtUrl, Collection<ServerPlayer> playersInRange) {
         try {
             CompletableFuture<AudioTrack> trackFuture = new CompletableFuture<>();
 
@@ -152,24 +123,13 @@ public class YouTubePlayerManager {
                 }
             });
 
-            return player;
         } catch (Exception e) {
             for (ServerPlayer serverPlayer : playersInRange) {
                 Player bukkitPlayer = (Player) serverPlayer.getPlayer();
                 bukkitPlayer.sendMessage(ChatColor.RED + "Ошибка при воспроизведении диска!");
                 e.printStackTrace();
             }
-            return null;
         }
-    }
-
-    public void stopLocationalAudio(Location blockLocation) {
-        UUID id = UUID.nameUUIDFromBytes(blockLocation.toString().getBytes());
-        YouTubePlayerManager.Stoppable player = playerMap.get(id);
-        if (player != null) {
-            player.stop();
-        }
-        playerMap.remove(id);
     }
 
     public boolean isAudioPlayerPlaying(Location blockLocation) {
@@ -177,16 +137,27 @@ public class YouTubePlayerManager {
         return playerMap.containsKey(id);
     }
 
-    private static YouTubePlayerManager instance;
+    private static YouTubePlayer instance;
 
-    public static YouTubePlayerManager instance() {
+    public static YouTubePlayer instance(Block block) {
         if (instance == null) {
-            instance = new YouTubePlayerManager();
+            instance = new YouTubePlayer(block);
         }
+
         return instance;
     }
 
-    private interface Stoppable {
-        void stop();
+    public static void stopPlaying(Block block) {
+        UUID uuid = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
+
+        try {
+            YouTubePlayer tubePlayer = playerMap.get(uuid);
+
+            tubePlayer.executorService.shutdownNow();
+            tubePlayer.audioPlayer.stopTrack();
+            tubePlayer.audioPlayer.destroy();
+
+            playerMap.remove(uuid);
+        } catch (Exception ignored){}
     }
 }

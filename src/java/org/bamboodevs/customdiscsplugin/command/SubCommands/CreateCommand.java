@@ -80,6 +80,9 @@ public class CreateCommand extends SubCommand {
                 //Sets the lore of the item to the quotes from the command.
                 ItemStack disc = new ItemStack(player.getInventory().getItemInMainHand());
                 ItemMeta meta = disc.getItemMeta();
+
+                meta.setDisplayName("§rМузыкальная пластинка");
+
                 @Nullable List<Component> itemLore = new ArrayList<>();
                 final TextComponent customLoreSong = Component.text()
                         .decoration(TextDecoration.ITALIC, false)
@@ -91,6 +94,9 @@ public class CreateCommand extends SubCommand {
                 meta.lore(itemLore);
 
                 PersistentDataContainer data = meta.getPersistentDataContainer();
+                NamespacedKey discYtMeta = new NamespacedKey(CustomDiscs.getInstance(), "customdiscyt");
+                if (data.has(discYtMeta, PersistentDataType.STRING))
+                    data.remove(new NamespacedKey(CustomDiscs.getInstance(), "customdiscyt"));
                 data.set(new NamespacedKey(CustomDiscs.getInstance(), "customdisc"), PersistentDataType.STRING, filename);
 
                 player.getInventory().getItemInMainHand().setItemMeta(meta);

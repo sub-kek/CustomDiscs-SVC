@@ -7,7 +7,7 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bamboodevs.customdiscsplugin.CustomDiscs;
 import org.bamboodevs.customdiscsplugin.PlayerManager;
 import org.bamboodevs.customdiscsplugin.VoicePlugin;
-import org.bamboodevs.customdiscsplugin.YouTubePlayerManager;
+import org.bamboodevs.customdiscsplugin.YouTubePlayer;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -33,7 +33,6 @@ public class JukeBox implements Listener{
 
     CustomDiscs customDiscs = CustomDiscs.getInstance();
     PlayerManager playerManager = PlayerManager.instance();
-    YouTubePlayerManager youTubePlayerManager = YouTubePlayerManager.instance();
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onInsert(PlayerInteractEvent event) throws IOException {
@@ -73,6 +72,11 @@ public class JukeBox implements Listener{
         }
 
         if (isYouTubeCustomDisc && !jukeboxContainsDisc(block)) {
+            if (!player.hasPermission("customdiscs.playt")) {
+                player.sendMessage("§cКупите премиум для воспроизведения дисков с ютуба");
+                return;
+            }
+
             String soundLink = event.getItem().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(customDiscs, "customdiscyt"), PersistentDataType.STRING);
 
             System.out.println(soundLink);
@@ -86,7 +90,7 @@ public class JukeBox implements Listener{
                     .build();
 
             assert VoicePlugin.voicechatServerApi != null;
-            youTubePlayerManager.playLocationalAudioYoutube(VoicePlugin.voicechatServerApi, soundLink, block, customActionBarSongPlaying);
+            YouTubePlayer.instance(block).playLocationalAudioYoutube(VoicePlugin.voicechatServerApi, soundLink, customActionBarSongPlaying);
         }
     }
 
@@ -120,7 +124,7 @@ public class JukeBox implements Listener{
 
             if (jukeboxContainsDisc(block)) {
                 stopDisc(block);
-                stopYtDisc(block);
+                YouTubePlayer.stopPlaying(block);
             }
         }
     }
@@ -129,12 +133,11 @@ public class JukeBox implements Listener{
     public void onJukeboxBreak(BlockBreakEvent event) {
 
         Block block = event.getBlock();
-        Player player = event.getPlayer();
 
         if (block.getType() != Material.JUKEBOX) return;
 
         stopDisc(block);
-        stopYtDisc(block);
+        YouTubePlayer.stopPlaying(block);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -143,7 +146,7 @@ public class JukeBox implements Listener{
         for (Block explodedBlock : event.blockList()) {
             if (explodedBlock.getType() == Material.JUKEBOX) {
                 stopDisc(explodedBlock);
-                stopYtDisc(explodedBlock);
+                YouTubePlayer.stopPlaying(explodedBlock);
             }
         }
 
@@ -200,9 +203,5 @@ public class JukeBox implements Listener{
 
     private void stopDisc(Block block) {
         playerManager.stopLocationalAudio(block.getLocation());
-    }
-
-    private void stopYtDisc(Block block) {
-        youTubePlayerManager.stopLocationalAudio(block.getLocation());
     }
 }

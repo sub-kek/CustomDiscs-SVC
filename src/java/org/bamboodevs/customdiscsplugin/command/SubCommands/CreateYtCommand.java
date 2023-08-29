@@ -60,6 +60,8 @@ public class CreateYtCommand extends SubCommand {
                 ItemStack disc = new ItemStack(player.getInventory().getItemInMainHand());
                 ItemMeta meta = disc.getItemMeta();
 
+                meta.setDisplayName("§rYouTube пластинка");
+
                 @Nullable List<Component> itemLore = new ArrayList<>();
                 final TextComponent customLoreSong = Component.text()
                         .decoration(TextDecoration.ITALIC, false)
@@ -73,6 +75,9 @@ public class CreateYtCommand extends SubCommand {
                 String youtubeUrl = args[1];
 
                 PersistentDataContainer data = meta.getPersistentDataContainer();
+                NamespacedKey discMeta = new NamespacedKey(CustomDiscs.getInstance(), "customdisc");
+                if (data.has(discMeta, PersistentDataType.STRING))
+                    data.remove(new NamespacedKey(CustomDiscs.getInstance(), "customdisc"));
                 data.set(new NamespacedKey(CustomDiscs.getInstance(), "customdiscyt"), PersistentDataType.STRING, youtubeUrl);
 
                 player.getInventory().getItemInMainHand().setItemMeta(meta);

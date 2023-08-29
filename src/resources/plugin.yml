@@ -31,3 +31,9 @@ permissions:
     default: op
   customdiscs.create:
     default: op
+  customdiscs.createyt:
+    default: op
+  customdiscs.reload:
+    default: op
+  customdiscs.playt:
+    default: op
