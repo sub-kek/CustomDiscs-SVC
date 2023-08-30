@@ -43,7 +43,7 @@ public class CreateYtCommand extends SubCommand {
             if (args.length >= 3) {
 
                 if (!player.hasPermission("customdiscs.createyt")) {
-                    player.sendMessage(ChatColor.RED + "Привилегия премиум и больше может использовать эту команду");
+                    player.sendMessage(ChatColor.RED + "Привилегия премиум и больше может создавать диски с YouTube");
                     return;
                 }
 
@@ -60,7 +60,7 @@ public class CreateYtCommand extends SubCommand {
                 ItemStack disc = new ItemStack(player.getInventory().getItemInMainHand());
 
                 if (isBurned(disc)) {
-                    player.sendMessage("§fНа записанный или необработанный очищеный диск нельзя записать музыку");
+                    player.sendMessage("§fНа записанный или необработанный очищеный диск нельзя записать музыку §3/cd для инструкций");
                     return;
                 }
 

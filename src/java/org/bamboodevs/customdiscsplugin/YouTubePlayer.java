@@ -34,7 +34,7 @@ public class YouTubePlayer extends Thread {
     private Collection<ServerPlayer> playersInRange;
 
     public YouTubePlayer(Block block) {
-        lavaPlayerManager.registerSourceManager(new YoutubeAudioSourceManager(true));
+        lavaPlayerManager.registerSourceManager(new YoutubeAudioSourceManager());
         audioPlayer = lavaPlayerManager.createPlayer();
         uuid = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
         this.block = block;
@@ -79,20 +79,22 @@ public class YouTubePlayer extends Thread {
 
                 @Override
                 public void noMatches() {
-                    stopPlaying(block);
                     for (ServerPlayer serverPlayer : playersInRange) {
                         Player bukkitPlayer = (Player) serverPlayer.getPlayer();
                         bukkitPlayer.sendMessage(ChatColor.RED + "Совпадений по URL не найдено");
                     }
+                    trackFuture.cancel(true);
+                    stopPlaying(block);
                 }
 
                 @Override
                 public void loadFailed(FriendlyException e) {
-                    stopPlaying(block);
                     for (ServerPlayer serverPlayer : playersInRange) {
                         Player bukkitPlayer = (Player) serverPlayer.getPlayer();
                         bukkitPlayer.sendMessage(ChatColor.RED + "Ошибка загрузки видео!");
                     }
+                    trackFuture.cancel(true);
+                    stopPlaying(block);
                 }
             });
 

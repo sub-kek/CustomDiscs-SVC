@@ -81,7 +81,7 @@ public class CreateCommand extends SubCommand {
                 ItemStack disc = new ItemStack(player.getInventory().getItemInMainHand());
 
                 if (isBurned(disc)) {
-                    player.sendMessage("§fНа записанный или необработанный очищеный диск нельзя записать музыку");
+                    player.sendMessage("§fНа записанный или необработанный очищеный диск нельзя записать музыку §3/cd для инструкций");
                     return;
                 }
 

@@ -49,6 +49,7 @@ public class CommandManager implements CommandExecutor, TabCompleter {
             for (int i = 0; i < getSubCommands().size(); i++) {
                 player.sendMessage(getSubCommands().get(i).getSyntax() + "§f: " + getSubCommands().get(i).getDescription());
             }
+            player.sendMessage("§7Чтобы обработать пластинку. Поставьте ее в рамку -> ПКМ любым топором начиная от железного -> Поставте очищенную пластинку в рамку -> ПКМ светокаменной пылью -> Получите пластинку на которую можно повторно записать музыку :)");
             player.sendMessage("\n");
             return true;
         }
