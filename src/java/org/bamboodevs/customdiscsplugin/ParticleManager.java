@@ -27,7 +27,7 @@ public class ParticleManager extends BukkitRunnable {
         @Override
         public void run() {
 
-                if (!playerManager.isAudioPlayerPlaying(jukebox.getLocation())) {
+                if (!YouTubePlayer.isAudioPlayerPlaying(jukebox.getLocation()) && !playerManager.isAudioPlayerPlaying(jukebox.getLocation())) {
                     locationParticleManager.remove(jukebox.getLocation());
                     cancel();
                 } else {

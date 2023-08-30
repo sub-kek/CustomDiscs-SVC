@@ -73,7 +73,7 @@ public class JukeBox implements Listener{
 
         if (isYouTubeCustomDisc && !jukeboxContainsDisc(block)) {
             if (!player.hasPermission("customdiscs.playt")) {
-                player.sendMessage("§cКупите премиум для воспроизведения дисков с ютуба");
+                player.sendMessage("§cПривелегия премиум и больше может воспроизводить диски с YouTube");
                 return;
             }
 

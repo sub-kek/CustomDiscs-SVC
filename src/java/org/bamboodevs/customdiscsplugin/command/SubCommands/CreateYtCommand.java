@@ -42,8 +42,8 @@ public class CreateYtCommand extends SubCommand {
         if (isMusicDisc(player)) {
             if (args.length >= 3) {
 
-                if (!player.hasPermission("customdiscs.creatyt")) {
-                    player.sendMessage(ChatColor.RED + "У вас нет прав на использовать эту команду!");
+                if (!player.hasPermission("customdiscs.createyt")) {
+                    player.sendMessage(ChatColor.RED + "Привилегия премиум и больше может использовать эту команду");
                     return;
                 }
 
@@ -58,6 +58,12 @@ public class CreateYtCommand extends SubCommand {
 
                 //Sets the lore of the item to the quotes from the command.
                 ItemStack disc = new ItemStack(player.getInventory().getItemInMainHand());
+
+                if (isBurned(disc)) {
+                    player.sendMessage("§fНа записанный или необработанный очищеный диск нельзя записать музыку");
+                    return;
+                }
+
                 ItemMeta meta = disc.getItemMeta();
 
                 meta.setDisplayName("§rYouTube пластинка");
@@ -152,4 +158,19 @@ public class CreateYtCommand extends SubCommand {
                 p.getInventory().getItemInMainHand().getType().equals(Material.MUSIC_DISC_PIGSTEP);
     }
 
+    private boolean isBurned(ItemStack item) {
+        if (!item.hasItemMeta()) return false;
+
+        ItemMeta itemMeta = item.getItemMeta();
+        PersistentDataContainer data = itemMeta.getPersistentDataContainer();
+
+        if (data.has(new NamespacedKey(CustomDiscs.getInstance(), "cleared"), PersistentDataType.STRING)) {
+            return  data.get(new NamespacedKey(CustomDiscs.getInstance(), "cleared"), PersistentDataType.STRING).equals("true") ||
+                    data.has(new NamespacedKey(CustomDiscs.getInstance(), "customdisc"), PersistentDataType.STRING) ||
+                    data.has(new NamespacedKey(CustomDiscs.getInstance(), "customdiscyt"), PersistentDataType.STRING);
+        }
+
+        return  data.has(new NamespacedKey(CustomDiscs.getInstance(), "customdisc"), PersistentDataType.STRING) ||
+                data.has(new NamespacedKey(CustomDiscs.getInstance(), "customdiscyt"), PersistentDataType.STRING);
+    }
 }

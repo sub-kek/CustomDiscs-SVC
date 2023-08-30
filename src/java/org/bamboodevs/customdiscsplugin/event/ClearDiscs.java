@@ -1,7 +1,9 @@
 package org.bamboodevs.customdiscsplugin.event;
 
+import org.bamboodevs.customdiscsplugin.CustomDiscs;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ItemFrame;
@@ -12,6 +14,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 
 public class ClearDiscs implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
@@ -24,22 +28,45 @@ public class ClearDiscs implements Listener {
         ItemFrame itemFrame = (ItemFrame) clickedEntity;
 
         if (!isMusicDisc(itemFrame.getItem())) return;
-        if (!isAxe(player)) return;
 
-        ItemStack newItem = new ItemStack(itemFrame.getItem().getType());
-        ItemMeta itemMeta = newItem.getItemMeta();
-        itemMeta.setDisplayName("§rОчищеная пластинка");
-        newItem.setItemMeta(itemMeta);
+        if (isAxe(player)) {
+            ItemStack newItem = new ItemStack(itemFrame.getItem().getType());
+            ItemMeta itemMeta = newItem.getItemMeta();
+            itemMeta.setDisplayName("§rОчищеная пластинка");
+            itemMeta.getPersistentDataContainer().set(new NamespacedKey(CustomDiscs.getInstance(), "cleared"), PersistentDataType.STRING, "true");
+            newItem.setItemMeta(itemMeta);
 
-        itemFrame.setItem(new ItemStack(Material.AIR));
+            itemFrame.setItem(new ItemStack(Material.AIR));
 
-        Location location = itemFrame.getLocation();
+            Location location = itemFrame.getLocation();
+            Entity itemEntity = location.getWorld().dropItem(location, newItem);
+            itemEntity.setVelocity(player.getFacing().getDirection().multiply(-0.2));
 
-        Entity itemEntity = location.getWorld().dropItem(location, newItem);
+            event.setCancelled(true);
+        }
 
-        itemEntity.setVelocity(player.getFacing().getDirection().multiply(-0.2));
+        if (player.getInventory().getItemInMainHand().getType().equals(Material.GLOWSTONE_DUST)) {
+            ItemStack item = itemFrame.getItem();
 
-        event.setCancelled(true);
+            if (!item.hasItemMeta()) return;
+
+            ItemMeta itemMeta = item.getItemMeta();
+            PersistentDataContainer data = itemMeta.getPersistentDataContainer();
+
+            if (!data.get(new NamespacedKey(CustomDiscs.getInstance(), "cleared"), PersistentDataType.STRING).equals("true")) return;
+
+            data.set(new NamespacedKey(CustomDiscs.getInstance(), "cleared"), PersistentDataType.STRING, "false");
+            itemMeta.setDisplayName("§rОбработанная пластинка");
+            item.setItemMeta(itemMeta);
+
+            itemFrame.setItem(new ItemStack(Material.AIR));
+
+            Location location = itemFrame.getLocation();
+            Entity itemEntity = location.getWorld().dropItem(location, item);
+            itemEntity.setVelocity(player.getFacing().getDirection().multiply(-0.2));
+
+            event.setCancelled(true);
+        }
     }
 
     private boolean isMusicDisc(ItemStack item) {
