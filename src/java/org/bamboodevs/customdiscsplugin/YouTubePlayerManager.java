@@ -23,17 +23,17 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.*;
 
-public class YouTubePlayer extends Thread {
+public class YouTubePlayerManager extends Thread {
     private final AudioPlayerManager lavaPlayerManager = new DefaultAudioPlayerManager();
     public UUID uuid;
-    public static Map<UUID, YouTubePlayer> playerMap = new ConcurrentHashMap<>();
+    public static Map<UUID, YouTubePlayerManager> playerMap = new ConcurrentHashMap<>();
     public AudioPlayer audioPlayer;
     public Block block;
     private LocationalAudioChannel audioChannel;
     private String ytUrl;
     private Collection<ServerPlayer> playersInRange;
 
-    public YouTubePlayer(Block block) {
+    public YouTubePlayerManager(Block block) {
         lavaPlayerManager.registerSourceManager(new YoutubeAudioSourceManager());
         audioPlayer = lavaPlayerManager.createPlayer();
         uuid = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
@@ -74,7 +74,12 @@ public class YouTubePlayer extends Thread {
 
                 @Override
                 public void playlistLoaded(AudioPlaylist audioPlaylist) {
-
+                    for (ServerPlayer serverPlayer : playersInRange) {
+                        Player bukkitPlayer = (Player) serverPlayer.getPlayer();
+                        bukkitPlayer.sendMessage(ChatColor.RED + "Невозможно воспроизвести плейлист");
+                    }
+                    trackFuture.complete(null);
+                    stopPlaying(block);
                 }
 
                 @Override
@@ -83,7 +88,7 @@ public class YouTubePlayer extends Thread {
                         Player bukkitPlayer = (Player) serverPlayer.getPlayer();
                         bukkitPlayer.sendMessage(ChatColor.RED + "Совпадений по URL не найдено");
                     }
-                    trackFuture.cancel(true);
+                    trackFuture.complete(null);
                     stopPlaying(block);
                 }
 
@@ -93,10 +98,13 @@ public class YouTubePlayer extends Thread {
                         Player bukkitPlayer = (Player) serverPlayer.getPlayer();
                         bukkitPlayer.sendMessage(ChatColor.RED + "Ошибка загрузки видео!");
                     }
-                    trackFuture.cancel(true);
+                    trackFuture.complete(null);
                     stopPlaying(block);
                 }
             });
+
+            if (isInterrupted())
+                return;
 
             AudioTrack audioTrack = trackFuture.get();
 
@@ -137,19 +145,17 @@ public class YouTubePlayer extends Thread {
         return playerMap.containsKey(id);
     }
 
-    public static YouTubePlayer instance(Block block) {
-
-        return new YouTubePlayer(block);
+    public static YouTubePlayerManager instance(Block block) {
+        return new YouTubePlayerManager(block);
     }
 
     public static void stopPlaying(Block block) {
         UUID _uuid = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
 
         if (playerMap.containsKey(_uuid)) {
-            YouTubePlayer tubePlayer = playerMap.get(_uuid);
+            YouTubePlayerManager tubePlayer = playerMap.get(_uuid);
             playerMap.remove(tubePlayer.uuid);
 
-            tubePlayer.audioPlayer.stopTrack();
             tubePlayer.audioPlayer.destroy();
             tubePlayer.interrupt();
         }

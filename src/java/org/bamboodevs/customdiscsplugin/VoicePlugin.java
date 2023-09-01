@@ -57,7 +57,6 @@ public class VoicePlugin implements VoicechatPlugin {
         musicDiscs = voicechatServerApi.volumeCategoryBuilder()
                 .setId(MUSIC_DISC_CATEGORY)
                 .setName("Music Discs")
-                .setDescription("The volume of music discs")
                 .setIcon(getMusicDiscIcon())
                 .build();
         voicechatServerApi.registerVolumeCategory(musicDiscs);

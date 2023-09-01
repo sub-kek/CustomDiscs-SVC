@@ -46,6 +46,10 @@ public class ClearDiscs implements Listener {
         }
 
         if (player.getInventory().getItemInMainHand().getType().equals(Material.GLOWSTONE_DUST)) {
+            ItemStack handItemStack = player.getInventory().getItemInMainHand();
+            handItemStack.setAmount(handItemStack.getAmount() - 1);
+            player.getInventory().setItemInMainHand(handItemStack);
+
             ItemStack item = itemFrame.getItem();
 
             if (!item.hasItemMeta()) return;
