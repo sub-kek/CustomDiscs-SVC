@@ -76,7 +76,7 @@ public class YouTubePlayerManager extends Thread {
                 public void playlistLoaded(AudioPlaylist audioPlaylist) {
                     for (ServerPlayer serverPlayer : playersInRange) {
                         Player bukkitPlayer = (Player) serverPlayer.getPlayer();
-                        bukkitPlayer.sendMessage(ChatColor.RED + "Невозможно воспроизвести плейлист");
+                        bukkitPlayer.sendMessage(ChatColor.RED + "Невозможно воспроизвести плейлист!");
                     }
                     trackFuture.complete(null);
                     stopPlaying(block);
@@ -86,7 +86,7 @@ public class YouTubePlayerManager extends Thread {
                 public void noMatches() {
                     for (ServerPlayer serverPlayer : playersInRange) {
                         Player bukkitPlayer = (Player) serverPlayer.getPlayer();
-                        bukkitPlayer.sendMessage(ChatColor.RED + "Совпадений по URL не найдено");
+                        bukkitPlayer.sendMessage(ChatColor.RED + "Совпадений по URL не найдено!");
                     }
                     trackFuture.complete(null);
                     stopPlaying(block);
