@@ -58,7 +58,7 @@ public class AssetsDownloader {
                     });
                 }
             } catch (Throwable e) {
-                System.out.println("Error while downloading libraries");
+                plugin.getSLF4JLogger().error("Error while downloading libraries");
                 e.printStackTrace();
             }
 

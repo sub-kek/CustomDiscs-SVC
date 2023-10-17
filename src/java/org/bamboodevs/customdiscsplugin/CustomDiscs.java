@@ -42,6 +42,8 @@ public final class CustomDiscs extends JavaPlugin {
     public void onEnable() {
         CustomDiscs.instance = this;
 
+        getDataFolder().mkdirs();
+
         AssetsDownloader.loadLibraries(getDataFolder());
 
         config = new CustomDiscsConfig();

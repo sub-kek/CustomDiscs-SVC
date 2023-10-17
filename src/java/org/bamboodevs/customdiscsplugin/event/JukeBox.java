@@ -83,14 +83,11 @@ public class JukeBox implements Listener{
 
             String soundLink = event.getItem().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(plugin, "customdiscyt"), PersistentDataType.STRING);
 
-            System.out.println(soundLink);
-
             Component songNameComponent = Objects.requireNonNull(event.getItem().getItemMeta().lore()).get(0).asComponent();
             String songName = PlainTextComponentSerializer.plainText().serialize(songNameComponent);
 
             TextComponent customActionBarSongPlaying = Component.text()
-                    .content("Сейчас играет: " + songName)
-                    .color(NamedTextColor.GOLD)
+                    .content(Formatter.format(plugin.language.get("now-playing"), songName))
                     .build();
 
             assert VoicePlugin.voicechatServerApi != null;
