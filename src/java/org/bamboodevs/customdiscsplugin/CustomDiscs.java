@@ -12,8 +12,11 @@ import de.maxhenkel.voicechat.api.BukkitVoicechatService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bamboodevs.customdiscsplugin.command.CommandManager;
+import org.bamboodevs.customdiscsplugin.config.CustomDiscsConfig;
 import org.bamboodevs.customdiscsplugin.event.ClearDiscs;
 import org.bamboodevs.customdiscsplugin.event.JukeBox;
+import org.bamboodevs.customdiscsplugin.language.FileLanguage;
+import org.bamboodevs.customdiscsplugin.libs.AssetsDownloader;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -23,27 +26,31 @@ import org.bukkit.block.Jukebox;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import javax.annotation.Nullable;
 import java.io.File;
 
 
 public final class CustomDiscs extends JavaPlugin {
-
+    public String defaultResourceHash = "N/A";
     public static final String PLUGIN_ID = "CustomDiscs";
     public static final Logger LOGGER = LogManager.getLogger(PLUGIN_ID);
-    static CustomDiscs instance;
-
-    @Nullable
+    private static CustomDiscs instance = null;
     private VoicePlugin voicechatPlugin;
+    public CustomDiscsConfig config = null;
+    public FileLanguage language = null;
 
     @Override
     public void onEnable() {
-
         CustomDiscs.instance = this;
 
-        BukkitVoicechatService service = getServer().getServicesManager().load(BukkitVoicechatService.class);
+        AssetsDownloader.loadLibraries(getDataFolder());
 
-        this.saveDefaultConfig();
+        config = new CustomDiscsConfig();
+        config.init();
+
+        language = new FileLanguage();
+        language.init(config.getLocale());
+
+        BukkitVoicechatService service = getServer().getServicesManager().load(BukkitVoicechatService.class);
 
         File musicData = new File(this.getDataFolder(), "musicdata");
         if (!(musicData.exists())) {
@@ -53,9 +60,9 @@ public final class CustomDiscs extends JavaPlugin {
         if (service != null) {
             voicechatPlugin = new VoicePlugin();
             service.registerPlugin(voicechatPlugin);
-            LOGGER.info("Successfully registered CustomDiscs plugin");
+            LOGGER.info("Successfully enabled CustomDiscs plugin");
         } else {
-            LOGGER.info("Failed to register CustomDiscs plugin");
+            LOGGER.error("Failed to enable CustomDiscs plugin");
         }
 
         getServer().getPluginManager().registerEvents(new JukeBox(), this);
@@ -90,7 +97,7 @@ public final class CustomDiscs extends JavaPlugin {
                         event.setCancelled(true);
                     }
 
-                    //Spawn particles if there isnt any music playing at this location.
+                    //Spawn particles if there isn't any music playing at this location.
                     ParticleManager.start(jukebox);
                 }
             }
@@ -102,12 +109,11 @@ public final class CustomDiscs extends JavaPlugin {
     public void onDisable() {
         if (voicechatPlugin != null) {
             getServer().getServicesManager().unregister(voicechatPlugin);
-            LOGGER.info("Successfully unregistered CustomDiscs plugin");
+            LOGGER.info("Successfully disabled CustomDiscs plugin");
         }
     }
 
     public static CustomDiscs getInstance() {
         return instance;
     }
-
 }

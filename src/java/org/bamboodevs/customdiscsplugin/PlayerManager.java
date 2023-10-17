@@ -8,6 +8,7 @@ import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
 import javazoom.spi.mpeg.sampled.convert.MpegFormatConversionProvider;
 import javazoom.spi.mpeg.sampled.file.MpegAudioFileReader;
 import net.kyori.adventure.text.Component;
+import org.bamboodevs.customdiscsplugin.utils.Formatter;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -15,13 +16,11 @@ import org.bukkit.entity.Player;
 import org.jflac.sound.spi.Flac2PcmAudioInputStream;
 import org.jflac.sound.spi.FlacAudioFileReader;
 
-import javax.annotation.Nullable;
 import javax.sound.sampled.*;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -30,7 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class PlayerManager {
-
+    private final CustomDiscs plugin = CustomDiscs.getInstance();
     private final Map<UUID, Stoppable> playerMap;
     private final ExecutorService executorService;
     private static final AudioFormat FORMAT = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 48000F, 16, 1, 2, 48000F, false);
@@ -52,7 +51,7 @@ public class PlayerManager {
         if (audioChannel == null) return;
 
         audioChannel.setCategory(VoicePlugin.MUSIC_DISC_CATEGORY);
-        audioChannel.setDistance(CustomDiscs.getInstance().getConfig().getInt("music-disc-distance"));
+        audioChannel.setDistance(plugin.config.getMusicDiscDistance());
 
         AtomicBoolean stopped = new AtomicBoolean();
         AtomicReference<de.maxhenkel.voicechat.api.audiochannel.AudioPlayer> player = new AtomicReference<>();
@@ -68,7 +67,7 @@ public class PlayerManager {
         });
 
         executorService.execute(() -> {
-            Collection<ServerPlayer> playersInRange = api.getPlayersInRange(api.fromServerLevel(block.getWorld()), api.createPosition(block.getLocation().getX() + 0.5d, block.getLocation().getY() + 0.5d, block.getLocation().getZ() + 0.5d), CustomDiscs.getInstance().getConfig().getInt("music-disc-distance"));
+            Collection<ServerPlayer> playersInRange = api.getPlayersInRange(api.fromServerLevel(block.getWorld()), api.createPosition(block.getLocation().getX() + 0.5d, block.getLocation().getY() + 0.5d, block.getLocation().getZ() + 0.5d), plugin.config.getMusicDiscDistance());
 
             de.maxhenkel.voicechat.api.audiochannel.AudioPlayer audioPlayer = playChannel(api, audioChannel, block, soundFilePath, playersInRange);
 
@@ -92,7 +91,6 @@ public class PlayerManager {
         });
     }
 
-    @Nullable
     private de.maxhenkel.voicechat.api.audiochannel.AudioPlayer playChannel(VoicechatServerApi api, AudioChannel audioChannel, Block block, Path soundFilePath, Collection<ServerPlayer> playersInRange) {
         try {
             short[] audio = readSoundFile(soundFilePath);
@@ -102,17 +100,17 @@ public class PlayerManager {
         } catch (Exception e) {
             for (ServerPlayer serverPlayer : playersInRange) {
                 Player bukkitPlayer = (Player) serverPlayer.getPlayer();
-                bukkitPlayer.sendMessage(ChatColor.RED + "Ошибка при воспроизведении диска!");
+                bukkitPlayer.sendMessage(Formatter.format(plugin.language.get("disc-play-error"), true));
             }
             return null;
         }
     }
 
-    private static short[] readSoundFile(Path file) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+    private short[] readSoundFile(Path file) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
         return VoicePlugin.voicechatApi.getAudioConverter().bytesToShorts(convertFormat(file, FORMAT));
     }
 
-    private static byte[] convertFormat(Path file, AudioFormat audioFormat) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+    private byte[] convertFormat(Path file, AudioFormat audioFormat) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
         AudioInputStream finalInputStream = null;
 
         if (getFileExtension(file.toFile().toString()).equals("wav")) {
@@ -136,13 +134,13 @@ public class PlayerManager {
 
         assert finalInputStream != null;
 
-        return adjustVolume(finalInputStream.readAllBytes(), Float.parseFloat(Objects.requireNonNull(CustomDiscs.getInstance().getConfig().getString("music-disc-volume"))));
+        return adjustVolume(finalInputStream.readAllBytes(), plugin.config.getMusicDiscVolume());
     }
 
-    private static byte[] adjustVolume(byte[] audioSamples, double volume) {
+    private byte[] adjustVolume(byte[] audioSamples, double volume) {
 
         if (volume > 1d || volume < 0d) {
-            CustomDiscs.getInstance().getServer().getLogger().severe("The volume must be between 0 and 1 in the config!");
+            plugin.getServer().getLogger().severe("The volume must be between 0 and 1 in the config!");
             return null;
         }
 
@@ -176,7 +174,7 @@ public class PlayerManager {
         playerMap.remove(id);
     }
 
-    public static float getLengthSeconds(Path file) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+    public float getLengthSeconds(Path file) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
         short[] audio = readSoundFile(file);
         return (float) audio.length / FORMAT.getSampleRate();
     }
@@ -186,7 +184,7 @@ public class PlayerManager {
         return playerMap.containsKey(id);
     }
 
-    private static String getFileExtension(String s) {
+    private String getFileExtension(String s) {
         int index = s.lastIndexOf(".");
         if (index > 0) {
             return s.substring(index + 1);
@@ -207,5 +205,4 @@ public class PlayerManager {
     private interface Stoppable {
         void stop();
     }
-
 }

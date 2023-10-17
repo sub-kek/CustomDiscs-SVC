@@ -7,7 +7,6 @@ import de.maxhenkel.voicechat.api.VolumeCategory;
 import de.maxhenkel.voicechat.api.events.EventRegistration;
 import de.maxhenkel.voicechat.api.events.VoicechatServerStartedEvent;
 
-import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.net.URL;
@@ -18,9 +17,7 @@ public class VoicePlugin implements VoicechatPlugin {
     public static String MUSIC_DISC_CATEGORY = "music_discs";
 
     public static VoicechatApi voicechatApi;
-    @Nullable
     public static VoicechatServerApi voicechatServerApi;
-    @Nullable
     public static VolumeCategory musicDiscs;
 
     /**

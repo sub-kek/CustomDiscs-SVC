@@ -6,6 +6,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bamboodevs.customdiscsplugin.CustomDiscs;
 import org.bamboodevs.customdiscsplugin.command.SubCommand;
+import org.bamboodevs.customdiscsplugin.utils.Formatter;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CreateYtCommand extends SubCommand {
+    private final CustomDiscs plugin = CustomDiscs.getInstance();
 
     @Override
     public String getName() {
@@ -29,12 +31,12 @@ public class CreateYtCommand extends SubCommand {
 
     @Override
     public String getDescription() {
-        return "§fСоздает диск с музыкой из ютуба.";
+        return plugin.language.get("createyt-command-description");
     }
 
     @Override
     public String getSyntax() {
-        return  "§3/cd createyt <Ссылка на видео> \"Название - описание\"";
+        return plugin.language.get("createyt-command-syntax");
     }
 
     @Override
@@ -43,7 +45,7 @@ public class CreateYtCommand extends SubCommand {
             if (args.length >= 3) {
 
                 if (!player.hasPermission("customdiscs.createyt")) {
-                    player.sendMessage(ChatColor.RED + "Привилегия премиум и больше может создавать диски с YouTube");
+                    player.sendMessage(Formatter.format(plugin.language.get("no-permission-error"), true));
                     return;
                 }
 
@@ -52,7 +54,7 @@ public class CreateYtCommand extends SubCommand {
                 //Find file, if file not there then say "file not there"
 
                 if (customName(readQuotes(args)).equalsIgnoreCase("")) {
-                    player.sendMessage("§fНеобходимо указать имя диска.");
+                    player.sendMessage(Formatter.format(plugin.language.get("write-disc-name-error"), true));
                     return;
                 }
 
@@ -60,13 +62,13 @@ public class CreateYtCommand extends SubCommand {
                 ItemStack disc = new ItemStack(player.getInventory().getItemInMainHand());
 
                 if (isBurned(disc)) {
-                    player.sendMessage("§fНа записанный или необработанный очищеный диск нельзя записать музыку §3/cd для инструкций");
+                    player.sendMessage(Formatter.format(plugin.language.get("disc-already-burned-error"), true));
                     return;
                 }
 
                 ItemMeta meta = disc.getItemMeta();
 
-                meta.setDisplayName("§rYouTube пластинка");
+                meta.setDisplayName(plugin.language.get("youtube-disc"));
 
                 @Nullable List<Component> itemLore = new ArrayList<>();
                 final TextComponent customLoreSong = Component.text()
@@ -88,13 +90,13 @@ public class CreateYtCommand extends SubCommand {
 
                 player.getInventory().getItemInMainHand().setItemMeta(meta);
 
-                player.sendMessage("§fСсылка на видео: §3" + youtubeUrl);
-                player.sendMessage("§fИмя диска: §3" + customName(readQuotes(args)));
+                player.sendMessage(Formatter.format(plugin.language.get("disc-youtube-link"), youtubeUrl));
+                player.sendMessage(Formatter.format(plugin.language.get("disc-name-output"), customName(readQuotes(args))));
             } else {
-                player.sendMessage("§fНедостаточно аргументов! (§3/cd createyt <Ссылка на видео> \"Название - описание\"§f)");
+                player.sendMessage(Formatter.format(plugin.language.get("unknown-arguments-error"), true, plugin.language.get("createyt-command-syntax")));
             }
         } else {
-            player.sendMessage("§fСначала возьмите диск в руку!");
+            player.sendMessage(Formatter.format(plugin.language.get("disc-not-in-hand-error"), true));
         }
     }
 

@@ -6,6 +6,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bamboodevs.customdiscsplugin.CustomDiscs;
 import org.bamboodevs.customdiscsplugin.command.SubCommand;
+import org.bamboodevs.customdiscsplugin.utils.Formatter;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CreateCommand extends SubCommand {
+    private final CustomDiscs plugin = CustomDiscs.getInstance();
 
     @Override
     public String getName() {
@@ -30,12 +32,12 @@ public class CreateCommand extends SubCommand {
 
     @Override
     public String getDescription() {
-        return "§fСоздает диск с музыкой.";
+        return plugin.language.get("create-command-description");
     }
 
     @Override
     public String getSyntax() {
-        return  "§3/cd create <Имя файла> \"Название - описание\"";
+        return plugin.language.get("create-command-syntax");
     }
 
     @Override
@@ -44,7 +46,7 @@ public class CreateCommand extends SubCommand {
             if (args.length >= 3) {
 
                 if (!player.hasPermission("customdiscs.create")) {
-                    player.sendMessage(ChatColor.RED + "У вас нет прав на использовать эту команду!");
+                    player.sendMessage(Formatter.format(plugin.language.get("no-permission-error"), true));
                     return;
                 }
 
@@ -54,12 +56,12 @@ public class CreateCommand extends SubCommand {
                 String songname = "";
                 String filename = args[1];
                 if (filename.contains("../")) {
-                    player.sendMessage(ChatColor.RED + "Неверное имя файла!");
+                    player.sendMessage(Formatter.format(plugin.language.get("invalid-file-name"), true));
                     return;
                 }
 
                 if (customName(readQuotes(args)).equalsIgnoreCase("")) {
-                    player.sendMessage("§fНеобходимо указать имя диска.");
+                    player.sendMessage(Formatter.format(plugin.language.get("write-disc-name-error"), true));
                     return;
                 }
 
@@ -69,11 +71,11 @@ public class CreateCommand extends SubCommand {
                     if (getFileExtension(filename).equals("wav") || getFileExtension(filename).equals("mp3") || getFileExtension(filename).equals("flac")) {
                         songname = args[1];
                     } else {
-                        player.sendMessage("§fФайл может быть только в формате §3wav§f, §3flac §fили §3mp3");
+                        player.sendMessage(Formatter.format(plugin.language.get("unknown-extension-error"), true));
                         return;
                     }
                 } else {
-                    player.sendMessage("§fФайл не найден!");
+                    player.sendMessage(Formatter.format(plugin.language.get("file-not-found"), true));
                     return;
                 }
 
@@ -81,13 +83,13 @@ public class CreateCommand extends SubCommand {
                 ItemStack disc = new ItemStack(player.getInventory().getItemInMainHand());
 
                 if (isBurned(disc)) {
-                    player.sendMessage("§fНа записанный или необработанный очищеный диск нельзя записать музыку §3/cd для инструкций");
+                    player.sendMessage(Formatter.format(plugin.language.get("disc-already-burned-error"), true));
                     return;
                 }
 
                 ItemMeta meta = disc.getItemMeta();
 
-                meta.setDisplayName("§rМузыкальная пластинка");
+                meta.setDisplayName(plugin.language.get("simple-disc"));
 
                 @Nullable List<Component> itemLore = new ArrayList<>();
                 final TextComponent customLoreSong = Component.text()
@@ -109,14 +111,14 @@ public class CreateCommand extends SubCommand {
 
                 player.getInventory().getItemInMainHand().setItemMeta(meta);
 
-                player.sendMessage("§fИмя файла: §3" + songname);
-                player.sendMessage("§fИмя диска: §3" + customName(readQuotes(args)));
+                player.sendMessage(Formatter.format(plugin.language.get("disc-file-output"), songname));
+                player.sendMessage(Formatter.format(plugin.language.get("disc-name-output"), customName(readQuotes(args))));
 
             } else {
-                player.sendMessage("§fНедостаточно аргументов! (§3/cd create <Имя файла> \"Название - описание\"§f)");
+                player.sendMessage(Formatter.format(plugin.language.get("unknown-arguments-error"), true, plugin.language.get("create-command-syntax")));
             }
         } else {
-            player.sendMessage("§fСначала возьмите диск в руку!");
+            player.sendMessage(Formatter.format(plugin.language.get("disc-not-in-hand-error"), true));
         }
     }
 

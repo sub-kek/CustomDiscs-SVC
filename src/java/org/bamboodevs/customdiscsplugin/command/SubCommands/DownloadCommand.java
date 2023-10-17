@@ -1,21 +1,20 @@
 package org.bamboodevs.customdiscsplugin.command.SubCommands;
 
+import org.apache.commons.io.FileUtils;
 import org.bamboodevs.customdiscsplugin.CustomDiscs;
 import org.bamboodevs.customdiscsplugin.command.SubCommand;
+import org.bamboodevs.customdiscsplugin.utils.Formatter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.codehaus.plexus.util.FileUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Path;
 
 public class DownloadCommand extends SubCommand {
-
-    CustomDiscs customDiscs = CustomDiscs.getInstance();
+    private final CustomDiscs plugin = CustomDiscs.getInstance();
 
     @Override
     public String getName() {
@@ -24,12 +23,12 @@ public class DownloadCommand extends SubCommand {
 
     @Override
     public String getDescription() {
-        return  "§fЗагружает файл c музыкой с указанного URL.";
+        return plugin.language.get("download-command-description");
     }
 
     @Override
     public String getSyntax() {
-        return "§3/cd download <ссылка> <имя.расширение>";
+        return plugin.language.get("download-command-syntax");
     }
 
     @Override
@@ -38,49 +37,49 @@ public class DownloadCommand extends SubCommand {
         //         [0]       [1]     [2]
 
         if (!player.hasPermission("customdiscs.download")) {
-            player.sendMessage(ChatColor.RED + "У вас нет прав на выполнение этой команды");
+            player.sendMessage(Formatter.format(plugin.language.get("no-permission-error"), true));
             return;
         }
 
         if (args.length<3) {
-            player.sendMessage("§fНеверные аргументы! (§3/cd download <ссылка> <имя.расширение>§f)");
+            player.sendMessage(Formatter.format(plugin.language.get("unknown-arguments-error"), true, plugin.language.get("download-command-syntax")));
             return;
         }
 
-        Bukkit.getScheduler().runTaskAsynchronously(customDiscs, () -> {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
                 URL fileURL = new URL(args[1]);
                 String filename = args[2];
                 if (filename.contains("../")) {
-                    player.sendMessage(ChatColor.RED + "Неверное имя файла!");
+                    player.sendMessage(Formatter.format(plugin.language.get("invalid-file-name"), true));
                     return;
                 }
 
                 if (!getFileExtension(filename).equals("wav") && !getFileExtension(filename).equals("mp3") && !getFileExtension(filename).equals("flac")) {
-                    player.sendMessage("§fФайл должен иметь расширение §3wav§f, §3flac §fили §3mp3§f!");
+                    player.sendMessage(Formatter.format(plugin.language.get("unknown-extension-error"), true));
                     return;
                 }
 
-                player.sendMessage(ChatColor.GRAY + "Загрузка файла...");
-                Path downloadPath = Path.of(customDiscs.getDataFolder().getPath(), "musicdata", filename);
+                player.sendMessage(Formatter.format(plugin.language.get("downloading"), true));
+                Path downloadPath = Path.of(plugin.getDataFolder().getPath(), "musicdata", filename);
                 File downloadFile = new File(downloadPath.toUri());
 
                 URLConnection connection = fileURL.openConnection();
 
                 if (connection != null) {
                     long size = connection.getContentLengthLong() / 1048576;
-                    if (size > customDiscs.getConfig().getInt("max-download-size", 50)) {
-                        player.sendMessage(ChatColor.RED + "Размер файла превышает " + customDiscs.getConfig().getInt("max-download-size", 50) + "MB.");
+                    if (size > plugin.config.getMaxDownloadSize()) {
+                        player.sendMessage(Formatter.format(plugin.language.get("download-file-large-error"), true, String.valueOf(plugin.config.getMaxDownloadSize())));
                         return;
                     }
                 }
 
                 FileUtils.copyURLToFile(fileURL, downloadFile);
 
-                player.sendMessage("§7Файл успешно загружен");
-                player.sendMessage("§fСоздайте диск, выполнив команду §3/cd create "+filename+" \"Название - описание\"");
+                player.sendMessage(Formatter.format(plugin.language.get("download-successful"), true));
+                player.sendMessage(Formatter.format(plugin.language.get("create-disc-tooltip"), true, plugin.language.get("create-disc-tooltip")));
             } catch (Exception e) {
-                player.sendMessage(ChatColor.RED + "При загрузке произошла ошибка.");
+                player.sendMessage(Formatter.format(plugin.language.get("download-error"), true));
             }
         });
     }

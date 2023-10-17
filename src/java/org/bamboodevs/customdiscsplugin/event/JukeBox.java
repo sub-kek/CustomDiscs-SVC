@@ -8,6 +8,7 @@ import org.bamboodevs.customdiscsplugin.CustomDiscs;
 import org.bamboodevs.customdiscsplugin.PlayerManager;
 import org.bamboodevs.customdiscsplugin.VoicePlugin;
 import org.bamboodevs.customdiscsplugin.YouTubePlayerManager;
+import org.bamboodevs.customdiscsplugin.utils.Formatter;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -31,7 +32,7 @@ import java.util.Objects;
 
 public class JukeBox implements Listener{
 
-    CustomDiscs customDiscs = CustomDiscs.getInstance();
+    private final CustomDiscs plugin = CustomDiscs.getInstance();
     PlayerManager playerManager = PlayerManager.instance();
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -47,10 +48,14 @@ public class JukeBox implements Listener{
         boolean isYouTubeCustomDisc = isCustomMusicDiscYouTube(event.getItem());
 
         if (isCustomDisc && !jukeboxContainsDisc(block)) {
+            if (!player.hasPermission("customdiscs.play")) {
+                player.sendMessage(Formatter.format(plugin.language.get("play-no-permission-error"), true));
+                return;
+            }
 
-            String soundFileName = event.getItem().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(customDiscs, "customdisc"), PersistentDataType.STRING);
+            String soundFileName = event.getItem().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(plugin, "customdisc"), PersistentDataType.STRING);
 
-            Path soundFilePath = Path.of(customDiscs.getDataFolder().getPath(), "musicdata", soundFileName);
+            Path soundFilePath = Path.of(plugin.getDataFolder().getPath(), "musicdata", soundFileName);
 
             if (soundFilePath.toFile().exists()) {
 
@@ -58,26 +63,25 @@ public class JukeBox implements Listener{
                 String songName = PlainTextComponentSerializer.plainText().serialize(songNameComponent);
 
                 TextComponent customActionBarSongPlaying = Component.text()
-                        .content("Сейчас играет: " + songName)
-                        .color(NamedTextColor.GOLD)
+                        .content(Formatter.format(plugin.language.get("now-playing"), songName))
                         .build();
 
                 assert VoicePlugin.voicechatServerApi != null;
                 playerManager.playLocationalAudio(VoicePlugin.voicechatServerApi, soundFilePath, block, customActionBarSongPlaying.asComponent());
             } else {
-                player.sendMessage(ChatColor.RED + "Файл не найден.");
+                player.sendMessage(Formatter.format(plugin.language.get("file-not-found"), true));
                 event.setCancelled(true);
-                throw new FileNotFoundException("Звуковой файл отсутствует!");
+                throw new FileNotFoundException("File not found!");
             }
         }
 
         if (isYouTubeCustomDisc && !jukeboxContainsDisc(block)) {
             if (!player.hasPermission("customdiscs.playt")) {
-                player.sendMessage("§cПривелегия премиум и больше может воспроизводить диски с YouTube");
+                player.sendMessage(Formatter.format(plugin.language.get("play-no-permission-error"), true));
                 return;
             }
 
-            String soundLink = event.getItem().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(customDiscs, "customdiscyt"), PersistentDataType.STRING);
+            String soundLink = event.getItem().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(plugin, "customdiscyt"), PersistentDataType.STRING);
 
             System.out.println(soundLink);
 
@@ -161,7 +165,7 @@ public class JukeBox implements Listener{
 
         if (item==null) return false;
 
-        return item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(customDiscs, "customdisc"), PersistentDataType.STRING) &&
+        return item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(plugin, "customdisc"), PersistentDataType.STRING) &&
                 (
                         item.getType().equals(Material.MUSIC_DISC_13) ||
                                 item.getType().equals(Material.MUSIC_DISC_CAT) ||
@@ -183,7 +187,7 @@ public class JukeBox implements Listener{
 
         if (item==null) return false;
 
-        return item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(customDiscs, "customdiscyt"), PersistentDataType.STRING) &&
+        return item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(plugin, "customdiscyt"), PersistentDataType.STRING) &&
                 (
                         item.getType().equals(Material.MUSIC_DISC_13) ||
                                 item.getType().equals(Material.MUSIC_DISC_CAT) ||

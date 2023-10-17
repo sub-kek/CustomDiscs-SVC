@@ -2,10 +2,12 @@ package org.bamboodevs.customdiscsplugin.command.SubCommands;
 
 import org.bamboodevs.customdiscsplugin.CustomDiscs;
 import org.bamboodevs.customdiscsplugin.command.SubCommand;
+import org.bamboodevs.customdiscsplugin.utils.Formatter;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 public class ReloadCommand extends SubCommand {
+    private final CustomDiscs plugin = CustomDiscs.getInstance();
 
     @Override
     public String getName() {
@@ -14,23 +16,23 @@ public class ReloadCommand extends SubCommand {
 
     @Override
     public String getDescription() {
-        return "§fПерезагружает конфиг.";
+        return plugin.language.get("reload-command-description");
     }
 
     @Override
     public String getSyntax() {
-        return  "§3/cd reload";
+        return  plugin.language.get("reload-command-syntax");
     }
 
     @Override
     public void perform(Player player, String[] args) {
         if (!player.hasPermission("customdiscs.reload")) {
-            player.sendMessage(ChatColor.RED + "У вас нет прав на использовать эту команду!");
+            player.sendMessage(Formatter.format(plugin.language.get("no-permission-error"), true));
             return;
         }
 
-        CustomDiscs.getInstance().reloadConfig();
-        player.sendMessage("§fКонфигурация перезагружена");
+        plugin.config.init();
+        plugin.language.init(plugin.config.getLocale());
+        player.sendMessage(Formatter.format(plugin.language.get("config-reloaded"), true));
     }
-
 }

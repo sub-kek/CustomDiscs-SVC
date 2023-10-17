@@ -3,8 +3,8 @@ version: '${project.version}'
 main: org.bamboodevs.customdiscsplugin.CustomDiscs
 api-version: 1.16
 prefix: CustomDiscs
-authors: [Bamboo-Developers]
-description: Кастомные пластинки на 1.16.5 от _SubToqz и yiski.
+authors: [sub-kek]
+description: Custom discs for SVC by _SubToqz.
 depend: ["voicechat", "ProtocolLib"]
 dependencies:
   server:
@@ -27,6 +27,10 @@ permissions:
     children:
       - customdiscs.download: true
       - customdiscs.create: true
+      - customdiscs.createyt: true
+      - customdiscs.reload: true
+      - customdiscs.playt: true
+      - customdiscs.play: true
   customdiscs.download:
     default: op
   customdiscs.create:
@@ -36,4 +40,6 @@ permissions:
   customdiscs.reload:
     default: op
   customdiscs.playt:
+    default: op
+  customdiscs.play:
     default: op

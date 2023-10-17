@@ -1,9 +1,11 @@
 package org.bamboodevs.customdiscsplugin.command;
 
+import org.bamboodevs.customdiscsplugin.CustomDiscs;
 import org.bamboodevs.customdiscsplugin.command.SubCommands.CreateCommand;
 import org.bamboodevs.customdiscsplugin.command.SubCommands.CreateYtCommand;
 import org.bamboodevs.customdiscsplugin.command.SubCommands.DownloadCommand;
 import org.bamboodevs.customdiscsplugin.command.SubCommands.ReloadCommand;
+import org.bamboodevs.customdiscsplugin.utils.Formatter;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -18,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CommandManager implements CommandExecutor, TabCompleter {
-
+    private final CustomDiscs plugin = CustomDiscs.getInstance();
     private final ArrayList<SubCommand> subCommands = new ArrayList<>();
 
     public CommandManager() {
@@ -32,7 +34,7 @@ public class CommandManager implements CommandExecutor, TabCompleter {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
 
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "Только игрок может использовать эту команду!");
+            sender.sendMessage(Formatter.format(plugin.language.get("only-player-command-error"), true));
             return true;
         }
 
@@ -45,12 +47,12 @@ public class CommandManager implements CommandExecutor, TabCompleter {
                 }
             }
         } else {
-            player.sendMessage(ChatColor.AQUA + "§fКастомные пластинки");
+            player.sendMessage(plugin.language.get("help-header"));
             for (int i = 0; i < getSubCommands().size(); i++) {
-                player.sendMessage(getSubCommands().get(i).getSyntax() + "§f: " + getSubCommands().get(i).getDescription());
+                player.sendMessage(Formatter.format(plugin.language.get("help-command"), getSubCommands().get(i).getSyntax(), getSubCommands().get(i).getDescription()));
             }
-            player.sendMessage("§7Чтобы обработать пластинку. Поставьте ее в рамку -> ПКМ любым топором начиная от железного -> Поставте очищенную пластинку в рамку -> ПКМ светокаменной пылью -> Получите пластинку на которую можно повторно записать музыку :)");
-            player.sendMessage("\n");
+            player.sendMessage(plugin.language.get("help-disc-cleaning"));
+            player.sendMessage(plugin.language.get("help-footer"));
             return true;
         }
 

@@ -13,6 +13,7 @@ import de.maxhenkel.voicechat.api.ServerPlayer;
 import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
 import net.kyori.adventure.text.Component;
+import org.bamboodevs.customdiscsplugin.utils.Formatter;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -24,6 +25,7 @@ import java.util.UUID;
 import java.util.concurrent.*;
 
 public class YouTubePlayerManager extends Thread {
+    private final CustomDiscs plugin = CustomDiscs.getInstance();
     private final AudioPlayerManager lavaPlayerManager = new DefaultAudioPlayerManager();
     public UUID uuid;
     public static Map<UUID, YouTubePlayerManager> playerMap = new ConcurrentHashMap<>();
@@ -49,9 +51,9 @@ public class YouTubePlayerManager extends Thread {
         if (audioChannel == null) return;
 
         audioChannel.setCategory(VoicePlugin.MUSIC_DISC_CATEGORY);
-        audioChannel.setDistance(CustomDiscs.getInstance().getConfig().getInt("music-disc-distance"));
+        audioChannel.setDistance(plugin.config.getMusicDiscDistance());
 
-        playersInRange = api.getPlayersInRange(api.fromServerLevel(block.getWorld()), api.createPosition(block.getLocation().getX() + 0.5d, block.getLocation().getY() + 0.5d, block.getLocation().getZ() + 0.5d), CustomDiscs.getInstance().getConfig().getInt("music-disc-distance"));
+        playersInRange = api.getPlayersInRange(api.fromServerLevel(block.getWorld()), api.createPosition(block.getLocation().getX() + 0.5d, block.getLocation().getY() + 0.5d, block.getLocation().getZ() + 0.5d), plugin.config.getMusicDiscDistance());
 
         start();
 
@@ -76,7 +78,7 @@ public class YouTubePlayerManager extends Thread {
                 public void playlistLoaded(AudioPlaylist audioPlaylist) {
                     for (ServerPlayer serverPlayer : playersInRange) {
                         Player bukkitPlayer = (Player) serverPlayer.getPlayer();
-                        bukkitPlayer.sendMessage(ChatColor.RED + "Невозможно воспроизвести плейлист!");
+                        bukkitPlayer.sendMessage(Formatter.format(plugin.language.get("cant-play-playlist-error"), true));
                     }
                     trackFuture.complete(null);
                     stopPlaying(block);
@@ -86,7 +88,7 @@ public class YouTubePlayerManager extends Thread {
                 public void noMatches() {
                     for (ServerPlayer serverPlayer : playersInRange) {
                         Player bukkitPlayer = (Player) serverPlayer.getPlayer();
-                        bukkitPlayer.sendMessage(ChatColor.RED + "Совпадений по URL не найдено!");
+                        bukkitPlayer.sendMessage(Formatter.format(plugin.language.get("url-no-matches-error"), true));
                     }
                     trackFuture.complete(null);
                     stopPlaying(block);
@@ -96,7 +98,7 @@ public class YouTubePlayerManager extends Thread {
                 public void loadFailed(FriendlyException e) {
                     for (ServerPlayer serverPlayer : playersInRange) {
                         Player bukkitPlayer = (Player) serverPlayer.getPlayer();
-                        bukkitPlayer.sendMessage(ChatColor.RED + "Ошибка загрузки видео!");
+                        bukkitPlayer.sendMessage(Formatter.format(plugin.language.get("audio-load-error"), true));
                     }
                     trackFuture.complete(null);
                     stopPlaying(block);
@@ -108,7 +110,7 @@ public class YouTubePlayerManager extends Thread {
 
             AudioTrack audioTrack = trackFuture.get();
 
-            int volume = Math.round(Float.parseFloat(CustomDiscs.getInstance().getConfig().getString("music-disc-volume"))*100);
+            int volume = Math.round(plugin.config.getMusicDiscVolume()*100);
             audioPlayer.setVolume(volume);
 
             long start = 0L;
@@ -134,7 +136,7 @@ public class YouTubePlayerManager extends Thread {
         } catch (Exception e) {
             for (ServerPlayer serverPlayer : playersInRange) {
                 Player bukkitPlayer = (Player) serverPlayer.getPlayer();
-                bukkitPlayer.sendMessage(ChatColor.RED + "Ошибка при воспроизведении диска!");
+                bukkitPlayer.sendMessage(plugin.language.get("disc-play-error"));
                 e.printStackTrace();
             }
         }

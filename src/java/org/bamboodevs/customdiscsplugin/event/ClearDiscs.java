@@ -18,6 +18,8 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 public class ClearDiscs implements Listener {
+    private final CustomDiscs plugin = CustomDiscs.getInstance();
+
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onPlayerInteract(PlayerInteractEntityEvent event) {
         Player player = event.getPlayer();
@@ -32,7 +34,7 @@ public class ClearDiscs implements Listener {
         if (isAxe(player)) {
             ItemStack newItem = new ItemStack(itemFrame.getItem().getType());
             ItemMeta itemMeta = newItem.getItemMeta();
-            itemMeta.setDisplayName("§rОчищеная пластинка");
+            itemMeta.setDisplayName(plugin.language.get("cleared-disc"));
             itemMeta.getPersistentDataContainer().set(new NamespacedKey(CustomDiscs.getInstance(), "cleared"), PersistentDataType.STRING, "true");
             newItem.setItemMeta(itemMeta);
 
@@ -60,7 +62,7 @@ public class ClearDiscs implements Listener {
             if (!data.get(new NamespacedKey(CustomDiscs.getInstance(), "cleared"), PersistentDataType.STRING).equals("true")) return;
 
             data.set(new NamespacedKey(CustomDiscs.getInstance(), "cleared"), PersistentDataType.STRING, "false");
-            itemMeta.setDisplayName("§rОбработанная пластинка");
+            itemMeta.setDisplayName(plugin.language.get("processed-disc"));
             item.setItemMeta(itemMeta);
 
             itemFrame.setItem(new ItemStack(Material.AIR));

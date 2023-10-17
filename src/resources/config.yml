@@ -1,5 +1,3 @@
-# [Music Disc Config]
-
 # The distance from which music discs can be heard in blocks.
 music-disc-distance: 16
 
@@ -8,3 +6,5 @@ music-disc-volume: 1
 
 #The maximum download size in megabytes.
 max-download-size: 50
+
+locale: ru_RU
