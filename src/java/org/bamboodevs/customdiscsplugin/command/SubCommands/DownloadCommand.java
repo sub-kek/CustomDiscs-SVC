@@ -77,7 +77,7 @@ public class DownloadCommand extends SubCommand {
                 FileUtils.copyURLToFile(fileURL, downloadFile);
 
                 player.sendMessage(Formatter.format(plugin.language.get("download-successful"), true));
-                player.sendMessage(Formatter.format(plugin.language.get("create-disc-tooltip"), true, plugin.language.get("create-disc-tooltip")));
+                player.sendMessage(Formatter.format(plugin.language.get("create-disc-tooltip"), true, plugin.language.get("create-command-syntax")));
             } catch (Exception e) {
                 player.sendMessage(Formatter.format(plugin.language.get("download-error"), true));
             }
