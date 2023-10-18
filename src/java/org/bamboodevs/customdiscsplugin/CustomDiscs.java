@@ -127,8 +127,5 @@ public final class CustomDiscs extends JavaPlugin {
         BStatsLink bstats = new BStatsLink(getInstance(), 20077);
 
         bstats.addCustomChart(new BStatsLink.SimplePie("plugin_language", () -> {return config.getLocale();}));
-        bstats.addCustomChart(new BStatsLink.SimplePie("disc_volume", () -> {return String.valueOf(config.getMusicDiscVolume());}));
-        bstats.addCustomChart(new BStatsLink.SimplePie("disc_distance", () -> {return String.valueOf(config.getMusicDiscDistance());}));
-        bstats.addCustomChart(new BStatsLink.SimplePie("max_download_size", () -> {return String.valueOf(config.getMaxDownloadSize());}));
     }
 }
