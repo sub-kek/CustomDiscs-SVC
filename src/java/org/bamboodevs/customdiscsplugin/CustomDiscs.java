@@ -17,6 +17,7 @@ import org.bamboodevs.customdiscsplugin.event.ClearDiscs;
 import org.bamboodevs.customdiscsplugin.event.JukeBox;
 import org.bamboodevs.customdiscsplugin.language.FileLanguage;
 import org.bamboodevs.customdiscsplugin.libs.AssetsDownloader;
+import org.bamboodevs.customdiscsplugin.metrics.BStatsLink;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -51,6 +52,8 @@ public final class CustomDiscs extends JavaPlugin {
 
         language = new FileLanguage();
         language.init(config.getLocale());
+
+        linkBStats();
 
         BukkitVoicechatService service = getServer().getServicesManager().load(BukkitVoicechatService.class);
 
@@ -117,5 +120,15 @@ public final class CustomDiscs extends JavaPlugin {
 
     public static CustomDiscs getInstance() {
         return instance;
+    }
+
+    private void linkBStats() {
+
+        BStatsLink bstats = new BStatsLink(getInstance(), 20077);
+
+        bstats.addCustomChart(new BStatsLink.SimplePie("plugin_language", () -> {return config.getLocale();}));
+        bstats.addCustomChart(new BStatsLink.SimplePie("disc_volume", () -> {return String.valueOf(config.getMusicDiscVolume());}));
+        bstats.addCustomChart(new BStatsLink.SimplePie("disc_distance", () -> {return String.valueOf(config.getMusicDiscDistance());}));
+        bstats.addCustomChart(new BStatsLink.SimplePie("max_download_size", () -> {return String.valueOf(config.getMaxDownloadSize());}));
     }
 }
