@@ -76,25 +76,10 @@ public class ClearDiscs implements Listener {
     }
 
     private boolean isMusicDisc(ItemStack item) {
-        return  item.getType().equals(Material.MUSIC_DISC_13) ||
-                item.getType().equals(Material.MUSIC_DISC_CAT) ||
-                item.getType().equals(Material.MUSIC_DISC_BLOCKS) ||
-                item.getType().equals(Material.MUSIC_DISC_CHIRP) ||
-                item.getType().equals(Material.MUSIC_DISC_FAR) ||
-                item.getType().equals(Material.MUSIC_DISC_MALL) ||
-                item.getType().equals(Material.MUSIC_DISC_MELLOHI) ||
-                item.getType().equals(Material.MUSIC_DISC_STAL) ||
-                item.getType().equals(Material.MUSIC_DISC_STRAD) ||
-                item.getType().equals(Material.MUSIC_DISC_WARD) ||
-                item.getType().equals(Material.MUSIC_DISC_11) ||
-                item.getType().equals(Material.MUSIC_DISC_WAIT) ||
-                item.getType().equals(Material.MUSIC_DISC_PIGSTEP);
+        return  item.getType().toString().contains("MUSIC_DISC");
     }
 
     private boolean isAxe(Player p) {
-        return  p.getInventory().getItemInMainHand().getType().equals(Material.IRON_AXE) ||
-                p.getInventory().getItemInMainHand().getType().equals(Material.GOLDEN_AXE) ||
-                p.getInventory().getItemInMainHand().getType().equals(Material.DIAMOND_AXE) ||
-                p.getInventory().getItemInMainHand().getType().equals(Material.NETHERITE_AXE);
+        return  p.getInventory().getItemInMainHand().getType().toString().contains("AXE");
     }
 }

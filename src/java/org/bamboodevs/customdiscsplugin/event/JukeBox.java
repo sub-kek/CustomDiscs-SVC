@@ -162,44 +162,14 @@ public class JukeBox implements Listener{
 
         if (item==null) return false;
 
-        return item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(plugin, "customdisc"), PersistentDataType.STRING) &&
-                (
-                        item.getType().equals(Material.MUSIC_DISC_13) ||
-                                item.getType().equals(Material.MUSIC_DISC_CAT) ||
-                                item.getType().equals(Material.MUSIC_DISC_BLOCKS) ||
-                                item.getType().equals(Material.MUSIC_DISC_CHIRP) ||
-                                item.getType().equals(Material.MUSIC_DISC_FAR) ||
-                                item.getType().equals(Material.MUSIC_DISC_MALL) ||
-                                item.getType().equals(Material.MUSIC_DISC_MELLOHI) ||
-                                item.getType().equals(Material.MUSIC_DISC_STAL) ||
-                                item.getType().equals(Material.MUSIC_DISC_STRAD) ||
-                                item.getType().equals(Material.MUSIC_DISC_WARD) ||
-                                item.getType().equals(Material.MUSIC_DISC_11) ||
-                                item.getType().equals(Material.MUSIC_DISC_WAIT) ||
-                                item.getType().equals(Material.MUSIC_DISC_PIGSTEP)
-                );
+        return item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(plugin, "customdisc"), PersistentDataType.STRING);
     }
 
     public boolean isCustomMusicDiscYouTube(ItemStack item) {
 
         if (item==null) return false;
 
-        return item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(plugin, "customdiscyt"), PersistentDataType.STRING) &&
-                (
-                        item.getType().equals(Material.MUSIC_DISC_13) ||
-                                item.getType().equals(Material.MUSIC_DISC_CAT) ||
-                                item.getType().equals(Material.MUSIC_DISC_BLOCKS) ||
-                                item.getType().equals(Material.MUSIC_DISC_CHIRP) ||
-                                item.getType().equals(Material.MUSIC_DISC_FAR) ||
-                                item.getType().equals(Material.MUSIC_DISC_MALL) ||
-                                item.getType().equals(Material.MUSIC_DISC_MELLOHI) ||
-                                item.getType().equals(Material.MUSIC_DISC_STAL) ||
-                                item.getType().equals(Material.MUSIC_DISC_STRAD) ||
-                                item.getType().equals(Material.MUSIC_DISC_WARD) ||
-                                item.getType().equals(Material.MUSIC_DISC_11) ||
-                                item.getType().equals(Material.MUSIC_DISC_WAIT) ||
-                                item.getType().equals(Material.MUSIC_DISC_PIGSTEP)
-                );
+        return item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(plugin, "customdiscyt"), PersistentDataType.STRING);
     }
 
     private void stopDisc(Block block) {
