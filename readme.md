@@ -3,7 +3,6 @@
 ## Special thanks
 [Navoei CustomDiscs](https://github.com/Navoei/CustomDiscs) | [henkelmax AudioPlayer](https://github.com/henkelmax/audio-player)
 
-
 ## Configuration
 ```yaml
 # The distance from which music discs can be heard in blocks.
@@ -16,5 +15,7 @@ music-disc-volume: 1
 max-download-size: 50
 
 # Language of plugin
-locale: ru_RU
+locale: en_US
 ```
+
+## Commands
