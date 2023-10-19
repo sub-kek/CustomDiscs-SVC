@@ -6,16 +6,6 @@ prefix: CustomDiscs
 authors: [sub-kek]
 description: Custom discs for SVC by _SubToqz.
 depend: ["voicechat", "ProtocolLib"]
-dependencies:
-  server:
-    voicechat:
-      load: BEFORE
-      required: true
-      join-classpath: true
-    ProtocolLib:
-      load: BEFORE
-      required: true
-      join-classpath: true
 
 commands:
   customdisc:

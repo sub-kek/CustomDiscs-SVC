@@ -20,29 +20,16 @@ public class VoicePlugin implements VoicechatPlugin {
     public static VoicechatServerApi voicechatServerApi;
     public static VolumeCategory musicDiscs;
 
-    /**
-     * @return the unique ID for this voice chat plugin
-     */
     @Override
     public String getPluginId() {
         return CustomDiscs.PLUGIN_ID;
     }
 
-    /**
-     * Called when the voice chat initializes the plugin.
-     *
-     * @param api the voice chat API
-     */
     @Override
     public void initialize(VoicechatApi api) {
         voicechatApi = api;
     }
 
-    /**
-     * Called once by the voice chat to register all events.
-     *
-     * @param registration the event registration
-     */
     @Override
     public void registerEvents(EventRegistration registration) {
         registration.registerEvent(VoicechatServerStartedEvent.class, this::onServerStarted);
