@@ -14,7 +14,6 @@ import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
 import net.kyori.adventure.text.Component;
 import org.bamboodevs.customdiscsplugin.utils.Formatter;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -22,7 +21,9 @@ import org.bukkit.entity.Player;
 import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 public class YouTubePlayerManager extends Thread {
     private final CustomDiscs plugin = CustomDiscs.getInstance();

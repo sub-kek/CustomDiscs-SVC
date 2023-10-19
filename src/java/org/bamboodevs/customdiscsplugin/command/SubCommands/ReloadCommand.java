@@ -3,7 +3,6 @@ package org.bamboodevs.customdiscsplugin.command.SubCommands;
 import org.bamboodevs.customdiscsplugin.CustomDiscs;
 import org.bamboodevs.customdiscsplugin.command.SubCommand;
 import org.bamboodevs.customdiscsplugin.utils.Formatter;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 public class ReloadCommand extends SubCommand {
@@ -31,7 +30,7 @@ public class ReloadCommand extends SubCommand {
             return;
         }
 
-        plugin.config.init();
+        plugin.config.reload();
         plugin.language.init(plugin.config.getLocale());
         player.sendMessage(Formatter.format(plugin.language.get("config-reloaded"), true));
     }

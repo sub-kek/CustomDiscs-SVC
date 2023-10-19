@@ -2,14 +2,12 @@ package org.bamboodevs.customdiscsplugin.event;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bamboodevs.customdiscsplugin.CustomDiscs;
 import org.bamboodevs.customdiscsplugin.PlayerManager;
 import org.bamboodevs.customdiscsplugin.VoicePlugin;
 import org.bamboodevs.customdiscsplugin.YouTubePlayerManager;
 import org.bamboodevs.customdiscsplugin.utils.Formatter;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;

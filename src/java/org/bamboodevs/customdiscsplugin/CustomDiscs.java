@@ -48,6 +48,7 @@ public final class CustomDiscs extends JavaPlugin {
         AssetsDownloader.loadLibraries(getDataFolder());
 
         config = new CustomDiscsConfig();
+        config.saveDefaultConfig();
         config.init();
 
         language = new FileLanguage();

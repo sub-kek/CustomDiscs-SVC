@@ -7,5 +7,8 @@ music-disc-volume: 1
 # The maximum download size in megabytes.
 max-download-size: 50
 
+# enable disc cleaning before re-record disc
+cleaning-disc: false
+
 # Language of plugin
 locale: ru_RU

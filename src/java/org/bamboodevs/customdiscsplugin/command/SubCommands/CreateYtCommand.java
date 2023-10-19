@@ -7,8 +7,6 @@ import net.kyori.adventure.text.format.TextDecoration;
 import org.bamboodevs.customdiscsplugin.CustomDiscs;
 import org.bamboodevs.customdiscsplugin.command.SubCommand;
 import org.bamboodevs.customdiscsplugin.utils.Formatter;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
@@ -61,7 +59,7 @@ public class CreateYtCommand extends SubCommand {
                 //Sets the lore of the item to the quotes from the command.
                 ItemStack disc = new ItemStack(player.getInventory().getItemInMainHand());
 
-                if (isBurned(disc)) {
+                if (isBurned(disc) && plugin.config.getDiscCleaning()) {
                     player.sendMessage(Formatter.format(plugin.language.get("disc-already-burned-error"), true));
                     return;
                 }
