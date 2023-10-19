@@ -11,4 +11,4 @@ max-download-size: 50
 cleaning-disc: false
 
 # Language of plugin
-locale: ru_RU
+locale: en_US
