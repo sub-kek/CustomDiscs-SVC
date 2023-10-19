@@ -1,7 +1,10 @@
 # Custom discs for SVC Paper
-Special thanks for: [Navoei CustomDiscs](https://github.com/Navoei/CustomDiscs) | [henkelmax AudioPlayer](https://github.com/henkelmax/audio-player)
----
-Configuration:
+
+## Special thanks
+[Navoei CustomDiscs](https://github.com/Navoei/CustomDiscs) | [henkelmax AudioPlayer](https://github.com/henkelmax/audio-player)
+
+
+## Configuration
 ```yaml
 # The distance from which music discs can be heard in blocks.
 music-disc-distance: 16
