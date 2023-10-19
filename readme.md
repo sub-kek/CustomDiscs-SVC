@@ -1,4 +1,4 @@
-# Custom discs for SVC Paper
+# Custom discs for SVC Addon
 
 ## Special thanks
 [Navoei CustomDiscs](https://github.com/Navoei/CustomDiscs) | [henkelmax AudioPlayer](https://github.com/henkelmax/audio-player)
