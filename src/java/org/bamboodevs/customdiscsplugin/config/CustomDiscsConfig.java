@@ -7,7 +7,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 public class CustomDiscsConfig {
     private final CustomDiscs plugin = CustomDiscs.getInstance();
-    private FileConfiguration bukkitConfig = null;
+    private FileConfiguration bukkitConfig = plugin.getConfig();
 
     private int musicDiscDistance;
     private float musicDiscVolume;
@@ -23,8 +23,6 @@ public class CustomDiscsConfig {
     public boolean getDiscCleaning() { return discCleaning; }
 
     public void init() {
-        if (bukkitConfig == null) bukkitConfig = plugin.getConfig();
-
         musicDiscDistance = bukkitConfig.getInt("music-disc-distance", 16);
         musicDiscVolume = Float.parseFloat(bukkitConfig.getString("music-disc-volume", "1"));
         maxDownloadSize = bukkitConfig.getInt("max-download-size", 50);
@@ -39,6 +37,8 @@ public class CustomDiscsConfig {
 
     public void reload() {
         plugin.reloadConfig();
+        bukkitConfig = plugin.getConfig();
+        init();
     }
 
     public void saveDefaultConfig() {

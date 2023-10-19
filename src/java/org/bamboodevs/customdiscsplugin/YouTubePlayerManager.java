@@ -36,6 +36,7 @@ public class YouTubePlayerManager extends Thread {
     private LocationalAudioChannel audioChannel;
     private String ytUrl;
     private Collection<ServerPlayer> playersInRange;
+    private CompletableFuture<AudioTrack> trackFuture = new CompletableFuture<>();
 
     public YouTubePlayerManager(Block block) {
         lavaPlayerManager.registerSourceManager(new YoutubeAudioSourceManager());
@@ -68,8 +69,6 @@ public class YouTubePlayerManager extends Thread {
     @Override
     public void run() {
         try {
-            CompletableFuture<AudioTrack> trackFuture = new CompletableFuture<>();
-
             lavaPlayerManager.loadItem(ytUrl, new AudioLoadResultHandler() {
                 @Override
                 public void trackLoaded(AudioTrack audioTrack) {
@@ -107,8 +106,10 @@ public class YouTubePlayerManager extends Thread {
                 }
             });
 
-            if (isInterrupted())
+            if (isInterrupted()) {
+                trackFuture.complete(null);
                 return;
+            }
 
             AudioTrack audioTrack = trackFuture.get();
 
@@ -135,10 +136,12 @@ public class YouTubePlayerManager extends Thread {
                     TimeUnit.MILLISECONDS.sleep(10);
                 }
             }
+
+            stopPlaying(this.block);
         } catch (Exception e) {
             for (ServerPlayer serverPlayer : playersInRange) {
                 Player bukkitPlayer = (Player) serverPlayer.getPlayer();
-                bukkitPlayer.sendMessage(plugin.language.get("disc-play-error"));
+                bukkitPlayer.sendMessage(Formatter.format(plugin.language.get("disc-play-error"), true));
                 e.printStackTrace();
             }
         }
@@ -160,6 +163,7 @@ public class YouTubePlayerManager extends Thread {
             YouTubePlayerManager tubePlayer = playerMap.get(_uuid);
             playerMap.remove(tubePlayer.uuid);
 
+            tubePlayer.trackFuture.complete(null);
             tubePlayer.audioPlayer.destroy();
             tubePlayer.interrupt();
         }
