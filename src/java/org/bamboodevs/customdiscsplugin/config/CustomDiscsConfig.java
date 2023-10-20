@@ -14,6 +14,7 @@ public class CustomDiscsConfig {
     private int maxDownloadSize;
     private String locale;
     private boolean discCleaning;
+    private int discsPlayed = 0;
 
 
     public int getMusicDiscDistance() { return musicDiscDistance; }
@@ -44,4 +45,8 @@ public class CustomDiscsConfig {
     public void saveDefaultConfig() {
         plugin.saveDefaultConfig();
     }
+
+    public void increaseDiscPlayed() { discsPlayed++; }
+    public int getDiscsPlayed() { return discsPlayed; }
+    public void resetDiscsPlayed() { discsPlayed = 0; }
 }

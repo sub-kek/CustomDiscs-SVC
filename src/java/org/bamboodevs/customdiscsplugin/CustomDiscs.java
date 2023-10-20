@@ -128,5 +128,10 @@ public final class CustomDiscs extends JavaPlugin {
         BStatsLink bstats = new BStatsLink(getInstance(), 20077);
 
         bstats.addCustomChart(new BStatsLink.SimplePie("plugin_language", () -> {return config.getLocale();}));
+        bstats.addCustomChart(new BStatsLink.SingleLineChart("discs_played", () -> {
+            int count = config.getDiscsPlayed();
+            config.resetDiscsPlayed();
+            return count;
+        }));
     }
 }

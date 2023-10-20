@@ -71,6 +71,8 @@ public class JukeBox implements Listener{
                 event.setCancelled(true);
                 throw new FileNotFoundException("File not found!");
             }
+
+            plugin.config.increaseDiscPlayed();
         }
 
         if (isYouTubeCustomDisc && !jukeboxContainsDisc(block)) {
@@ -90,6 +92,8 @@ public class JukeBox implements Listener{
 
             assert VoicePlugin.voicechatServerApi != null;
             YouTubePlayerManager.instance(block).playLocationalAudioYoutube(VoicePlugin.voicechatServerApi, soundLink, customActionBarSongPlaying);
+
+            plugin.config.increaseDiscPlayed();
         }
     }
 
