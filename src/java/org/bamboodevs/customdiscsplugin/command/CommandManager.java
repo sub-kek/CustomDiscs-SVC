@@ -49,7 +49,8 @@ public class CommandManager implements CommandExecutor, TabCompleter {
             for (int i = 0; i < getSubCommands().size(); i++) {
                 player.sendMessage(Formatter.format(plugin.language.get("help-command"), getSubCommands().get(i).getSyntax(), getSubCommands().get(i).getDescription()));
             }
-            player.sendMessage(plugin.language.get("help-disc-cleaning"));
+            if (plugin.config.getDiscCleaning())
+                player.sendMessage(plugin.language.get("help-disc-cleaning"));
             player.sendMessage(plugin.language.get("help-footer"));
             return true;
         }
