@@ -48,5 +48,4 @@ public class CustomDiscsConfig {
 
     public void increaseDiscPlayed() { discsPlayed++; }
     public int getDiscsPlayed() { return discsPlayed; }
-    public void resetDiscsPlayed() { discsPlayed = 0; }
 }

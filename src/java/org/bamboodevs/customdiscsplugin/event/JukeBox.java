@@ -51,12 +51,13 @@ public class JukeBox implements Listener{
                 return;
             }
 
+            plugin.config.increaseDiscPlayed();
+
             String soundFileName = event.getItem().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(plugin, "customdisc"), PersistentDataType.STRING);
 
             Path soundFilePath = Path.of(plugin.getDataFolder().getPath(), "musicdata", soundFileName);
 
             if (soundFilePath.toFile().exists()) {
-
                 Component songNameComponent = Objects.requireNonNull(event.getItem().getItemMeta().lore()).get(0).asComponent();
                 String songName = PlainTextComponentSerializer.plainText().serialize(songNameComponent);
 
@@ -71,8 +72,6 @@ public class JukeBox implements Listener{
                 event.setCancelled(true);
                 throw new FileNotFoundException("File not found!");
             }
-
-            plugin.config.increaseDiscPlayed();
         }
 
         if (isYouTubeCustomDisc && !jukeboxContainsDisc(block)) {
@@ -80,6 +79,8 @@ public class JukeBox implements Listener{
                 player.sendMessage(Formatter.format(plugin.language.get("play-no-permission-error"), true));
                 return;
             }
+
+            plugin.config.increaseDiscPlayed();
 
             String soundLink = event.getItem().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(plugin, "customdiscyt"), PersistentDataType.STRING);
 
@@ -92,8 +93,6 @@ public class JukeBox implements Listener{
 
             assert VoicePlugin.voicechatServerApi != null;
             YouTubePlayerManager.instance(block).playLocationalAudioYoutube(VoicePlugin.voicechatServerApi, soundLink, customActionBarSongPlaying);
-
-            plugin.config.increaseDiscPlayed();
         }
     }
 
