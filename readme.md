@@ -1,8 +1,7 @@
 # Custom discs for SVC Addon
 
 ## Special thanks
-[Navoei CustomDiscs](https://github.com/Navoei/CustomDiscs) | [henkelmax AudioPlayer](https://github.com/henkelmax/audio-player)
-
+[Navoei CustomDiscs](https://github.com/Navoei/CustomDiscs) | [henkelmax AudioPlayer](https://github.com/henkelmax/audio-player) | [sedmelluq lavaplayer](https://github.com/sedmelluq/lavaplayer)
 ## Configuration
 ```yaml
 # The distance from which music discs can be heard in blocks.
@@ -14,8 +13,16 @@ music-disc-volume: 1
 # The maximum download size in megabytes.
 max-download-size: 50
 
+# enable disc cleaning before re-record disc
+cleaning-disc: false
+
 # Language of plugin
 locale: en_US
 ```
-
 ## Commands
+```
+/cd - Help for CustomDiscs
+/cd download <direct link> <name.extension> - Downloads music file from URL.
+/cd create <file name> "<disc name>" - Creates music disc.
+/cd createyt <video url> "<disc name>" - Create disc with music from YouTube.
+```
