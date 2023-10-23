@@ -147,7 +147,7 @@ public class BStatsLink {
                             this.submitData();
                         }
                     };
-            long delay = 1000 * 60 * 5;
+            long delay = 1000 * 60 * 30;
             scheduler.scheduleAtFixedRate(submitTask, delay, delay, TimeUnit.MILLISECONDS);
         }
 
