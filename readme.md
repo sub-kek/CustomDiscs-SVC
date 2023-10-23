@@ -1,5 +1,4 @@
 # Custom discs for SVC Addon
-
 ## Special thanks
 [Navoei CustomDiscs](https://github.com/Navoei/CustomDiscs) | [henkelmax AudioPlayer](https://github.com/henkelmax/audio-player) | [sedmelluq lavaplayer](https://github.com/sedmelluq/lavaplayer)
 ## Configuration
@@ -26,3 +25,5 @@ locale: en_US
 /cd create <file name> "<disc name>" - Creates music disc.
 /cd createyt <video url> "<disc name>" - Create disc with music from YouTube.
 ```
+## Small Information
+This addon was created specifically for the [BambooLand](https://discord.bambooland.fun) server. If you know Russian language we recommend you to go.
