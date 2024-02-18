@@ -1,6 +1,6 @@
 name: 'CustomDiscs'
 version: '$version'
-main: 'me.subkek.customdiscs.CustomDiscs'
+main: 'io.github.subkek.customdiscs.CustomDiscs'
 api-version: '1.20'
 authors: ['sub-kek']
 description: 'Custom discs for SVC by sub-kek.'

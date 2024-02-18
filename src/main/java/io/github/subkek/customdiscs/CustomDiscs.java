@@ -99,9 +99,6 @@ public final class CustomDiscs extends JavaPlugin {
                     if (jukebox.getRecord().getItemMeta().getPersistentDataContainer().has(new NamespacedKey(CustomDiscs.getInstance(), "customdiscyt"), PersistentDataType.STRING)) {
                         event.setCancelled(true);
                     }
-
-                    //Spawn particles if there isn't any music playing at this location.
-                    ParticleManager.start(jukebox);
                 }
             }
         });
