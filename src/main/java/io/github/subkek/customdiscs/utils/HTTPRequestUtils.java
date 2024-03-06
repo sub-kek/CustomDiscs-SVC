@@ -22,123 +22,121 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class HTTPRequestUtils {
+  private static final AtomicLong NOP_ATOMIC_LONG = new AtomicLong();
 
-    private static final AtomicLong NOP_ATOMIC_LONG = new AtomicLong();
-
-    public static JSONObject getJSONResponse(String link) {
-        try {
-            String response = getTextResponse(link, true);
-            if (response != null) {
-                return (JSONObject) new JSONParser().parse(response);
-            }
-            return null;
-        } catch (ParseException e) {
-            return null;
-        }
+  public static JSONObject getJSONResponse(String link) {
+    try {
+      String response = getTextResponse(link, true);
+      if (response != null) {
+        return (JSONObject) new JSONParser().parse(response);
+      }
+      return null;
+    } catch (ParseException e) {
+      return null;
     }
+  }
 
-    public static String getTextResponse(String link) {
-        return getTextResponse(link, false);
+  public static String getTextResponse(String link) {
+    return getTextResponse(link, false);
+  }
+
+  public static String getTextResponse(String link, boolean joinLines) {
+    try {
+      URL url = new URL(link);
+      URLConnection connection = url.openConnection();
+      connection.setUseCaches(false);
+      connection.setDefaultUseCaches(false);
+      connection.addRequestProperty("User-Agent", "Mozilla/5.0");
+      connection.addRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate");
+      connection.addRequestProperty("Pragma", "no-cache");
+      Collector<CharSequence, ?, String> c = joinLines ? Collectors.joining() : Collectors.joining("\n");
+      BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+      String reply = reader.lines().collect(c);
+      reader.close();
+      return reply;
+    } catch (IOException e) {
+      return null;
     }
+  }
 
-    public static String getTextResponse(String link, boolean joinLines) {
-        try {
-            URL url = new URL(link);
-            URLConnection connection = url.openConnection();
-            connection.setUseCaches(false);
-            connection.setDefaultUseCaches(false);
-            connection.addRequestProperty("User-Agent", "Mozilla/5.0");
-            connection.addRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate");
-            connection.addRequestProperty("Pragma", "no-cache");
-            Collector<CharSequence, ?, String> c = joinLines ? Collectors.joining() : Collectors.joining("\n");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            String reply = reader.lines().collect(c);
-            reader.close();
-            return reply;
-        } catch (IOException e) {
-            return null;
-        }
+  public static boolean download(File file, String link) {
+    try {
+      URL url = new URL(link);
+      URLConnection connection = url.openConnection();
+      connection.setUseCaches(false);
+      connection.setDefaultUseCaches(false);
+      connection.addRequestProperty("User-Agent", "Mozilla/5.0");
+      connection.addRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate");
+      connection.addRequestProperty("Pragma", "no-cache");
+      ReadableByteChannel rbc = Channels.newChannel(connection.getInputStream());
+      FileChannel fos = FileChannel.open(file.toPath(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
+      fos.transferFrom(rbc, 0, Long.MAX_VALUE);
+      fos.close();
+      return true;
+    } catch (IOException e) {
+      return false;
     }
+  }
 
-    public static boolean download(File file, String link) {
-        try {
-            URL url = new URL(link);
-            URLConnection connection = url.openConnection();
-            connection.setUseCaches(false);
-            connection.setDefaultUseCaches(false);
-            connection.addRequestProperty("User-Agent", "Mozilla/5.0");
-            connection.addRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate");
-            connection.addRequestProperty("Pragma", "no-cache");
-            ReadableByteChannel rbc = Channels.newChannel(connection.getInputStream());
-            FileChannel fos = FileChannel.open(file.toPath(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
-            fos.transferFrom(rbc, 0, Long.MAX_VALUE);
-            fos.close();
-            return true;
-        } catch (IOException e) {
-            return false;
-        }
+  public static byte[] download(String link) {
+    return download(link, NOP_ATOMIC_LONG);
+  }
+
+  public static byte[] download(String link, AtomicLong progressUpdate) {
+    try {
+      URLConnection connection = new URL(link).openConnection();
+      connection.setUseCaches(false);
+      connection.setDefaultUseCaches(false);
+      connection.addRequestProperty("User-Agent", "Mozilla/5.0");
+      connection.addRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate");
+      connection.addRequestProperty("Pragma", "no-cache");
+      InputStream is = connection.getInputStream();
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      progressUpdate.set(0);
+      byte[] byteChunk = new byte[4096];
+      int n;
+      while ((n = is.read(byteChunk)) > 0) {
+        baos.write(byteChunk, 0, n);
+        progressUpdate.set(baos.size());
+      }
+      is.close();
+      return baos.toByteArray();
+    } catch (IOException e) {
+      return null;
     }
+  }
 
-    public static byte[] download(String link) {
-        return download(link, NOP_ATOMIC_LONG);
+  public static long getContentSize(String link) {
+    try {
+      URLConnection connection = new URL(link).openConnection();
+      connection.setUseCaches(false);
+      connection.setDefaultUseCaches(false);
+      connection.addRequestProperty("User-Agent", "Mozilla/5.0");
+      connection.addRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate");
+      connection.addRequestProperty("Pragma", "no-cache");
+      if (connection instanceof HttpURLConnection) {
+        ((HttpURLConnection) connection).setRequestMethod("HEAD");
+      }
+      return connection.getContentLengthLong();
+    } catch (IOException e) {
+      return -1;
     }
+  }
 
-    public static byte[] download(String link, AtomicLong progressUpdate) {
-        try {
-            URLConnection connection = new URL(link).openConnection();
-            connection.setUseCaches(false);
-            connection.setDefaultUseCaches(false);
-            connection.addRequestProperty("User-Agent", "Mozilla/5.0");
-            connection.addRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate");
-            connection.addRequestProperty("Pragma", "no-cache");
-            InputStream is = connection.getInputStream();
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            progressUpdate.set(0);
-            byte[] byteChunk = new byte[4096];
-            int n;
-            while ((n = is.read(byteChunk)) > 0) {
-                baos.write(byteChunk, 0, n);
-                progressUpdate.set(baos.size());
-            }
-            is.close();
-            return baos.toByteArray();
-        } catch (IOException e) {
-            return null;
-        }
+  public static String getContentType(String link) {
+    try {
+      URLConnection connection = new URL(link).openConnection();
+      connection.setUseCaches(false);
+      connection.setDefaultUseCaches(false);
+      connection.addRequestProperty("User-Agent", "Mozilla/5.0");
+      connection.addRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate");
+      connection.addRequestProperty("Pragma", "no-cache");
+      if (connection instanceof HttpURLConnection) {
+        ((HttpURLConnection) connection).setRequestMethod("HEAD");
+      }
+      return connection.getContentType();
+    } catch (IOException e) {
+      return "";
     }
-
-    public static long getContentSize(String link) {
-        try {
-            URLConnection connection = new URL(link).openConnection();
-            connection.setUseCaches(false);
-            connection.setDefaultUseCaches(false);
-            connection.addRequestProperty("User-Agent", "Mozilla/5.0");
-            connection.addRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate");
-            connection.addRequestProperty("Pragma", "no-cache");
-            if (connection instanceof HttpURLConnection) {
-                ((HttpURLConnection) connection).setRequestMethod("HEAD");
-            }
-            return connection.getContentLengthLong();
-        } catch (IOException e) {
-            return -1;
-        }
-    }
-
-    public static String getContentType(String link) {
-        try {
-            URLConnection connection = new URL(link).openConnection();
-            connection.setUseCaches(false);
-            connection.setDefaultUseCaches(false);
-            connection.addRequestProperty("User-Agent", "Mozilla/5.0");
-            connection.addRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate");
-            connection.addRequestProperty("Pragma", "no-cache");
-            if (connection instanceof HttpURLConnection) {
-                ((HttpURLConnection) connection).setRequestMethod("HEAD");
-            }
-            return connection.getContentType();
-        } catch (IOException e) {
-            return "";
-        }
-    }
-
+  }
 }

@@ -7,4 +7,5 @@ max-download-size: 50
 # enable disc cleaning before re-record disc
 cleaning-disc: false
 # Language of plugin
+# Supported en_US, ru_RU
 locale: 'en_US'

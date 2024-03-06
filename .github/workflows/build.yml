@@ -1,0 +1,25 @@
+name: Customdiscs CI
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.0.0
+      - name: Set up JDK
+        uses: actions/setup-java@v3.0.0
+        with:
+          distribution: adopt
+          java-version: 17
+      - name: Build CustomDiscs
+        run: ./gradlew build
+      - name: Upload CustomDiscs
+        uses: actions/upload-artifact@v3.0.0
+        with:
+          path: "*/build/libs/*.jar"

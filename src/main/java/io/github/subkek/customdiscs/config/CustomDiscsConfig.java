@@ -1,51 +1,43 @@
 package io.github.subkek.customdiscs.config;
 
+import io.github.subkek.customdiscs.CustomDiscs;
 import io.github.subkek.customdiscs.utils.Languages;
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 
+@Getter
 public class CustomDiscsConfig {
-    private final io.github.subkek.customdiscs.CustomDiscs plugin = io.github.subkek.customdiscs.CustomDiscs.getInstance();
-    private FileConfiguration bukkitConfig = plugin.getConfig();
+  private final CustomDiscs plugin = CustomDiscs.getInstance();
+  private FileConfiguration bukkitConfig = plugin.getConfig();
 
-    private int musicDiscDistance;
-    private float musicDiscVolume;
-    private int maxDownloadSize;
-    private String locale;
-    private boolean discCleaning;
-    private int discsPlayed = 0;
+  private int musicDiscDistance;
+  private float musicDiscVolume;
+  private int maxDownloadSize;
+  private String locale;
+  private boolean discCleaning;
+  @Setter private int discsPlayed = 0;
 
+  public void init() {
+    musicDiscDistance = bukkitConfig.getInt("music-disc-distance", 16);
+    musicDiscVolume = Float.parseFloat(bukkitConfig.getString("music-disc-volume", "1"));
+    maxDownloadSize = bukkitConfig.getInt("max-download-size", 50);
+    discCleaning = bukkitConfig.getBoolean("cleaning-disc", false);
 
-    public int getMusicDiscDistance() { return musicDiscDistance; }
-    public float getMusicDiscVolume() { return musicDiscVolume; }
-    public int getMaxDownloadSize() { return maxDownloadSize; }
-    public String getLocale() { return locale; }
-    public boolean getDiscCleaning() { return discCleaning; }
-
-    public void init() {
-        musicDiscDistance = bukkitConfig.getInt("music-disc-distance", 16);
-        musicDiscVolume = Float.parseFloat(bukkitConfig.getString("music-disc-volume", "1"));
-        maxDownloadSize = bukkitConfig.getInt("max-download-size", 50);
-        discCleaning = bukkitConfig.getBoolean("cleaning-disc", false);
-
-        locale = bukkitConfig.getString("locale", Languages.ENGLISH.toString());
-        if (!Languages.languageExists(locale)) {
-            locale = Languages.ENGLISH.toString();
-            plugin.getSLF4JLogger().warn("Your language is not supported! Please set supported language in config!");
-        }
+    locale = bukkitConfig.getString("locale", Languages.ENGLISH.toString());
+    if (!Languages.languageExists(locale)) {
+      locale = Languages.ENGLISH.toString();
+      plugin.getSLF4JLogger().warn("Your language is not supported! Please set supported language in the config!");
     }
+  }
 
-    public void reload() {
-        plugin.reloadConfig();
-        bukkitConfig = plugin.getConfig();
-        init();
-    }
+  public void reload() {
+    plugin.reloadConfig();
+    bukkitConfig = plugin.getConfig();
+    init();
+  }
 
-    public void saveDefaultConfig() {
-        plugin.saveDefaultConfig();
-    }
-
-    public void increaseDiscPlayed() { discsPlayed++; }
-    public int getDiscsPlayed() { return discsPlayed; }
-    public void resetDiscPlayed() { discsPlayed = 0; }
+  public void saveDefaultConfig() {
+    plugin.saveDefaultConfig();
+  }
 }

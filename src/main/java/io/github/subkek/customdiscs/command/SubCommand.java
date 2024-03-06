@@ -1,15 +1,15 @@
 package io.github.subkek.customdiscs.command;
 
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public abstract class SubCommand {
+public interface SubCommand {
+  String getName();
 
-    public abstract String getName();
+  String getDescription();
 
-    public abstract String getDescription();
+  String getSyntax();
+  boolean hasPermission(CommandSender sender);
 
-    public abstract String getSyntax();
-
-    public abstract void perform(Player player, String[] args);
-
+  void perform(Player player, String[] args);
 }

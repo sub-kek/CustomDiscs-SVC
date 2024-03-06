@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "io.github.subkek.customdiscs"
-version = "1.3.0"
+version = "1.3.1"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
@@ -29,10 +29,13 @@ dependencies {
     compileOnly("com.fasterxml.jackson.core:jackson-databind:2.15.3")
     compileOnly("commons-io:commons-io:2.14.0")
     compileOnly("net.kyori:adventure-api:4.14.0")
+    compileOnly("org.projectlombok:lombok:1.18.30")
+
+    annotationProcessor("org.projectlombok:lombok:1.18.30")
 }
 
 tasks.jar {
-    archiveFileName = "${rootProject.name}-$version-dev.jar"
+    enabled = false
 }
 
 tasks.build {

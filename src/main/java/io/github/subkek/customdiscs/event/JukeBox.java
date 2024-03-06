@@ -1,7 +1,13 @@
 package io.github.subkek.customdiscs.event;
 
+import io.github.subkek.customdiscs.CustomDiscs;
+import io.github.subkek.customdiscs.PlayerManager;
+import io.github.subkek.customdiscs.VoicePlugin;
+import io.github.subkek.customdiscs.YouTubePlayerManager;
+import io.github.subkek.customdiscs.utils.Formatter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -23,152 +29,152 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Objects;
 
-public class JukeBox implements Listener{
+public class JukeBox implements Listener {
+  private final CustomDiscs plugin = CustomDiscs.getInstance();
+  PlayerManager playerManager = PlayerManager.instance();
+  private final MiniMessage miniMessage = MiniMessage.miniMessage();
 
-    private final io.github.subkek.customdiscs.CustomDiscs plugin = io.github.subkek.customdiscs.CustomDiscs.getInstance();
-    io.github.subkek.customdiscs.PlayerManager playerManager = io.github.subkek.customdiscs.PlayerManager.instance();
+  @EventHandler (priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  public void onInsert(PlayerInteractEvent event) throws IOException {
+    Player player = event.getPlayer();
+    Block block = event.getClickedBlock();
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onInsert(PlayerInteractEvent event) throws IOException {
+    if (event.getAction() != Action.RIGHT_CLICK_BLOCK || event.getClickedBlock() == null || event.getItem() == null || event.getItem().getItemMeta() == null || block == null)
+      return;
+    if (event.getClickedBlock().getType() != Material.JUKEBOX) return;
 
-        Player player = event.getPlayer();
-        Block block = event.getClickedBlock();
+    boolean isCustomDisc = isCustomMusicDisc(event.getItem());
+    boolean isYouTubeCustomDisc = isCustomMusicDiscYouTube(event.getItem());
 
-        if (event.getAction() != Action.RIGHT_CLICK_BLOCK || event.getClickedBlock() == null || event.getItem() == null || event.getItem().getItemMeta() == null || block == null) return;
-        if (event.getClickedBlock().getType() != Material.JUKEBOX) return;
+    if (isCustomDisc && !jukeboxContainsDisc(block)) {
+      if (!player.hasPermission("customdiscs.play")) {
+        player.sendMessage(miniMessage.deserialize(Formatter.format(plugin.language.get("play-no-permission-error"), true)));
+        return;
+      }
 
-        boolean isCustomDisc = isCustomMusicDisc(event.getItem());
-        boolean isYouTubeCustomDisc = isCustomMusicDiscYouTube(event.getItem());
+      plugin.config.setDiscsPlayed(plugin.config.getDiscsPlayed() + 1);
 
-        if (isCustomDisc && !jukeboxContainsDisc(block)) {
-            if (!player.hasPermission("customdiscs.play")) {
-                player.sendMessage(io.github.subkek.customdiscs.utils.Formatter.format(plugin.language.get("play-no-permission-error"), true));
-                return;
-            }
+      String soundFileName = event.getItem().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(plugin, "customdisc"), PersistentDataType.STRING);
 
-            plugin.config.increaseDiscPlayed();
+      Path soundFilePath = Path.of(plugin.getDataFolder().getPath(), "musicdata", soundFileName);
 
-            String soundFileName = event.getItem().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(plugin, "customdisc"), PersistentDataType.STRING);
+      if (soundFilePath.toFile().exists()) {
+        Component songNameComponent = Objects.requireNonNull(event.getItem().getItemMeta().lore()).get(0).asComponent();
+        String songName = PlainTextComponentSerializer.plainText().serialize(songNameComponent);
 
-            Path soundFilePath = Path.of(plugin.getDataFolder().getPath(), "musicdata", soundFileName);
+        TextComponent customActionBarSongPlaying = Component.text()
+            .content(Formatter.format(plugin.language.get("now-playing"), songName))
+            .build();
 
-            if (soundFilePath.toFile().exists()) {
-                Component songNameComponent = Objects.requireNonNull(event.getItem().getItemMeta().lore()).get(0).asComponent();
-                String songName = PlainTextComponentSerializer.plainText().serialize(songNameComponent);
-
-                TextComponent customActionBarSongPlaying = Component.text()
-                        .content(io.github.subkek.customdiscs.utils.Formatter.format(plugin.language.get("now-playing"), songName))
-                        .build();
-
-                assert io.github.subkek.customdiscs.VoicePlugin.voicechatServerApi != null;
-                playerManager.playLocationalAudio(io.github.subkek.customdiscs.VoicePlugin.voicechatServerApi, soundFilePath, block, customActionBarSongPlaying.asComponent());
-            } else {
-                player.sendMessage(io.github.subkek.customdiscs.utils.Formatter.format(plugin.language.get("file-not-found"), true));
-                event.setCancelled(true);
-                throw new FileNotFoundException("File not found!");
-            }
-        }
-
-        if (isYouTubeCustomDisc && !jukeboxContainsDisc(block)) {
-            if (!player.hasPermission("customdiscs.playt")) {
-                player.sendMessage(io.github.subkek.customdiscs.utils.Formatter.format(plugin.language.get("play-no-permission-error"), true));
-                return;
-            }
-
-            plugin.config.increaseDiscPlayed();
-
-            String soundLink = event.getItem().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(plugin, "customdiscyt"), PersistentDataType.STRING);
-
-            Component songNameComponent = Objects.requireNonNull(event.getItem().getItemMeta().lore()).get(0).asComponent();
-            String songName = PlainTextComponentSerializer.plainText().serialize(songNameComponent);
-
-            TextComponent customActionBarSongPlaying = Component.text()
-                    .content(io.github.subkek.customdiscs.utils.Formatter.format(plugin.language.get("now-playing"), songName))
-                    .build();
-
-            assert io.github.subkek.customdiscs.VoicePlugin.voicechatServerApi != null;
-            io.github.subkek.customdiscs.YouTubePlayerManager.instance(block).playLocationalAudioYoutube(io.github.subkek.customdiscs.VoicePlugin.voicechatServerApi, soundLink, customActionBarSongPlaying);
-        }
+        assert VoicePlugin.voicechatServerApi != null;
+        playerManager.playLocationalAudio(VoicePlugin.voicechatServerApi, soundFilePath, block, customActionBarSongPlaying.asComponent());
+      } else {
+        player.sendMessage(miniMessage.deserialize(Formatter.format(plugin.language.get("file-not-found"), true)));
+        event.setCancelled(true);
+        throw new FileNotFoundException("File not found!");
+      }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onEject(PlayerInteractEvent event) {
+    if (isYouTubeCustomDisc && !jukeboxContainsDisc(block)) {
+      if (!player.hasPermission("customdiscs.playt")) {
+        player.sendMessage(miniMessage.deserialize(Formatter.format(plugin.language.get("play-no-permission-error"), true)));
+        return;
+      }
 
-        Player player = event.getPlayer();
-        Block block = event.getClickedBlock();
+      plugin.config.setDiscsPlayed(plugin.config.getDiscsPlayed() + 1);
 
-        if (event.getAction() != Action.RIGHT_CLICK_BLOCK || event.getClickedBlock() == null || block == null) return;
-        if (event.getClickedBlock().getType() != Material.JUKEBOX) return;
+      String soundLink = event.getItem().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(plugin, "customdiscyt"), PersistentDataType.STRING);
 
-        if (jukeboxContainsDisc(block)) {
+      Component songNameComponent = Objects.requireNonNull(event.getItem().getItemMeta().lore()).get(0).asComponent();
+      String songName = PlainTextComponentSerializer.plainText().serialize(songNameComponent);
 
-            ItemStack itemInvolvedInEvent;
-            if (event.getMaterial().equals(Material.AIR)) {
+      TextComponent customActionBarSongPlaying = Component.text()
+          .content(Formatter.format(plugin.language.get("now-playing"), songName))
+          .build();
 
-                if (!player.getInventory().getItemInMainHand().getType().equals(Material.AIR)) {
-                    itemInvolvedInEvent = player.getInventory().getItemInMainHand();
-                } else if (!player.getInventory().getItemInOffHand().getType().equals(Material.AIR)) {
-                    itemInvolvedInEvent = player.getInventory().getItemInOffHand();
-                } else {
-                    itemInvolvedInEvent = new ItemStack(Material.AIR);
-                }
-
-            } else {
-                itemInvolvedInEvent = new ItemStack(event.getMaterial());
-            }
-
-            if (player.isSneaking() && !itemInvolvedInEvent.getType().equals(Material.AIR)) return;
-
-            if (jukeboxContainsDisc(block)) {
-                stopDisc(block);
-                io.github.subkek.customdiscs.YouTubePlayerManager.stopPlaying(block);
-            }
-        }
+      assert VoicePlugin.voicechatServerApi != null;
+      YouTubePlayerManager.instance(block).playLocationalAudioYoutube(VoicePlugin.voicechatServerApi, soundLink, customActionBarSongPlaying);
     }
+  }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onJukeboxBreak(BlockBreakEvent event) {
+  @EventHandler (priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  public void onEject(PlayerInteractEvent event) {
 
-        Block block = event.getBlock();
+    Player player = event.getPlayer();
+    Block block = event.getClickedBlock();
 
-        if (block.getType() != Material.JUKEBOX) return;
+    if (event.getAction() != Action.RIGHT_CLICK_BLOCK || event.getClickedBlock() == null || block == null) return;
+    if (event.getClickedBlock().getType() != Material.JUKEBOX) return;
 
+    if (jukeboxContainsDisc(block)) {
+
+      ItemStack itemInvolvedInEvent;
+      if (event.getMaterial().equals(Material.AIR)) {
+
+        if (!player.getInventory().getItemInMainHand().getType().equals(Material.AIR)) {
+          itemInvolvedInEvent = player.getInventory().getItemInMainHand();
+        } else if (!player.getInventory().getItemInOffHand().getType().equals(Material.AIR)) {
+          itemInvolvedInEvent = player.getInventory().getItemInOffHand();
+        } else {
+          itemInvolvedInEvent = new ItemStack(Material.AIR);
+        }
+
+      } else {
+        itemInvolvedInEvent = new ItemStack(event.getMaterial());
+      }
+
+      if (player.isSneaking() && !itemInvolvedInEvent.getType().equals(Material.AIR)) return;
+
+      if (jukeboxContainsDisc(block)) {
         stopDisc(block);
-        io.github.subkek.customdiscs.YouTubePlayerManager.stopPlaying(block);
+        YouTubePlayerManager.stopPlaying(block);
+      }
+    }
+  }
+
+  @EventHandler (priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  public void onJukeboxBreak(BlockBreakEvent event) {
+
+    Block block = event.getBlock();
+
+    if (block.getType() != Material.JUKEBOX) return;
+
+    stopDisc(block);
+    YouTubePlayerManager.stopPlaying(block);
+  }
+
+  @EventHandler (priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  public void onJukeboxExplode(EntityExplodeEvent event) {
+
+    for (Block explodedBlock : event.blockList()) {
+      if (explodedBlock.getType() == Material.JUKEBOX) {
+        stopDisc(explodedBlock);
+        YouTubePlayerManager.stopPlaying(explodedBlock);
+      }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onJukeboxExplode(EntityExplodeEvent event) {
+  }
 
-        for (Block explodedBlock : event.blockList()) {
-            if (explodedBlock.getType() == Material.JUKEBOX) {
-                stopDisc(explodedBlock);
-                io.github.subkek.customdiscs.YouTubePlayerManager.stopPlaying(explodedBlock);
-            }
-        }
+  public boolean jukeboxContainsDisc(Block b) {
+    Jukebox jukebox = (Jukebox) b.getLocation().getBlock().getState();
+    return jukebox.getRecord().getType() != Material.AIR;
+  }
 
-    }
+  public boolean isCustomMusicDisc(ItemStack item) {
 
-    public boolean jukeboxContainsDisc(Block b) {
-        Jukebox jukebox = (Jukebox) b.getLocation().getBlock().getState();
-        return jukebox.getRecord().getType() != Material.AIR;
-    }
+    if (item == null) return false;
 
-    public boolean isCustomMusicDisc(ItemStack item) {
+    return item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(plugin, "customdisc"), PersistentDataType.STRING);
+  }
 
-        if (item==null) return false;
+  public boolean isCustomMusicDiscYouTube(ItemStack item) {
 
-        return item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(plugin, "customdisc"), PersistentDataType.STRING);
-    }
+    if (item == null) return false;
 
-    public boolean isCustomMusicDiscYouTube(ItemStack item) {
+    return item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(plugin, "customdiscyt"), PersistentDataType.STRING);
+  }
 
-        if (item==null) return false;
-
-        return item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(plugin, "customdiscyt"), PersistentDataType.STRING);
-    }
-
-    private void stopDisc(Block block) {
-        playerManager.stopLocationalAudio(block.getLocation());
-    }
+  private void stopDisc(Block block) {
+    playerManager.stopLocationalAudio(block.getLocation());
+  }
 }
