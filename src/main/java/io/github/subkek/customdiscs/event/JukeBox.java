@@ -62,9 +62,7 @@ public class JukeBox implements Listener {
         Component songNameComponent = Objects.requireNonNull(event.getItem().getItemMeta().lore()).get(0).asComponent();
         String songName = PlainTextComponentSerializer.plainText().serialize(songNameComponent);
 
-        TextComponent customActionBarSongPlaying = Component.text()
-            .content(Formatter.format(plugin.language.get("now-playing"), songName))
-            .build();
+        Component customActionBarSongPlaying = miniMessage.deserialize(Formatter.format(plugin.language.get("now-playing"), songName));
 
         assert VoicePlugin.voicechatServerApi != null;
         playerManager.playLocationalAudio(VoicePlugin.voicechatServerApi, soundFilePath, block, customActionBarSongPlaying.asComponent());
@@ -88,9 +86,7 @@ public class JukeBox implements Listener {
       Component songNameComponent = Objects.requireNonNull(event.getItem().getItemMeta().lore()).get(0).asComponent();
       String songName = PlainTextComponentSerializer.plainText().serialize(songNameComponent);
 
-      TextComponent customActionBarSongPlaying = Component.text()
-          .content(Formatter.format(plugin.language.get("now-playing"), songName))
-          .build();
+      Component customActionBarSongPlaying = miniMessage.deserialize(Formatter.format(plugin.language.get("now-playing"), songName));
 
       assert VoicePlugin.voicechatServerApi != null;
       YouTubePlayerManager.instance(block).playLocationalAudioYoutube(VoicePlugin.voicechatServerApi, soundLink, customActionBarSongPlaying);
