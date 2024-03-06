@@ -22,4 +22,5 @@ jobs:
       - name: Upload CustomDiscs
         uses: actions/upload-artifact@v3.0.0
         with:
+          name: "CustomDiscs"
           path: "build/libs/*.jar"
