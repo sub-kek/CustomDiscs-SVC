@@ -9,7 +9,7 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.BlockPosition;
 import de.maxhenkel.voicechat.api.BukkitVoicechatService;
-import io.github.subkek.customdiscs.command.CommandManager;
+import io.github.subkek.customdiscs.command.CustomDiscsCommand;
 import io.github.subkek.customdiscs.config.CustomDiscsConfig;
 import io.github.subkek.customdiscs.event.ClearDiscs;
 import io.github.subkek.customdiscs.event.JukeBox;
@@ -76,7 +76,7 @@ public final class CustomDiscs extends JavaPlugin {
 
     getServer().getPluginManager().registerEvents(new JukeBox(), this);
     getServer().getPluginManager().registerEvents(new ClearDiscs(), this);
-    Objects.requireNonNull(getCommand("customdisc")).setExecutor(new CommandManager());
+    Objects.requireNonNull(getCommand("customdisc")).setExecutor(new CustomDiscsCommand());
 
     ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
     particleManager = new ParticleManager();

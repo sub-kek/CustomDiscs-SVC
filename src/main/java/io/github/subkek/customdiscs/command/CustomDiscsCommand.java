@@ -17,18 +17,19 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
-public class CommandManager implements CommandExecutor, TabCompleter {
+public class CustomDiscsCommand implements CommandExecutor, TabCompleter {
   private final CustomDiscs plugin = CustomDiscs.getInstance();
-  @Getter private final ArrayList<SubCommand> subCommands = new ArrayList<>();
+  @Getter private final HashMap<String, SubCommand> subCommands = new HashMap<>();
   private final MiniMessage miniMessage = MiniMessage.miniMessage();
 
-  public CommandManager() {
-    subCommands.add(new CreateCommand());
-    subCommands.add(new DownloadCommand());
-    subCommands.add(new ReloadCommand());
-    subCommands.add(new CreateYtCommand());
+  public CustomDiscsCommand() {
+    subCommands.put("create", new CreateCommand());
+    subCommands.put("download", new DownloadCommand());
+    subCommands.put("reload", new ReloadCommand());
+    subCommands.put("createyt", new CreateYtCommand());
   }
 
   @Override
@@ -39,9 +40,9 @@ public class CommandManager implements CommandExecutor, TabCompleter {
     }
 
     if (args.length > 0) {
-      for (int i = 0; i < getSubCommands().size(); i++) {
-        if (args[0].equalsIgnoreCase(getSubCommands().get(i).getName())) {
-          getSubCommands().get(i).perform(player, args);
+      for (SubCommand subCommand : getSubCommands().values()) {
+        if (subCommand.getName().contains(args[0])) {
+          subCommand.perform(player, args);
         }
       }
     } else {
@@ -63,8 +64,40 @@ public class CommandManager implements CommandExecutor, TabCompleter {
 
     switch (args.length) {
       case 1 -> {
-        for (SubCommand subCommand : getSubCommands()) {
+        for (SubCommand subCommand : getSubCommands().values()) {
           if (subCommand.hasPermission(sender)) arguments.add(subCommand.getName());
+        }
+      }
+
+      case 2 -> {
+        switch (args[0]) {
+          case "create" -> {
+            if (getSubCommands().get("create").hasPermission(sender)) arguments.add(plugin.language.get("download-command-2nd-argument"));
+          }
+
+          case "createyt" -> {
+            if (getSubCommands().get("createyt").hasPermission(sender)) arguments.add(plugin.language.get("createyt-command-1st-argument"));
+          }
+
+          case "download" -> {
+            if (getSubCommands().get("download").hasPermission(sender)) arguments.add(plugin.language.get("download-command-1st-argument"));
+          }
+
+          default -> arguments.add(plugin.language.get("unknown-argument-complete"));
+        }
+      }
+
+      case 3 -> {
+        switch (args[0]) {
+          case "create", "createyt" -> {
+            if (getSubCommands().get(args[0]).hasPermission(sender)) arguments.add(plugin.language.get("create-commands-2nd-argument"));
+          }
+
+          case "download" -> {
+            if (getSubCommands().get("download").hasPermission(sender)) arguments.add(plugin.language.get("download-command-2nd-argument"));
+          }
+
+          default -> arguments.add(plugin.language.get("unknown-argument-complete"));
         }
       }
 

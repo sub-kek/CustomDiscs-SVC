@@ -2,7 +2,7 @@
 ## Special thanks
 [Navoei CustomDiscs](https://github.com/Navoei/CustomDiscs) | [henkelmax AudioPlayer](https://github.com/henkelmax/audio-player) | [sedmelluq lavaplayer](https://github.com/sedmelluq/lavaplayer)
 
-Create music discs using mp3, wav and flac files, and play audio from YouTube and Twich. Enhance and create a unique atmosphere in your game world.
+Create music discs using mp3, wav and flac files, and play audio from YouTube. Enhance and create a unique atmosphere in your game world.
 ## Configuration
 ```yaml
 # The distance from which music discs can be heard in blocks.

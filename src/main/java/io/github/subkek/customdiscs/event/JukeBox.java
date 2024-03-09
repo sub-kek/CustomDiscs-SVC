@@ -141,14 +141,12 @@ public class JukeBox implements Listener {
 
   @EventHandler (priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void onJukeboxExplode(EntityExplodeEvent event) {
-
     for (Block explodedBlock : event.blockList()) {
       if (explodedBlock.getType() == Material.JUKEBOX) {
         stopDisc(explodedBlock);
         YouTubePlayerManager.stopPlaying(explodedBlock);
       }
     }
-
   }
 
   public boolean jukeboxContainsDisc(Block b) {

@@ -4,6 +4,7 @@ import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
+import com.sedmelluq.discord.lavaplayer.source.http.HttpAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.twitch.TwitchStreamAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
@@ -42,7 +43,6 @@ public class YouTubePlayerManager extends Thread {
 
   public YouTubePlayerManager(Block block) {
     lavaPlayerManager.registerSourceManager(new YoutubeAudioSourceManager());
-    lavaPlayerManager.registerSourceManager(new TwitchStreamAudioSourceManager());
     audioPlayer = lavaPlayerManager.createPlayer();
     uuid = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
     this.block = block;
