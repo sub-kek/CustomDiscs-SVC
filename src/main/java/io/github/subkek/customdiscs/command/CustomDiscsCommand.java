@@ -41,8 +41,9 @@ public class CustomDiscsCommand implements CommandExecutor, TabCompleter {
 
     if (args.length > 0) {
       for (SubCommand subCommand : getSubCommands().values()) {
-        if (subCommand.getName().contains(args[0])) {
+        if (subCommand.getName().equals(args[0])) {
           subCommand.perform(player, args);
+          break;
         }
       }
     } else {

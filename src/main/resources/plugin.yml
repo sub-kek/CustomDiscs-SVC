@@ -1,7 +1,7 @@
 name: 'CustomDiscs'
 version: '$version'
 main: 'io.github.subkek.customdiscs.CustomDiscs'
-api-version: '1.17'
+api-version: '1.18'
 authors: [ 'sub-kek' ]
 description: 'Custom discs for SVC by sub-kek.'
 depend: [ 'voicechat', 'ProtocolLib' ]
