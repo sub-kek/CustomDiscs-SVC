@@ -1,5 +1,8 @@
-package io.github.subkek.customdiscs;
+package io.github.subkek.customdiscs.particle;
 
+import io.github.subkek.customdiscs.CustomDiscs;
+import io.github.subkek.customdiscs.PlayerManager;
+import io.github.subkek.customdiscs.YouTubePlayerManager;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.block.Jukebox;
@@ -7,11 +10,12 @@ import org.bukkit.block.Jukebox;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ParticleManager {
+public class FoliaParticleManager implements ParticleManager{
   private final CustomDiscs plugin = CustomDiscs.getInstance();
   private final PlayerManager playerManager = PlayerManager.instance();
   private final Set<Location> locationParticleManager = new HashSet<>();
 
+  @Override
   public void start(Jukebox jukebox) {
     if (locationParticleManager.contains(jukebox.getLocation())) return;
     plugin.getServer().getRegionScheduler().runAtFixedRate(plugin, jukebox.getLocation(), t -> {

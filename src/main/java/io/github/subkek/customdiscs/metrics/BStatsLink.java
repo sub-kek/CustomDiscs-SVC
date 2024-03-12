@@ -1,5 +1,6 @@
 package io.github.subkek.customdiscs.metrics;
 
+import io.github.subkek.customdiscs.CustomDiscs;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -56,7 +57,9 @@ public class BStatsLink {
     boolean logErrors = config.getBoolean("logFailedRequests", false);
     boolean logSentData = config.getBoolean("logSentData", false);
     boolean logResponseStatusText = config.getBoolean("logResponseStatusText", false);
-    metricsBase = new MetricsBase("bukkit", serverUUID, serviceId, enabled, this::appendPlatformData, this::appendServiceData, submitDataTask -> Bukkit.getAsyncScheduler().runNow(plugin, t -> submitDataTask.run()), plugin::isEnabled, (message, error) -> this.plugin.getLogger().log(Level.WARNING, message, error), (message) -> this.plugin.getLogger().log(Level.INFO, message), logErrors, logSentData, logResponseStatusText);
+    metricsBase = new MetricsBase("bukkit", serverUUID, serviceId, enabled, this::appendPlatformData, this::appendServiceData,
+        CustomDiscs.getInstance().isFolia() ? submitDataTask -> Bukkit.getAsyncScheduler().runNow(plugin, t -> submitDataTask.run()) : submitDataTask -> Bukkit.getScheduler().runTask(plugin, submitDataTask),
+        plugin::isEnabled, (message, error) -> this.plugin.getLogger().log(Level.WARNING, message, error), (message) -> this.plugin.getLogger().log(Level.INFO, message), logErrors, logSentData, logResponseStatusText);
   }
 
   public void addCustomChart(CustomChart chart) {metricsBase.addCustomChart(chart);}

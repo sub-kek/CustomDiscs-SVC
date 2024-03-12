@@ -16,6 +16,9 @@ import io.github.subkek.customdiscs.event.JukeBox;
 import io.github.subkek.customdiscs.language.FileLanguage;
 import io.github.subkek.customdiscs.libs.AssetsDownloader;
 import io.github.subkek.customdiscs.metrics.BStatsLink;
+import io.github.subkek.customdiscs.particle.BukkitParticleManager;
+import io.github.subkek.customdiscs.particle.FoliaParticleManager;
+import io.github.subkek.customdiscs.particle.ParticleManager;
 import lombok.Getter;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -79,7 +82,7 @@ public final class CustomDiscs extends JavaPlugin {
     Objects.requireNonNull(getCommand("customdisc")).setExecutor(new CustomDiscsCommand());
 
     ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
-    particleManager = new ParticleManager();
+    particleManager = isFolia() ? new FoliaParticleManager() : new BukkitParticleManager();
 
     protocolManager.addPacketListener(new PacketAdapter(this, ListenerPriority.NORMAL, PacketType.Play.Server.WORLD_EVENT) {
       @Override
@@ -102,12 +105,14 @@ public final class CustomDiscs extends JavaPlugin {
 
           if (jukebox.getRecord().getItemMeta().getPersistentDataContainer().has(new NamespacedKey(CustomDiscs.getInstance(), "customdisc"), PersistentDataType.STRING)) {
             event.setCancelled(true);
+            jukebox.stopPlaying();
+            particleManager.start(jukebox);
           }
           if (jukebox.getRecord().getItemMeta().getPersistentDataContainer().has(new NamespacedKey(CustomDiscs.getInstance(), "customdiscyt"), PersistentDataType.STRING)) {
             event.setCancelled(true);
+            jukebox.stopPlaying();
+            particleManager.start(jukebox);
           }
-
-          particleManager.start(jukebox);
         }
       }
     });
@@ -131,5 +136,14 @@ public final class CustomDiscs extends JavaPlugin {
       config.setDiscsPlayed(0);
       return value;
     }));
+  }
+
+  public boolean isFolia() {
+    try {
+      Class.forName("io.papermc.paper.threadedregions.RegionizedServer");
+      return true;
+    } catch (ClassNotFoundException e) {
+      return false;
+    }
   }
 }

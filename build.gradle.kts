@@ -1,21 +1,22 @@
+import org.apache.tools.ant.util.JavaEnvUtils
+
 plugins {
     id("java")
     id("com.github.johnrengelman.shadow") version ("8.1.1")
 }
 
-group = "io.github.subkek.customdiscs"
-version = "1.3.4"
-java.sourceCompatibility = JavaVersion.VERSION_17
+allprojects {
+    apply {
+        plugin("java")
+    }
 
-repositories {
-    mavenCentral()
-    maven("https://repo.papermc.io/repository/maven-public/")
-    maven("https://repo.dmulloy2.net/repository/public/")
-    maven("https://maven.maxhenkel.de/repository/public")
-    maven("https://jitpack.io")
-    maven("https://m2.dv8tion.net/releases")
-    maven("https://repo.maven.apache.org/maven2/")
+    group = "io.github.subkek.customdiscs"
+    version = "1.3.5"
 }
+
+java.sourceCompatibility = JavaVersion.VERSION_16
+java.targetCompatibility = JavaVersion.VERSION_16
+java.disableAutoTargetJvm()
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
@@ -28,7 +29,6 @@ dependencies {
     compileOnly("com.fasterxml.jackson.core:jackson-core:2.15.3")
     compileOnly("com.fasterxml.jackson.core:jackson-databind:2.15.3")
     compileOnly("commons-io:commons-io:2.14.0")
-    compileOnly("net.kyori:adventure-api:4.14.0")
     compileOnly("org.projectlombok:lombok:1.18.30")
 
     annotationProcessor("org.projectlombok:lombok:1.18.30")

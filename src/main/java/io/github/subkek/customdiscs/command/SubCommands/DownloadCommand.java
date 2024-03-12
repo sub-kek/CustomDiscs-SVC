@@ -49,7 +49,7 @@ public class DownloadCommand implements SubCommand {
       return;
     }
 
-    plugin.getServer().getAsyncScheduler().runNow(plugin, t -> {
+    Runnable downloadTask = () -> {
       try {
         URL fileURL = new URL(args[1]);
         String filename = args[2];
@@ -84,7 +84,13 @@ public class DownloadCommand implements SubCommand {
       } catch (Exception e) {
         player.sendMessage(miniMessage.deserialize(Formatter.format(plugin.language.get("download-error"), true)));
       }
-    });
+    };
+
+    if (plugin.isFolia()) {
+      plugin.getServer().getAsyncScheduler().runNow(plugin, t -> downloadTask.run());
+    } else {
+      plugin.getServer().getScheduler().runTaskAsynchronously(plugin, downloadTask);
+    }
   }
 
   private String getFileExtension(String s) {

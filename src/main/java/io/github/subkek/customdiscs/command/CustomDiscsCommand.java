@@ -47,8 +47,8 @@ public class CustomDiscsCommand implements CommandExecutor, TabCompleter {
       }
     } else {
       player.sendMessage(plugin.language.getAsComponent("help-header"));
-      for (int i = 0; i < getSubCommands().size(); i++) {
-        player.sendMessage(miniMessage.deserialize(Formatter.format(plugin.language.get("help-command"), getSubCommands().get(i).getSyntax(), getSubCommands().get(i).getDescription())));
+      for (SubCommand subCommand : getSubCommands().values()) {
+        player.sendMessage(miniMessage.deserialize(Formatter.format(plugin.language.get("help-command"),subCommand.getSyntax(), subCommand.getDescription())));
       }
       if (plugin.config.isDiscCleaning())
         player.sendMessage(plugin.language.getAsComponent("help-disc-cleaning"));
