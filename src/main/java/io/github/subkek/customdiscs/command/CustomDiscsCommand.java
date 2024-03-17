@@ -88,10 +88,6 @@ public class CustomDiscsCommand implements CommandExecutor, TabCompleter {
 
       case 3 -> {
         switch (args[0]) {
-          case "create", "createyt" -> {
-            if (getSubCommands().get(args[0]).hasPermission(sender)) arguments.add(plugin.language.get("create-commands-2nd-argument"));
-          }
-
           case "download" -> {
             if (getSubCommands().get("download").hasPermission(sender)) arguments.add(plugin.language.get("download-command-2nd-argument"));
           }
@@ -100,7 +96,13 @@ public class CustomDiscsCommand implements CommandExecutor, TabCompleter {
         }
       }
 
-      default -> arguments.add(plugin.language.get("unknown-argument-complete"));
+      default -> {
+        if (args.length > 2 && (args[0].equals("create") || args[0].equals("createyt"))) {
+            if (getSubCommands().get(args[0]).hasPermission(sender)) arguments.add(plugin.language.get("create-commands-2nd-argument"));
+        } else {
+          arguments.add(plugin.language.get("unknown-argument-complete"));
+        }
+      }
     }
 
     return arguments;

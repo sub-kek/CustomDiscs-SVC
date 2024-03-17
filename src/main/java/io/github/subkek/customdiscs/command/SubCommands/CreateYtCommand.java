@@ -106,7 +106,12 @@ public class CreateYtCommand implements SubCommand {
     for (String s : args) {
       if (s.startsWith("\"") && s.endsWith("\"")) {
         temp += s.substring(1, s.length() - 1);
-        quotes.add(temp);
+        boolean isOneQuote = temp.isBlank();
+        if (!isOneQuote) {
+          quotes.add(temp);
+        } else {
+          quotes.add("\"");
+        }
       } else if (s.startsWith("\"")) {
         temp += s.substring(1);
         quotes.add(temp);
