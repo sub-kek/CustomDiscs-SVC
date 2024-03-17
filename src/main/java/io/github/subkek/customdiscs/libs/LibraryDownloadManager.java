@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class LibraryDownloadManager {
-  public static final String LIBS_DATA_URL = "https://pastebin.com/raw/xLewKB3k";
+  public static final String LIBS_DATA_URL = "https://raw.githubusercontent.com/sub-kek/libraries/master/customdiscs.json";
 
   private File libsFolder;
   private JSONObject data;
