@@ -1,6 +1,7 @@
 package io.github.subkek.customdiscs.language;
 
 import io.github.subkek.customdiscs.CustomDiscs;
+import net.kyori.adventure.platform.bukkit.BukkitComponentSerializer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 
@@ -10,6 +11,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.logging.Level;
 
 public class FileLanguage {
   private final CustomDiscs plugin = CustomDiscs.getInstance();
@@ -25,12 +27,14 @@ public class FileLanguage {
       inputStreamReader.close();
       bufferedReader.close();
     } catch (IOException e) {
-      CustomDiscs.LOGGER.error("Error", e);
+      plugin.getLogger().log(Level.SEVERE, "Error while load language: ", e);
     }
   }
 
   public String get(String key) {
-    return properties.getProperty(key);
+    return BukkitComponentSerializer.legacy().serialize(
+        MiniMessage.miniMessage().deserialize(
+            properties.getProperty(key)));
   }
 
   public Component getAsComponent(String key) {

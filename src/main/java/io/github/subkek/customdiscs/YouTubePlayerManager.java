@@ -13,8 +13,10 @@ import de.maxhenkel.voicechat.api.ServerPlayer;
 import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
 import io.github.subkek.customdiscs.utils.Formatter;
+import net.kyori.adventure.platform.bukkit.BukkitComponentSerializer;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -25,6 +27,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 public class YouTubePlayerManager extends Thread {
   private final CustomDiscs plugin = CustomDiscs.getInstance();
@@ -37,7 +40,6 @@ public class YouTubePlayerManager extends Thread {
   private String ytUrl;
   private Collection<ServerPlayer> playersInRange;
   private final CompletableFuture<AudioTrack> trackFuture = new CompletableFuture<>();
-  private final MiniMessage miniMessage = MiniMessage.miniMessage();
 
   public YouTubePlayerManager(Block block) {
     lavaPlayerManager.registerSourceManager(new YoutubeAudioSourceManager());
@@ -63,7 +65,7 @@ public class YouTubePlayerManager extends Thread {
 
     for (ServerPlayer serverPlayer : playersInRange) {
       Player bukkitPlayer = (Player) serverPlayer.getPlayer();
-      bukkitPlayer.sendActionBar(actionbarComponent);
+      bukkitPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(BukkitComponentSerializer.legacy().serialize(actionbarComponent)));
     }
   }
 
@@ -80,7 +82,7 @@ public class YouTubePlayerManager extends Thread {
         public void playlistLoaded(AudioPlaylist audioPlaylist) {
           for (ServerPlayer serverPlayer : playersInRange) {
             Player bukkitPlayer = (Player) serverPlayer.getPlayer();
-            bukkitPlayer.sendMessage(miniMessage.deserialize(Formatter.format(plugin.language.get("cant-play-playlist-error"), true)));
+            bukkitPlayer.sendMessage(Formatter.format(plugin.language.get("cant-play-playlist-error"), true));
           }
           trackFuture.complete(null);
           stopPlaying(block);
@@ -90,7 +92,7 @@ public class YouTubePlayerManager extends Thread {
         public void noMatches() {
           for (ServerPlayer serverPlayer : playersInRange) {
             Player bukkitPlayer = (Player) serverPlayer.getPlayer();
-            bukkitPlayer.sendMessage(miniMessage.deserialize(Formatter.format(plugin.language.get("url-no-matches-error"), true)));
+            bukkitPlayer.sendMessage(Formatter.format(plugin.language.get("url-no-matches-error"), true));
           }
           trackFuture.complete(null);
           stopPlaying(block);
@@ -100,7 +102,7 @@ public class YouTubePlayerManager extends Thread {
         public void loadFailed(FriendlyException e) {
           for (ServerPlayer serverPlayer : playersInRange) {
             Player bukkitPlayer = (Player) serverPlayer.getPlayer();
-            bukkitPlayer.sendMessage(miniMessage.deserialize(Formatter.format(plugin.language.get("audio-load-error"), true)));
+            bukkitPlayer.sendMessage(Formatter.format(plugin.language.get("audio-load-error"), true));
           }
           trackFuture.complete(null);
           stopPlaying(block);
@@ -142,8 +144,8 @@ public class YouTubePlayerManager extends Thread {
     } catch (Exception e) {
       for (ServerPlayer serverPlayer : playersInRange) {
         Player bukkitPlayer = (Player) serverPlayer.getPlayer();
-        bukkitPlayer.sendMessage(miniMessage.deserialize(Formatter.format(plugin.language.get("disc-play-error"), true)));
-        plugin.getSLF4JLogger().error("Error while playing disc: ", e);
+        bukkitPlayer.sendMessage(Formatter.format(plugin.language.get("disc-play-error"), true));
+        plugin.getLogger().log(Level.SEVERE, "Error while playing disc: ", e);
       }
     }
   }

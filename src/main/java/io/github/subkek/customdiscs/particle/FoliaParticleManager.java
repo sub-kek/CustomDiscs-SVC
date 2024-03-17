@@ -18,14 +18,14 @@ public class FoliaParticleManager implements ParticleManager{
   @Override
   public void start(Jukebox jukebox) {
     if (locationParticleManager.contains(jukebox.getLocation())) return;
+    locationParticleManager.add(jukebox.getLocation());
+    plugin.getServer().getRegionScheduler().run(plugin, jukebox.getLocation(), t -> jukebox.stopPlaying());
     plugin.getServer().getRegionScheduler().runAtFixedRate(plugin, jukebox.getLocation(), t -> {
       if (!YouTubePlayerManager.isAudioPlayerPlaying(jukebox.getLocation()) && !playerManager.isAudioPlayerPlaying(jukebox.getLocation())) {
         locationParticleManager.remove(jukebox.getLocation());
         t.cancel();
       } else {
-        if (!jukebox.isPlaying()) {
-          jukebox.getLocation().getWorld().spawnParticle(Particle.NOTE, jukebox.getLocation().add(0.5, 1.1, 0.5), 1);
-        }
+        jukebox.getLocation().getWorld().spawnParticle(Particle.NOTE, jukebox.getLocation().add(0.5, 1.1, 0.5), 1);
       }
     }, 1, 20);
   }

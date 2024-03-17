@@ -27,7 +27,7 @@ public class CustomDiscsConfig {
     locale = bukkitConfig.getString("locale", Languages.ENGLISH.toString());
     if (!Languages.languageExists(locale)) {
       locale = Languages.ENGLISH.toString();
-      plugin.getSLF4JLogger().warn("Your language is not supported! Please set supported language in the config!");
+      plugin.getLogger().warning("Your language is not supported! Please set supported language in the config! If you need your own translate edit any lang in jar.");
     }
   }
 

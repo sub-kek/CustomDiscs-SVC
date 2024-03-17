@@ -3,13 +3,11 @@ package io.github.subkek.customdiscs.command.SubCommands;
 import io.github.subkek.customdiscs.CustomDiscs;
 import io.github.subkek.customdiscs.command.SubCommand;
 import io.github.subkek.customdiscs.utils.Formatter;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class ReloadCommand implements SubCommand {
   private final CustomDiscs plugin = CustomDiscs.getInstance();
-  private final MiniMessage miniMessage = MiniMessage.miniMessage();
 
   @Override
   public String getName() {
@@ -34,12 +32,12 @@ public class ReloadCommand implements SubCommand {
   @Override
   public void perform(Player player, String[] args) {
     if (!hasPermission(player)) {
-      player.sendMessage(miniMessage.deserialize(Formatter.format(plugin.language.get("no-permission-error"), true)));
+      player.sendMessage(Formatter.format(plugin.language.get("no-permission-error"), true));
       return;
     }
 
     plugin.config.reload();
     plugin.language.init(plugin.config.getLocale());
-    player.sendMessage(miniMessage.deserialize(Formatter.format(plugin.language.get("config-reloaded"), true)));
+    player.sendMessage(Formatter.format(plugin.language.get("config-reloaded"), true));
   }
 }

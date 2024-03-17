@@ -5,11 +5,13 @@ import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.audiochannel.AudioChannel;
 import de.maxhenkel.voicechat.api.audiochannel.AudioPlayer;
 import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
+import io.github.subkek.customdiscs.utils.Formatter;
 import javazoom.spi.mpeg.sampled.convert.MpegFormatConversionProvider;
 import javazoom.spi.mpeg.sampled.file.MpegAudioFileReader;
+import net.kyori.adventure.platform.bukkit.BukkitComponentSerializer;
 import net.kyori.adventure.text.Component;
-import io.github.subkek.customdiscs.utils.Formatter;
-import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -33,7 +35,6 @@ public class PlayerManager {
   private final Map<UUID, Stoppable> playerMap;
   private final ExecutorService executorService;
   private static final AudioFormat FORMAT = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 48000F, 16, 1, 2, 48000F, false);
-  private final MiniMessage miniMessage = MiniMessage.miniMessage();
 
   public PlayerManager() {
     this.playerMap = new ConcurrentHashMap<>();
@@ -74,7 +75,7 @@ public class PlayerManager {
 
       for (ServerPlayer serverPlayer : playersInRange) {
         Player bukkitPlayer = (Player) serverPlayer.getPlayer();
-        bukkitPlayer.sendActionBar(actionbarComponent);
+        bukkitPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(BukkitComponentSerializer.legacy().serialize(actionbarComponent)));
       }
 
       if (audioPlayer == null) {
@@ -101,7 +102,7 @@ public class PlayerManager {
     } catch (Exception e) {
       for (ServerPlayer serverPlayer : playersInRange) {
         Player bukkitPlayer = (Player) serverPlayer.getPlayer();
-        bukkitPlayer.sendMessage(miniMessage.deserialize(Formatter.format(plugin.language.get("disc-play-error"), true)));
+        bukkitPlayer.sendMessage(Formatter.format(plugin.language.get("disc-play-error"), true));
       }
       return null;
     }

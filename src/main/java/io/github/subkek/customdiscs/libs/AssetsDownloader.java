@@ -13,6 +13,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.logging.Level;
 
 public class AssetsDownloader {
   private static final CustomDiscs plugin = CustomDiscs.getInstance();
@@ -51,24 +52,30 @@ public class AssetsDownloader {
         if (!hash.equals(oldHash) || !plugin.getDescription().getVersion().equals(oldVersion)) {
           downloadManager.downloadLibraries((result, jarName, percentage) -> {
             if (result) {
-              plugin.getSLF4JLogger().info("Downloaded library \"" + jarName + "\"");
+              plugin.getLogger().info("Downloaded library \"" + jarName + "\"");
             } else {
-              plugin.getSLF4JLogger().error("Unable to download library \"" + jarName + "\"");
+              plugin.getLogger().severe("Unable to download library \"" + jarName + "\"");
             }
           });
         }
       } catch (Throwable e) {
-        plugin.getSLF4JLogger().error("Error while downloading libraries");
+        plugin.getLogger().severe("Error while downloading libraries");
         e.printStackTrace();
       }
 
       LibraryLoader.loadLibraries(libsFolder, (file, e) -> {
         String jarName = file.getName();
         if (e == null) {
-          plugin.getSLF4JLogger().info("Loaded library \"" + jarName + "\"");
+          plugin.getLogger().info("Remapped library \"" + jarName + "\"");
         } else {
-          plugin.getSLF4JLogger().error("Unable to load library \"" + jarName + "\"");
-          e.printStackTrace();
+          plugin.getLogger().log(Level.SEVERE, "Something problem while remapping library \"" + jarName + "\"", e);
+        }
+      }, (file, e) -> {
+        String jarName = file.getName();
+        if (e == null) {
+          plugin.getLogger().info("Loaded library \"" + jarName + "\"");
+        } else {
+          plugin.getLogger().log(Level.SEVERE, "Unable to load library \"" + jarName + "\"", e);
         }
       });
 

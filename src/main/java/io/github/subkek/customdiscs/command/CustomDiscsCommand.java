@@ -7,7 +7,6 @@ import io.github.subkek.customdiscs.command.SubCommands.DownloadCommand;
 import io.github.subkek.customdiscs.command.SubCommands.ReloadCommand;
 import io.github.subkek.customdiscs.utils.Formatter;
 import lombok.Getter;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -23,7 +22,6 @@ import java.util.List;
 public class CustomDiscsCommand implements CommandExecutor, TabCompleter {
   private final CustomDiscs plugin = CustomDiscs.getInstance();
   @Getter private final HashMap<String, SubCommand> subCommands = new HashMap<>();
-  private final MiniMessage miniMessage = MiniMessage.miniMessage();
 
   public CustomDiscsCommand() {
     subCommands.put("create", new CreateCommand());
@@ -35,7 +33,7 @@ public class CustomDiscsCommand implements CommandExecutor, TabCompleter {
   @Override
   public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
     if (!(sender instanceof Player player)) {
-      sender.sendMessage(miniMessage.deserialize(Formatter.format(plugin.language.get("only-player-command-error"), true)));
+      sender.sendMessage(Formatter.format(plugin.language.get("only-player-command-error"), true));
       return true;
     }
 
@@ -47,13 +45,13 @@ public class CustomDiscsCommand implements CommandExecutor, TabCompleter {
         }
       }
     } else {
-      player.sendMessage(plugin.language.getAsComponent("help-header"));
+      player.sendMessage(plugin.language.get("help-header"));
       for (SubCommand subCommand : getSubCommands().values()) {
-        player.sendMessage(miniMessage.deserialize(Formatter.format(plugin.language.get("help-command"),subCommand.getSyntax(), subCommand.getDescription())));
+        player.sendMessage(Formatter.format(plugin.language.get("help-command"),subCommand.getSyntax(), subCommand.getDescription()));
       }
       if (plugin.config.isDiscCleaning())
-        player.sendMessage(plugin.language.getAsComponent("help-disc-cleaning"));
-      player.sendMessage(plugin.language.getAsComponent("help-footer"));
+        player.sendMessage(plugin.language.get("help-disc-cleaning"));
+      player.sendMessage(plugin.language.get("help-footer"));
       return true;
     }
     return true;

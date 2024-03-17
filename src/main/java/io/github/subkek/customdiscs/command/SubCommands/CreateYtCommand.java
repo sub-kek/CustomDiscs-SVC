@@ -1,13 +1,13 @@
 package io.github.subkek.customdiscs.command.SubCommands;
 
+import io.github.subkek.customdiscs.CustomDiscs;
 import io.github.subkek.customdiscs.command.SubCommand;
+import io.github.subkek.customdiscs.utils.Formatter;
+import net.kyori.adventure.platform.bukkit.BukkitComponentSerializer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import io.github.subkek.customdiscs.CustomDiscs;
-import io.github.subkek.customdiscs.utils.Formatter;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -16,14 +16,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class CreateYtCommand implements SubCommand {
   private final CustomDiscs plugin = CustomDiscs.getInstance();
-  private final MiniMessage miniMessage = MiniMessage.miniMessage();
 
   @Override
   public String getName() {
@@ -51,35 +49,34 @@ public class CreateYtCommand implements SubCommand {
       if (args.length >= 3) {
 
         if (!hasPermission(player)) {
-          player.sendMessage(miniMessage.deserialize(Formatter.format(plugin.language.get("no-permission-error"), true)));
+          player.sendMessage(Formatter.format(plugin.language.get("no-permission-error"), true));
           return;
         }
 
         if (customName(readQuotes(args)).equalsIgnoreCase("")) {
-          player.sendMessage(miniMessage.deserialize(Formatter.format(plugin.language.get("write-disc-name-error"), true)));
+          player.sendMessage(Formatter.format(plugin.language.get("write-disc-name-error"), true));
           return;
         }
 
         ItemStack disc = new ItemStack(player.getInventory().getItemInMainHand());
 
         if (isBurned(disc) && plugin.config.isDiscCleaning()) {
-          player.sendMessage(miniMessage.deserialize(Formatter.format(plugin.language.get("disc-already-burned-error"), true)));
+          player.sendMessage(Formatter.format(plugin.language.get("disc-already-burned-error"), true));
           return;
         }
 
         ItemMeta meta = disc.getItemMeta();
 
-        meta.displayName(plugin.language.getAsComponent("youtube-disc"));
+        meta.setDisplayName(plugin.language.get("youtube-disc"));
 
-        @Nullable List<Component> itemLore = new ArrayList<>();
+        meta.setDisplayName(plugin.language.get("simple-disc"));
         final TextComponent customLoreSong = Component.text()
             .decoration(TextDecoration.ITALIC, false)
             .content(customName(readQuotes(args)))
             .color(NamedTextColor.GRAY)
             .build();
-        itemLore.add(customLoreSong);
         meta.addItemFlags(ItemFlag.values());
-        meta.lore(itemLore);
+        meta.setLore(List.of(BukkitComponentSerializer.legacy().serialize(customLoreSong)));
 
         String youtubeUrl = args[1];
 
@@ -91,13 +88,13 @@ public class CreateYtCommand implements SubCommand {
 
         player.getInventory().getItemInMainHand().setItemMeta(meta);
 
-        player.sendMessage(miniMessage.deserialize(Formatter.format(plugin.language.get("disc-youtube-link"), youtubeUrl)));
-        player.sendMessage(miniMessage.deserialize(Formatter.format(plugin.language.get("disc-name-output"), customName(readQuotes(args)))));
+        player.sendMessage(Formatter.format(plugin.language.get("disc-youtube-link"), youtubeUrl));
+        player.sendMessage(Formatter.format(plugin.language.get("disc-name-output"), customName(readQuotes(args))));
       } else {
-        player.sendMessage(miniMessage.deserialize(Formatter.format(plugin.language.get("unknown-arguments-error"), true, plugin.language.get("createyt-command-syntax"))));
+        player.sendMessage(Formatter.format(plugin.language.get("unknown-arguments-error"), true, plugin.language.get("createyt-command-syntax")));
       }
     } else {
-      player.sendMessage(miniMessage.deserialize(Formatter.format(plugin.language.get("disc-not-in-hand-error"), true)));
+      player.sendMessage(Formatter.format(plugin.language.get("disc-not-in-hand-error"), true));
     }
   }
 

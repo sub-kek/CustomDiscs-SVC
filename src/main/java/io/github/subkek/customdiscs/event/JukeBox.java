@@ -6,8 +6,6 @@ import io.github.subkek.customdiscs.VoicePlugin;
 import io.github.subkek.customdiscs.YouTubePlayerManager;
 import io.github.subkek.customdiscs.utils.Formatter;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -32,7 +30,6 @@ import java.util.Objects;
 public class JukeBox implements Listener {
   private final CustomDiscs plugin = CustomDiscs.getInstance();
   PlayerManager playerManager = PlayerManager.instance();
-  private final MiniMessage miniMessage = MiniMessage.miniMessage();
 
   @EventHandler (priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void onInsert(PlayerInteractEvent event) throws IOException {
@@ -48,7 +45,7 @@ public class JukeBox implements Listener {
 
     if (isCustomDisc && !jukeboxContainsDisc(block)) {
       if (!player.hasPermission("customdiscs.play")) {
-        player.sendMessage(miniMessage.deserialize(Formatter.format(plugin.language.get("play-no-permission-error"), true)));
+        player.sendMessage(Formatter.format(plugin.language.get("play-no-permission-error"), true));
         return;
       }
 
@@ -59,15 +56,14 @@ public class JukeBox implements Listener {
       Path soundFilePath = Path.of(plugin.getDataFolder().getPath(), "musicdata", soundFileName);
 
       if (soundFilePath.toFile().exists()) {
-        Component songNameComponent = Objects.requireNonNull(event.getItem().getItemMeta().lore()).get(0).asComponent();
-        String songName = PlainTextComponentSerializer.plainText().serialize(songNameComponent);
+        String songName = Objects.requireNonNull(event.getItem().getItemMeta().getLore()).get(0);
 
-        Component customActionBarSongPlaying = miniMessage.deserialize(Formatter.format(plugin.language.get("now-playing"), songName));
+        Component customActionBarSongPlaying = Component.text(Formatter.format(plugin.language.get("now-playing"), songName));
 
         assert VoicePlugin.voicechatServerApi != null;
-        playerManager.playLocationalAudio(VoicePlugin.voicechatServerApi, soundFilePath, block, customActionBarSongPlaying.asComponent());
+        playerManager.playLocationalAudio(VoicePlugin.voicechatServerApi, soundFilePath, block, customActionBarSongPlaying);
       } else {
-        player.sendMessage(miniMessage.deserialize(Formatter.format(plugin.language.get("file-not-found"), true)));
+        player.sendMessage(Formatter.format(plugin.language.get("file-not-found"), true));
         event.setCancelled(true);
         throw new FileNotFoundException("File not found!");
       }
@@ -75,7 +71,7 @@ public class JukeBox implements Listener {
 
     if (isYouTubeCustomDisc && !jukeboxContainsDisc(block)) {
       if (!player.hasPermission("customdiscs.playt")) {
-        player.sendMessage(miniMessage.deserialize(Formatter.format(plugin.language.get("play-no-permission-error"), true)));
+        player.sendMessage(Formatter.format(plugin.language.get("play-no-permission-error"), true));
         return;
       }
 
@@ -83,10 +79,9 @@ public class JukeBox implements Listener {
 
       String soundLink = event.getItem().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(plugin, "customdiscyt"), PersistentDataType.STRING);
 
-      Component songNameComponent = Objects.requireNonNull(event.getItem().getItemMeta().lore()).get(0).asComponent();
-      String songName = PlainTextComponentSerializer.plainText().serialize(songNameComponent);
+      String songName = Objects.requireNonNull(event.getItem().getItemMeta().getLore()).get(0);
 
-      Component customActionBarSongPlaying = miniMessage.deserialize(Formatter.format(plugin.language.get("now-playing"), songName));
+      Component customActionBarSongPlaying = Component.text(Formatter.format(plugin.language.get("now-playing"), songName));
 
       assert VoicePlugin.voicechatServerApi != null;
       YouTubePlayerManager.instance(block).playLocationalAudioYoutube(VoicePlugin.voicechatServerApi, soundLink, customActionBarSongPlaying);
