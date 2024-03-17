@@ -137,13 +137,13 @@ public class CreateCommand implements SubCommand {
 
     for (String s : args) {
       if (s.startsWith("\"") && s.endsWith("\"")) {
-        temp += s.substring(1, s.length() - 1);
-        boolean isOneQuote = temp.isBlank();
+        boolean isOneQuote = s.length() == 1;
         if (!isOneQuote) {
-          quotes.add(temp);
+          temp += s.substring(1, s.length() - 1);
         } else {
-          quotes.add("\"");
+          temp += "\"";
         }
+        quotes.add(temp);
       } else if (s.startsWith("\"")) {
         temp += s.substring(1);
         quotes.add(temp);
