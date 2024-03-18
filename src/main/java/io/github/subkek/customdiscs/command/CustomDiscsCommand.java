@@ -1,10 +1,7 @@
 package io.github.subkek.customdiscs.command;
 
 import io.github.subkek.customdiscs.CustomDiscs;
-import io.github.subkek.customdiscs.command.SubCommands.CreateCommand;
-import io.github.subkek.customdiscs.command.SubCommands.CreateYtCommand;
-import io.github.subkek.customdiscs.command.SubCommands.DownloadCommand;
-import io.github.subkek.customdiscs.command.SubCommands.ReloadCommand;
+import io.github.subkek.customdiscs.command.SubCommands.*;
 import io.github.subkek.customdiscs.utils.Formatter;
 import lombok.Getter;
 import org.bukkit.command.Command;
@@ -28,32 +25,20 @@ public class CustomDiscsCommand implements CommandExecutor, TabCompleter {
     subCommands.put("download", new DownloadCommand());
     subCommands.put("reload", new ReloadCommand());
     subCommands.put("createyt", new CreateYtCommand());
+    subCommands.put("help", new HelpCommand(this));
   }
 
   @Override
   public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-    if (!(sender instanceof Player player)) {
-      sender.sendMessage(Formatter.format(plugin.language.get("only-player-command-error"), true));
-      return true;
-    }
-
     if (args.length > 0) {
       for (SubCommand subCommand : getSubCommands().values()) {
         if (subCommand.getName().equals(args[0])) {
-          subCommand.perform(player, args);
-          break;
+          subCommand.perform(sender, args);
+          return true;
         }
       }
-    } else {
-      player.sendMessage(plugin.language.get("help-header"));
-      for (SubCommand subCommand : getSubCommands().values()) {
-        player.sendMessage(Formatter.format(plugin.language.get("help-command"),subCommand.getSyntax(), subCommand.getDescription()));
-      }
-      if (plugin.config.isDiscCleaning())
-        player.sendMessage(plugin.language.get("help-disc-cleaning"));
-      player.sendMessage(plugin.language.get("help-footer"));
-      return true;
     }
+    sender.sendMessage(Formatter.format(plugin.language.get("unknown-command"), true, getSubCommands().get("help").getSyntax()));
     return true;
   }
 

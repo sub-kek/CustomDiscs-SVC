@@ -1,6 +1,7 @@
 package io.github.subkek.customdiscs.event;
 
 import io.github.subkek.customdiscs.CustomDiscs;
+import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -22,6 +23,8 @@ public class ClearDiscs implements Listener {
 
   @EventHandler (ignoreCancelled = true, priority = EventPriority.MONITOR)
   public void onPlayerInteract(PlayerInteractEntityEvent event) {
+    if (!CustomDiscsConfiguration.discCleaning) return;
+
     Player player = event.getPlayer();
     Entity clickedEntity = event.getRightClicked();
 

@@ -2,10 +2,10 @@ package io.github.subkek.customdiscs.command.SubCommands;
 
 import io.github.subkek.customdiscs.CustomDiscs;
 import io.github.subkek.customdiscs.command.SubCommand;
+import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
 import io.github.subkek.customdiscs.utils.Formatter;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.net.URL;
@@ -36,14 +36,24 @@ public class DownloadCommand implements SubCommand {
   }
 
   @Override
-  public void perform(Player player, String[] args) {
-    if (!hasPermission(player)) {
-      player.sendMessage(Formatter.format(plugin.language.get("no-permission-error"), true));
+  public boolean canPerform(CommandSender sender) {
+    return true;
+  }
+
+  @Override
+  public void perform(CommandSender sender, String[] args) {
+    if (!hasPermission(sender)) {
+      sender.sendMessage(Formatter.format(plugin.language.get("no-permission-error"), true));
+      return;
+    }
+
+    if (!canPerform(sender)) {
+      sender.sendMessage(Formatter.format(plugin.language.get("cant-perform-command-error"), true));
       return;
     }
 
     if (args.length < 3) {
-      player.sendMessage(Formatter.format(plugin.language.get("unknown-arguments-error"), true, plugin.language.get("download-command-syntax")));
+      sender.sendMessage(Formatter.format(plugin.language.get("unknown-arguments-error"), true, plugin.language.get("download-command-syntax")));
       return;
     }
 
@@ -52,16 +62,16 @@ public class DownloadCommand implements SubCommand {
         URL fileURL = new URL(args[1]);
         String filename = args[2];
         if (filename.contains("../")) {
-          player.sendMessage(Formatter.format(plugin.language.get("invalid-file-name"), true));
+          sender.sendMessage(Formatter.format(plugin.language.get("invalid-file-name"), true));
           return;
         }
 
         if (!getFileExtension(filename).equals("wav") && !getFileExtension(filename).equals("mp3") && !getFileExtension(filename).equals("flac")) {
-          player.sendMessage(Formatter.format(plugin.language.get("unknown-extension-error"), true));
+          sender.sendMessage(Formatter.format(plugin.language.get("unknown-extension-error"), true));
           return;
         }
 
-        player.sendMessage(Formatter.format(plugin.language.get("downloading"), true));
+        sender.sendMessage(Formatter.format(plugin.language.get("downloading"), true));
         Path downloadPath = Path.of(plugin.getDataFolder().getPath(), "musicdata", filename);
         File downloadFile = new File(downloadPath.toUri());
 
@@ -69,18 +79,18 @@ public class DownloadCommand implements SubCommand {
 
         if (connection != null) {
           long size = connection.getContentLengthLong() / 1048576;
-          if (size > plugin.config.getMaxDownloadSize()) {
-            player.sendMessage(Formatter.format(plugin.language.get("download-file-large-error"), true, String.valueOf(plugin.config.getMaxDownloadSize())));
+          if (size > CustomDiscsConfiguration.maxDownloadSize) {
+            sender.sendMessage(Formatter.format(plugin.language.get("download-file-large-error"), true, String.valueOf(CustomDiscsConfiguration.maxDownloadSize)));
             return;
           }
         }
 
         FileUtils.copyURLToFile(fileURL, downloadFile);
 
-        player.sendMessage(Formatter.format(plugin.language.get("download-successful"), true));
-        player.sendMessage(Formatter.format(plugin.language.get("create-disc-tooltip"), true, plugin.language.get("create-command-syntax")));
+        sender.sendMessage(Formatter.format(plugin.language.get("download-successful"), true));
+        sender.sendMessage(Formatter.format(plugin.language.get("create-disc-tooltip"), true, plugin.language.get("create-command-syntax")));
       } catch (Exception e) {
-        player.sendMessage(Formatter.format(plugin.language.get("download-error"), true));
+        sender.sendMessage(Formatter.format(plugin.language.get("download-error"), true));
       }
     };
 

@@ -6,7 +6,7 @@ plugins {
 
 allprojects {
     group = "io.github.subkek.customdiscs"
-    version = "1.3.6"
+    version = "1.3.7"
 }
 
 java.sourceCompatibility = JavaVersion.VERSION_16
@@ -27,6 +27,7 @@ configurations.api {
 
 dependencies {
     //compileOnly("org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT")
+
     compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
     compileOnly("com.googlecode.json-simple:json-simple:1.1.1")
     compileOnly("com.googlecode.soundlibs:mp3spi:1.9.5.4")
@@ -46,6 +47,11 @@ dependencies {
     compileOnly("net.kyori:adventure-text-logger-slf4j")
     compileOnly("net.kyori:adventure-text-serializer-legacy")
     compileOnly("net.kyori:adventure-platform-bukkit:4.3.2")
+
+    compileOnly("org.yaml:snakeyaml:2.2")
+    compileOnly ("me.carleslc.Simple-YAML:Simple-Yaml:1.8.4") {
+        exclude(group="org.yaml", module="snakeyaml")
+    }
 
     implementation("me.lucko:jar-relocator:1.7.2")
 

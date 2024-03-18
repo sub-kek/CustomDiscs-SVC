@@ -5,6 +5,7 @@ import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.audiochannel.AudioChannel;
 import de.maxhenkel.voicechat.api.audiochannel.AudioPlayer;
 import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
+import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
 import io.github.subkek.customdiscs.utils.Formatter;
 import javazoom.spi.mpeg.sampled.convert.MpegFormatConversionProvider;
 import javazoom.spi.mpeg.sampled.file.MpegAudioFileReader;
@@ -53,7 +54,7 @@ public class PlayerManager {
     if (audioChannel == null) return;
 
     audioChannel.setCategory(VoicePlugin.MUSIC_DISC_CATEGORY);
-    audioChannel.setDistance(plugin.config.getMusicDiscDistance());
+    audioChannel.setDistance(CustomDiscsConfiguration.musicDiscDistance);
 
     AtomicBoolean stopped = new AtomicBoolean();
     AtomicReference<de.maxhenkel.voicechat.api.audiochannel.AudioPlayer> player = new AtomicReference<>();
@@ -69,7 +70,7 @@ public class PlayerManager {
     });
 
     executorService.execute(() -> {
-      Collection<ServerPlayer> playersInRange = api.getPlayersInRange(api.fromServerLevel(block.getWorld()), api.createPosition(block.getLocation().getX() + 0.5d, block.getLocation().getY() + 0.5d, block.getLocation().getZ() + 0.5d), plugin.config.getMusicDiscDistance());
+      Collection<ServerPlayer> playersInRange = api.getPlayersInRange(api.fromServerLevel(block.getWorld()), api.createPosition(block.getLocation().getX() + 0.5d, block.getLocation().getY() + 0.5d, block.getLocation().getZ() + 0.5d), CustomDiscsConfiguration.musicDiscDistance);
 
       de.maxhenkel.voicechat.api.audiochannel.AudioPlayer audioPlayer = playChannel(api, audioChannel, block, soundFilePath, playersInRange);
 
@@ -136,7 +137,7 @@ public class PlayerManager {
 
     assert finalInputStream != null;
 
-    return adjustVolume(finalInputStream.readAllBytes(), plugin.config.getMusicDiscVolume());
+    return adjustVolume(finalInputStream.readAllBytes(), CustomDiscsConfiguration.musicDiscVolume);
   }
 
   private byte[] adjustVolume(byte[] audioSamples, double volume) {

@@ -2,6 +2,7 @@ package io.github.subkek.customdiscs.command.SubCommands;
 
 import io.github.subkek.customdiscs.CustomDiscs;
 import io.github.subkek.customdiscs.command.SubCommand;
+import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
 import io.github.subkek.customdiscs.utils.Formatter;
 import net.kyori.adventure.platform.bukkit.BukkitComponentSerializer;
 import net.kyori.adventure.text.Component;
@@ -45,27 +46,35 @@ public class CreateCommand implements SubCommand {
   }
 
   @Override
-  public void perform(Player player, String[] args) {
+  public boolean canPerform(CommandSender sender) {
+    return sender instanceof Player;
+  }
+
+  @Override
+  public void perform(CommandSender sender, String[] args) {
+    if (!hasPermission(sender)) {
+      sender.sendMessage(Formatter.format(plugin.language.get("no-permission-error"), true));
+      return;
+    }
+
+    if (!canPerform(sender)) {
+      sender.sendMessage(Formatter.format(plugin.language.get("cant-perform-command-error"), true));
+      return;
+    }
+
+    Player player = (Player) sender;
+
     if (isMusicDisc(player)) {
       if (args.length >= 3) {
-
-        if (!hasPermission(player)) {
-          player.sendMessage(Formatter.format(plugin.language.get("no-permission-error"), true));
-          return;
-        }
-
-        // /cd create test.mp3 "test"
-        //      [0]     [1]     [2]
-        //Find file, if file not there then say "file not there"
-        String songname = "";
+        String songName;
         String filename = args[1];
         if (filename.contains("../")) {
-          player.sendMessage(Formatter.format(plugin.language.get("invalid-file-name"), true));
+          sender.sendMessage(Formatter.format(plugin.language.get("invalid-file-name"), true));
           return;
         }
 
         if (customName(readQuotes(args)).equalsIgnoreCase("")) {
-          player.sendMessage(Formatter.format(plugin.language.get("write-disc-name-error"), true));
+          sender.sendMessage(Formatter.format(plugin.language.get("write-disc-name-error"), true));
           return;
         }
 
@@ -73,21 +82,21 @@ public class CreateCommand implements SubCommand {
         File songFile = new File(getDirectory.getPath(), filename);
         if (songFile.exists()) {
           if (getFileExtension(filename).equals("wav") || getFileExtension(filename).equals("mp3") || getFileExtension(filename).equals("flac")) {
-            songname = args[1];
+            songName = args[1];
           } else {
-            player.sendMessage(Formatter.format(plugin.language.get("unknown-extension-error"), true));
+            sender.sendMessage(Formatter.format(plugin.language.get("unknown-extension-error"), true));
             return;
           }
         } else {
-          player.sendMessage(Formatter.format(plugin.language.get("file-not-found"), true));
+          sender.sendMessage(Formatter.format(plugin.language.get("file-not-found"), true));
           return;
         }
 
         //Sets the lore of the item to the quotes from the command.
         ItemStack disc = new ItemStack(player.getInventory().getItemInMainHand());
 
-        if (isBurned(disc) && plugin.config.isDiscCleaning()) {
-          player.sendMessage(Formatter.format(plugin.language.get("disc-already-burned-error"), true));
+        if (isBurned(disc) && CustomDiscsConfiguration.discCleaning) {
+          sender.sendMessage(Formatter.format(plugin.language.get("disc-already-burned-error"), true));
           return;
         }
 
@@ -110,14 +119,14 @@ public class CreateCommand implements SubCommand {
 
         player.getInventory().getItemInMainHand().setItemMeta(meta);
 
-        player.sendMessage(Formatter.format(plugin.language.get("disc-file-output"), songname));
-        player.sendMessage(Formatter.format(plugin.language.get("disc-name-output"), customName(readQuotes(args))));
+        sender.sendMessage(Formatter.format(plugin.language.get("disc-file-output"), songName));
+        sender.sendMessage(Formatter.format(plugin.language.get("disc-name-output"), customName(readQuotes(args))));
 
       } else {
-        player.sendMessage(Formatter.format(plugin.language.get("unknown-arguments-error"), true, plugin.language.get("create-command-syntax")));
+        sender.sendMessage(Formatter.format(plugin.language.get("unknown-arguments-error"), true, plugin.language.get("create-command-syntax")));
       }
     } else {
-      player.sendMessage(Formatter.format(plugin.language.get("disc-not-in-hand-error"), true));
+      sender.sendMessage(Formatter.format(plugin.language.get("disc-not-in-hand-error"), true));
     }
   }
 

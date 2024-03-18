@@ -2,6 +2,7 @@ package io.github.subkek.customdiscs.command.SubCommands;
 
 import io.github.subkek.customdiscs.CustomDiscs;
 import io.github.subkek.customdiscs.command.SubCommand;
+import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
 import io.github.subkek.customdiscs.utils.Formatter;
 import net.kyori.adventure.platform.bukkit.BukkitComponentSerializer;
 import net.kyori.adventure.text.Component;
@@ -44,32 +45,41 @@ public class CreateYtCommand implements SubCommand {
   }
 
   @Override
-  public void perform(Player player, String[] args) {
+  public boolean canPerform(CommandSender sender) {
+    return sender instanceof Player;
+  }
+
+  @Override
+  public void perform(CommandSender sender, String[] args) {
+    if (!hasPermission(sender)) {
+      sender.sendMessage(Formatter.format(plugin.language.get("no-permission-error"), true));
+      return;
+    }
+
+    if (!canPerform(sender)) {
+      sender.sendMessage(Formatter.format(plugin.language.get("cant-perform-command-error"), true));
+      return;
+    }
+
+    Player player = (Player) sender;
+
     if (isMusicDisc(player)) {
       if (args.length >= 3) {
-
-        if (!hasPermission(player)) {
-          player.sendMessage(Formatter.format(plugin.language.get("no-permission-error"), true));
-          return;
-        }
-
         if (customName(readQuotes(args)).equalsIgnoreCase("")) {
-          player.sendMessage(Formatter.format(plugin.language.get("write-disc-name-error"), true));
+          sender.sendMessage(Formatter.format(plugin.language.get("write-disc-name-error"), true));
           return;
         }
 
         ItemStack disc = new ItemStack(player.getInventory().getItemInMainHand());
 
-        if (isBurned(disc) && plugin.config.isDiscCleaning()) {
-          player.sendMessage(Formatter.format(plugin.language.get("disc-already-burned-error"), true));
+        if (isBurned(disc) && CustomDiscsConfiguration.discCleaning) {
+          sender.sendMessage(Formatter.format(plugin.language.get("disc-already-burned-error"), true));
           return;
         }
 
         ItemMeta meta = disc.getItemMeta();
 
         meta.setDisplayName(plugin.language.get("youtube-disc"));
-
-        meta.setDisplayName(plugin.language.get("simple-disc"));
         final TextComponent customLoreSong = Component.text()
             .decoration(TextDecoration.ITALIC, false)
             .content(customName(readQuotes(args)))
@@ -88,13 +98,13 @@ public class CreateYtCommand implements SubCommand {
 
         player.getInventory().getItemInMainHand().setItemMeta(meta);
 
-        player.sendMessage(Formatter.format(plugin.language.get("disc-youtube-link"), youtubeUrl));
-        player.sendMessage(Formatter.format(plugin.language.get("disc-name-output"), customName(readQuotes(args))));
+        sender.sendMessage(Formatter.format(plugin.language.get("disc-youtube-link"), youtubeUrl));
+        sender.sendMessage(Formatter.format(plugin.language.get("disc-name-output"), customName(readQuotes(args))));
       } else {
-        player.sendMessage(Formatter.format(plugin.language.get("unknown-arguments-error"), true, plugin.language.get("createyt-command-syntax")));
+        sender.sendMessage(Formatter.format(plugin.language.get("unknown-arguments-error"), true, plugin.language.get("createyt-command-syntax")));
       }
     } else {
-      player.sendMessage(Formatter.format(plugin.language.get("disc-not-in-hand-error"), true));
+      sender.sendMessage(Formatter.format(plugin.language.get("disc-not-in-hand-error"), true));
     }
   }
 

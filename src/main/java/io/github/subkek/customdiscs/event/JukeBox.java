@@ -4,6 +4,7 @@ import io.github.subkek.customdiscs.CustomDiscs;
 import io.github.subkek.customdiscs.PlayerManager;
 import io.github.subkek.customdiscs.VoicePlugin;
 import io.github.subkek.customdiscs.YouTubePlayerManager;
+import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
 import io.github.subkek.customdiscs.utils.Formatter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -48,8 +49,7 @@ public class JukeBox implements Listener {
         player.sendMessage(Formatter.format(plugin.language.get("play-no-permission-error"), true));
         return;
       }
-
-      plugin.config.setDiscsPlayed(plugin.config.getDiscsPlayed() + 1);
+      CustomDiscsConfiguration.discsPlayed++;
 
       String soundFileName = event.getItem().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(plugin, "customdisc"), PersistentDataType.STRING);
 
@@ -75,7 +75,7 @@ public class JukeBox implements Listener {
         return;
       }
 
-      plugin.config.setDiscsPlayed(plugin.config.getDiscsPlayed() + 1);
+      CustomDiscsConfiguration.discsPlayed++;
 
       String soundLink = event.getItem().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(plugin, "customdiscyt"), PersistentDataType.STRING);
 

@@ -9,7 +9,7 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import de.maxhenkel.voicechat.api.BukkitVoicechatService;
 import io.github.subkek.customdiscs.command.CustomDiscsCommand;
-import io.github.subkek.customdiscs.config.CustomDiscsConfig;
+import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
 import io.github.subkek.customdiscs.event.ClearDiscs;
 import io.github.subkek.customdiscs.event.JukeBox;
 import io.github.subkek.customdiscs.language.FileLanguage;
@@ -32,7 +32,6 @@ public final class CustomDiscs extends JavaPlugin {
   public static final String PLUGIN_ID = "CustomDiscs";
   @Getter private static CustomDiscs instance = null;
   private VoicePlugin voicechatPlugin;
-  public CustomDiscsConfig config = null;
   public FileLanguage language = null;
   private ParticleManager particleManager;
 
@@ -44,12 +43,10 @@ public final class CustomDiscs extends JavaPlugin {
 
     AssetsDownloader.loadLibraries(getDataFolder());
 
-    config = new CustomDiscsConfig();
-    config.saveDefaultConfig();
-    config.init();
+    CustomDiscsConfiguration.load();
 
     language = new FileLanguage();
-    language.init(config.getLocale());
+    language.init(CustomDiscsConfiguration.locale);
 
     linkBStats();
 
@@ -107,10 +104,10 @@ public final class CustomDiscs extends JavaPlugin {
 
     BStatsLink bstats = new BStatsLink(getInstance(), 20077);
 
-    bstats.addCustomChart(new BStatsLink.SimplePie("plugin_language", () -> config.getLocale()));
+    bstats.addCustomChart(new BStatsLink.SimplePie("plugin_language", () -> CustomDiscsConfiguration.locale));
     bstats.addCustomChart(new BStatsLink.SingleLineChart("discs_played", () -> {
-      int value = config.getDiscsPlayed();
-      config.setDiscsPlayed(0);
+      int value = CustomDiscsConfiguration.discsPlayed;
+      CustomDiscsConfiguration.discsPlayed = 0;
       return value;
     }));
   }

@@ -48,6 +48,7 @@ public class LibraryLoader {
             JarRelocator relocator = new JarRelocator(jarFile, remappedFile, RELOCATION_RULES);
             try {
               relocator.run();
+              jarFile.delete();
               remapListener.accept(jarFile, null);
             } catch (Throwable e) {
               remapListener.accept(jarFile, e);

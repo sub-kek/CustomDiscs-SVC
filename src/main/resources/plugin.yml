@@ -19,6 +19,7 @@ permissions:
       customdiscs.reload: true
       customdiscs.playt: true
       customdiscs.play: true
+      customdiscs.help: true
   customdiscs.download:
     default: op
   customdiscs.create:
@@ -30,4 +31,6 @@ permissions:
   customdiscs.playt:
     default: op
   customdiscs.play:
+    default: op
+  customdiscs.help:
     default: op

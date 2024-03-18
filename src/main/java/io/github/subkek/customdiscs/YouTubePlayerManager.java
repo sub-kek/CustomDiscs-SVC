@@ -12,6 +12,7 @@ import com.sedmelluq.discord.lavaplayer.track.playback.AudioFrame;
 import de.maxhenkel.voicechat.api.ServerPlayer;
 import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
+import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
 import io.github.subkek.customdiscs.utils.Formatter;
 import net.kyori.adventure.platform.bukkit.BukkitComponentSerializer;
 import net.kyori.adventure.text.Component;
@@ -57,9 +58,9 @@ public class YouTubePlayerManager extends Thread {
     if (audioChannel == null) return;
 
     audioChannel.setCategory(VoicePlugin.MUSIC_DISC_CATEGORY);
-    audioChannel.setDistance(plugin.config.getMusicDiscDistance());
+    audioChannel.setDistance(CustomDiscsConfiguration.musicDiscDistance);
 
-    playersInRange = api.getPlayersInRange(api.fromServerLevel(block.getWorld()), api.createPosition(block.getLocation().getX() + 0.5d, block.getLocation().getY() + 0.5d, block.getLocation().getZ() + 0.5d), plugin.config.getMusicDiscDistance());
+    playersInRange = api.getPlayersInRange(api.fromServerLevel(block.getWorld()), api.createPosition(block.getLocation().getX() + 0.5d, block.getLocation().getY() + 0.5d, block.getLocation().getZ() + 0.5d), CustomDiscsConfiguration.musicDiscDistance);
 
     start();
 
@@ -116,7 +117,7 @@ public class YouTubePlayerManager extends Thread {
 
       AudioTrack audioTrack = trackFuture.get();
 
-      int volume = Math.round(plugin.config.getMusicDiscVolume() * 100);
+      int volume = Math.round(CustomDiscsConfiguration.musicDiscVolume * 100);
       audioPlayer.setVolume(volume);
 
       long start = 0L;
