@@ -55,7 +55,7 @@ public class LibraryLoader {
             }
           } else {
             try {
-              Files.copy(jarFile.toPath(), remappedFile.toPath());
+              jarFile.renameTo(remappedFile);
               remapListener.accept(jarFile, null);
             } catch (Throwable e) {
               remapListener.accept(jarFile, e);
