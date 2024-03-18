@@ -47,6 +47,7 @@ public class ReloadCommand implements SubCommand {
     }
 
     CustomDiscsConfiguration.load();
+    plugin.language.init(CustomDiscsConfiguration.locale);
     sender.sendMessage(Formatter.format(plugin.language.get("config-reloaded"), true));
   }
 }
