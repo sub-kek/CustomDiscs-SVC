@@ -4,7 +4,7 @@ public enum Languages {
   RUSSIAN("ru_RU"),
   ENGLISH("en_US");
 
-  private String title;
+  private final String title;
 
   Languages(String title) {
     this.title = title;
@@ -17,7 +17,7 @@ public enum Languages {
 
   public static boolean languageExists(String title) {
     for (Languages lang : Languages.values()) {
-      if (lang.toString().equalsIgnoreCase(title)) return true;
+      if (lang.toString().equals(title)) return true;
     }
     return false;
   }

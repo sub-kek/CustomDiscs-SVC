@@ -1,15 +1,10 @@
 package io.github.subkek.customdiscs.config;
 
 import io.github.subkek.customdiscs.CustomDiscs;
-import io.github.subkek.customdiscs.command.CustomDiscsCommand;
 import io.github.subkek.customdiscs.utils.Languages;
-import lombok.Getter;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.MemoryConfiguration;
 import org.jetbrains.annotations.Nullable;
 import org.simpleyaml.configuration.comments.CommentType;
 import org.simpleyaml.configuration.file.YamlFile;
-import org.simpleyaml.exceptions.InvalidConfigurationException;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,23 +17,6 @@ import java.util.logging.Level;
 public class CustomDiscsConfiguration {
   private static final CustomDiscs plugin = CustomDiscs.getInstance();
   private static final YamlFile config = new YamlFile();
-  @Getter private static int updates = 0;
-
-  private static ConfigurationSection convertToBukkit(org.simpleyaml.configuration.ConfigurationSection section) {
-    ConfigurationSection newSection = new MemoryConfiguration();
-    for (String key : section.getKeys(false)) {
-      if (section.isConfigurationSection(key)) {
-        newSection.set(key, convertToBukkit(section.getConfigurationSection(key)));
-      } else {
-        newSection.set(key, section.get(key));
-      }
-    }
-    return newSection;
-  }
-
-  public static ConfigurationSection getConfigCopy() {
-    return convertToBukkit(config);
-  }
 
   public static void load() {
     File configFile = Path.of(plugin.getDataFolder().getPath(), "config.yml").toFile();
@@ -67,8 +45,6 @@ public class CustomDiscsConfiguration {
         }
       }
     }
-
-    updates++;
 
     try {
       config.save(configFile);

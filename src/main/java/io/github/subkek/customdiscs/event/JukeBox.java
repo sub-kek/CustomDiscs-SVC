@@ -1,13 +1,12 @@
 package io.github.subkek.customdiscs.event;
 
 import io.github.subkek.customdiscs.CustomDiscs;
+import io.github.subkek.customdiscs.LavaPlayerManager;
 import io.github.subkek.customdiscs.PlayerManager;
 import io.github.subkek.customdiscs.VoicePlugin;
-import io.github.subkek.customdiscs.YouTubePlayerManager;
 import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
 import io.github.subkek.customdiscs.utils.Formatter;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
@@ -84,7 +83,7 @@ public class JukeBox implements Listener {
       Component customActionBarSongPlaying = Component.text(Formatter.format(plugin.language.get("now-playing"), songName));
 
       assert VoicePlugin.voicechatServerApi != null;
-      YouTubePlayerManager.instance(block).playLocationalAudioYoutube(VoicePlugin.voicechatServerApi, soundLink, customActionBarSongPlaying);
+      LavaPlayerManager.getInstance().playLocationalAudioYoutube(block, VoicePlugin.voicechatServerApi, soundLink, customActionBarSongPlaying);
     }
   }
 
@@ -118,7 +117,7 @@ public class JukeBox implements Listener {
 
       if (jukeboxContainsDisc(block)) {
         stopDisc(block);
-        YouTubePlayerManager.stopPlaying(block);
+        LavaPlayerManager.getInstance().stopPlaying(block);
       }
     }
   }
@@ -131,7 +130,7 @@ public class JukeBox implements Listener {
     if (block.getType() != Material.JUKEBOX) return;
 
     stopDisc(block);
-    YouTubePlayerManager.stopPlaying(block);
+    LavaPlayerManager.getInstance().stopPlaying(block);
   }
 
   @EventHandler (priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -139,7 +138,7 @@ public class JukeBox implements Listener {
     for (Block explodedBlock : event.blockList()) {
       if (explodedBlock.getType() == Material.JUKEBOX) {
         stopDisc(explodedBlock);
-        YouTubePlayerManager.stopPlaying(explodedBlock);
+        LavaPlayerManager.getInstance().stopPlaying(explodedBlock);
       }
     }
   }

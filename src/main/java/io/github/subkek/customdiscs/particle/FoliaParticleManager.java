@@ -1,8 +1,8 @@
 package io.github.subkek.customdiscs.particle;
 
 import io.github.subkek.customdiscs.CustomDiscs;
+import io.github.subkek.customdiscs.LavaPlayerManager;
 import io.github.subkek.customdiscs.PlayerManager;
-import io.github.subkek.customdiscs.YouTubePlayerManager;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.block.Jukebox;
@@ -21,7 +21,7 @@ public class FoliaParticleManager implements ParticleManager{
     locationParticleManager.add(jukebox.getLocation());
     plugin.getServer().getRegionScheduler().run(plugin, jukebox.getLocation(), t -> jukebox.stopPlaying());
     plugin.getServer().getRegionScheduler().runAtFixedRate(plugin, jukebox.getLocation(), t -> {
-      if (!YouTubePlayerManager.isAudioPlayerPlaying(jukebox.getLocation()) && !playerManager.isAudioPlayerPlaying(jukebox.getLocation())) {
+      if (!LavaPlayerManager.getInstance().isAudioPlayerPlaying(jukebox.getLocation()) && !playerManager.isAudioPlayerPlaying(jukebox.getLocation())) {
         locationParticleManager.remove(jukebox.getLocation());
         t.cancel();
       } else {

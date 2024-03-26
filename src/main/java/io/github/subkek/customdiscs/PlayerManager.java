@@ -59,6 +59,8 @@ public class PlayerManager {
     AtomicBoolean stopped = new AtomicBoolean();
     AtomicReference<de.maxhenkel.voicechat.api.audiochannel.AudioPlayer> player = new AtomicReference<>();
 
+    if (playerMap.containsKey(id)) stopLocationalAudio(id);
+
     playerMap.put(id, () -> {
       synchronized (stopped) {
         stopped.set(true);
@@ -169,12 +171,20 @@ public class PlayerManager {
 
 
   public void stopLocationalAudio(Location blockLocation) {
-    UUID id = UUID.nameUUIDFromBytes(blockLocation.toString().getBytes());
-    Stoppable player = playerMap.get(id);
+    UUID uuid = UUID.nameUUIDFromBytes(blockLocation.toString().getBytes());
+    stopLocationalAudio(uuid);
+  }
+
+  public void stopLocationalAudio(UUID uuid) {
+    Stoppable player = playerMap.get(uuid);
     if (player != null) {
       player.stop();
     }
-    playerMap.remove(id);
+    playerMap.remove(uuid);
+  }
+
+  public void stopAll() {
+    playerMap.keySet().forEach(this::stopLocationalAudio);
   }
 
   public float getLengthSeconds(Path file) throws UnsupportedAudioFileException, IOException, LineUnavailableException {

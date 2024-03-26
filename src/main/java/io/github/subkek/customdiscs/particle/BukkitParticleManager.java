@@ -1,8 +1,8 @@
 package io.github.subkek.customdiscs.particle;
 
 import io.github.subkek.customdiscs.CustomDiscs;
+import io.github.subkek.customdiscs.LavaPlayerManager;
 import io.github.subkek.customdiscs.PlayerManager;
-import io.github.subkek.customdiscs.YouTubePlayerManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -22,7 +22,7 @@ public class BukkitParticleManager implements ParticleManager {
     locationParticleManager.add(jukebox.getLocation());
     jukebox.stopPlaying();
     Bukkit.getScheduler().runTaskTimer(plugin, t -> {
-      if (!YouTubePlayerManager.isAudioPlayerPlaying(jukebox.getLocation()) && !playerManager.isAudioPlayerPlaying(jukebox.getLocation())) {
+      if (!LavaPlayerManager.getInstance().isAudioPlayerPlaying(jukebox.getLocation()) && !playerManager.isAudioPlayerPlaying(jukebox.getLocation())) {
         locationParticleManager.remove(jukebox.getLocation());
         t.cancel();
       } else {

@@ -6,7 +6,7 @@ plugins {
 
 allprojects {
     group = "io.github.subkek.customdiscs"
-    version = "1.3.7"
+    version = "1.3.8"
 }
 
 java.sourceCompatibility = JavaVersion.VERSION_16
@@ -31,10 +31,10 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
     compileOnly("com.googlecode.json-simple:json-simple:1.1.1")
     compileOnly("com.googlecode.soundlibs:mp3spi:1.9.5.4")
-    compileOnly("de.maxhenkel.voicechat:voicechat-api:2.3.3")
+    compileOnly("de.maxhenkel.voicechat:voicechat-api:2.5.0")
     compileOnly("com.comphenix.protocol:ProtocolLib:5.0.0")
     compileOnly("org.jflac:jflac-codec:1.5.2")
-    compileOnly("com.sedmelluq:lavaplayer:1.3.78")
+    compileOnly("dev.arbjerg:lavaplayer:2.1.1")
     compileOnly("commons-io:commons-io:2.14.0")
     compileOnly("org.projectlombok:lombok:1.18.30")
 

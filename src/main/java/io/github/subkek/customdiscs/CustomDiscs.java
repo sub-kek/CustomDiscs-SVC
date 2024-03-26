@@ -85,8 +85,8 @@ public final class CustomDiscs extends JavaPlugin {
           if (jukebox.getRecord().getItemMeta().getPersistentDataContainer().has(new NamespacedKey(CustomDiscs.getInstance(), "customdisc"), PersistentDataType.STRING) ||
               jukebox.getRecord().getItemMeta().getPersistentDataContainer().has(new NamespacedKey(CustomDiscs.getInstance(), "customdiscyt"), PersistentDataType.STRING)) {
             event.setCancelled(true);
+            particleManager.start(jukebox);
           }
-          particleManager.start(jukebox);
         }
       }
     });
@@ -94,14 +94,23 @@ public final class CustomDiscs extends JavaPlugin {
 
   @Override
   public void onDisable() {
+    LavaPlayerManager.getInstance().stopPlayingAll();
+    PlayerManager.instance().stopAll();
+
     if (voicechatPlugin != null) {
       getServer().getServicesManager().unregister(voicechatPlugin);
       getLogger().info("Successfully disabled CustomDiscs plugin");
     }
+
+    if (isFolia()) {
+      getServer().getGlobalRegionScheduler().cancelTasks(this);
+      getServer().getAsyncScheduler().cancelTasks(this);
+    } else {
+      getServer().getScheduler().cancelTasks(this);
+    }
   }
 
   private void linkBStats() {
-
     BStatsLink bstats = new BStatsLink(getInstance(), 20077);
 
     bstats.addCustomChart(new BStatsLink.SimplePie("plugin_language", () -> CustomDiscsConfiguration.locale));
