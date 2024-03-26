@@ -9,9 +9,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class LibraryDownloadManager {
-  public static final String LIBS_DATA_URL = "https://pastebin.com/raw/D4pws17f";
+  public static final String LIBS_DATA_URL = "https://pastebin.com/raw/XdaFhWWh";
 
-  private File libsFolder;
+  private final File libsFolder;
   private JSONObject data;
 
   public LibraryDownloadManager(File libsFolder) {

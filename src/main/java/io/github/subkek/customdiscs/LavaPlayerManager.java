@@ -4,6 +4,7 @@ import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
+import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -32,6 +33,11 @@ public class LavaPlayerManager {
   private final AudioPlayerManager lavaPlayerManager = new DefaultAudioPlayerManager();
   private final Map<UUID, LavaPlayer> playerMap = new HashMap<>();
 
+  public LavaPlayerManager() {
+    AudioSourceManagers.registerLocalSource(lavaPlayerManager);
+    AudioSourceManagers.registerRemoteSources(lavaPlayerManager);
+  }
+
   public void playLocationalAudioYoutube(Block block, VoicechatServerApi api, String ytUrl, Component actionbarComponent) {
     UUID uuid = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
     if (playerMap.containsKey(uuid)) stopPlaying(uuid);
@@ -40,7 +46,7 @@ public class LavaPlayerManager {
     playerMap.put(uuid, lavaPlayer);
 
     lavaPlayer.ytUrl = ytUrl;
-
+    lavaPlayer.playerUUID = uuid;
     lavaPlayer.audioChannel = api.createLocationalAudioChannel(UUID.randomUUID(), api.fromServerLevel(block.getWorld()), api.createPosition(block.getLocation().getX() + 0.5d, block.getLocation().getY() + 0.5d, block.getLocation().getZ() + 0.5d));
 
     if (lavaPlayer.audioChannel == null) return;
@@ -50,7 +56,7 @@ public class LavaPlayerManager {
 
     lavaPlayer.playersInRange = api.getPlayersInRange(api.fromServerLevel(block.getWorld()), api.createPosition(block.getLocation().getX() + 0.5d, block.getLocation().getY() + 0.5d, block.getLocation().getZ() + 0.5d), CustomDiscsConfiguration.musicDiscDistance);
 
-    lavaPlayer.startTrackJob();
+    lavaPlayer.lavaPlayerThread.start();
 
     for (ServerPlayer serverPlayer : lavaPlayer.playersInRange) {
       Player bukkitPlayer = (Player) serverPlayer.getPlayer();
@@ -78,6 +84,7 @@ public class LavaPlayerManager {
       playerMap.remove(uuid);
 
       lavaPlayer.trackFuture.complete(null);
+      lavaPlayer.audioPlayer.destroy();
       lavaPlayer.lavaPlayerThread.interrupt();
     }
   }
@@ -98,10 +105,11 @@ public class LavaPlayerManager {
     private Thread lavaPlayerThread = new Thread(this::startTrackJob, "LavaPlayer");
     private final CompletableFuture<AudioTrack> trackFuture = new CompletableFuture<>();
     private UUID playerUUID;
+    private AudioPlayer audioPlayer;
 
     private void startTrackJob() {
       try {
-        AudioPlayer audioPlayer = lavaPlayerManager.createPlayer();
+        audioPlayer = lavaPlayerManager.createPlayer();
 
         lavaPlayerManager.loadItem(ytUrl, new AudioLoadResultHandler() {
           @Override

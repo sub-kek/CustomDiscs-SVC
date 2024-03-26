@@ -34,7 +34,7 @@ dependencies {
     compileOnly("de.maxhenkel.voicechat:voicechat-api:2.5.0")
     compileOnly("com.comphenix.protocol:ProtocolLib:5.0.0")
     compileOnly("org.jflac:jflac-codec:1.5.2")
-    compileOnly("dev.arbjerg:lavaplayer:2.1.1")
+    compileOnly("dev.arbjerg:lavaplayer:495ea87beef35b161fc14138ab3523ecb97ba684-SNAPSHOT")
     compileOnly("commons-io:commons-io:2.14.0")
     compileOnly("org.projectlombok:lombok:1.18.30")
 
