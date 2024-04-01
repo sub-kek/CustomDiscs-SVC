@@ -4,8 +4,8 @@ import io.github.subkek.customdiscs.CustomDiscs;
 import io.github.subkek.customdiscs.command.SubCommand;
 import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
 import io.github.subkek.customdiscs.utils.Formatter;
-import org.apache.commons.io.FileUtils;
 import org.bukkit.command.CommandSender;
+import org.codehaus.plexus.util.FileUtils;
 
 import java.io.File;
 import java.net.URL;

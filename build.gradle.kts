@@ -6,7 +6,7 @@ plugins {
 
 allprojects {
     group = "io.github.subkek.customdiscs"
-    version = "1.3.8"
+    version = "1.3.9"
 }
 
 java.sourceCompatibility = JavaVersion.VERSION_16
@@ -27,34 +27,32 @@ configurations.api {
 
 dependencies {
     //compileOnly("org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT")
-
     compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
-    compileOnly("com.googlecode.json-simple:json-simple:1.1.1")
-    compileOnly("com.googlecode.soundlibs:mp3spi:1.9.5.4")
+
     compileOnly("de.maxhenkel.voicechat:voicechat-api:2.5.0")
     compileOnly("com.comphenix.protocol:ProtocolLib:5.0.0")
-    compileOnly("org.jflac:jflac-codec:1.5.2")
-    compileOnly("dev.arbjerg:lavaplayer:495ea87beef35b161fc14138ab3523ecb97ba684-SNAPSHOT")
-    compileOnly("commons-io:commons-io:2.14.0")
-    compileOnly("org.projectlombok:lombok:1.18.30")
 
-    compileOnly(platform("net.kyori:adventure-bom:4.13.1"))
-    compileOnly("net.kyori:adventure-api")
-    compileOnly("net.kyori:adventure-text-minimessage")
-    compileOnly("net.kyori:adventure-text-serializer-gson")
-    compileOnly("net.kyori:adventure-text-serializer-legacy")
-    compileOnly("net.kyori:adventure-text-serializer-plain")
-    compileOnly("net.kyori:adventure-text-logger-slf4j")
-    compileOnly("net.kyori:adventure-text-serializer-legacy")
-    compileOnly("net.kyori:adventure-platform-bukkit:4.3.2")
+    shadow("com.googlecode.soundlibs:mp3spi:1.9.5.4")
+    shadow("org.jflac:jflac-codec:1.5.2")
+    compileOnly("dev.arbjerg:lavaplayer:0eaeee195f0315b2617587aa3537fa202df07ddc-SNAPSHOT")
+    shadow("dev.arbjerg:lavaplayer:0eaeee195f0315b2617587aa3537fa202df07ddc-SNAPSHOT") {
+        exclude("org.slf4j")
+    }
 
-    compileOnly("org.yaml:snakeyaml:2.2")
-    compileOnly ("me.carleslc.Simple-YAML:Simple-Yaml:1.8.4") {
+    shadow(platform("net.kyori:adventure-bom:4.13.1"))
+    shadow("net.kyori:adventure-api")
+    shadow("net.kyori:adventure-text-minimessage")
+    shadow("net.kyori:adventure-text-serializer-gson") {
+        exclude("com.google.code.gson")
+    }
+    shadow("net.kyori:adventure-platform-bukkit:4.3.2")
+
+    shadow("org.yaml:snakeyaml:2.2")
+    shadow ("me.carleslc.Simple-YAML:Simple-Yaml:1.8.4") {
         exclude(group="org.yaml", module="snakeyaml")
     }
 
-    implementation("me.lucko:jar-relocator:1.7.2")
-
+    compileOnly("org.projectlombok:lombok:1.18.30")
     annotationProcessor("org.projectlombok:lombok:1.18.30")
 }
 
@@ -68,7 +66,31 @@ tasks.build {
 
 tasks.shadowJar {
     archiveFileName = "${rootProject.name}-$version.jar"
+
+    configurations = listOf(project.configurations.shadow.get())
+    mergeServiceFiles()
+
+    relocate("org.apache", "io.github.subkek.customdiscs.libs.org.apache")
+    relocate("org.jsoup", "io.github.subkek.customdiscs.libs.org.jsoup")
+    relocate("com.fasterxml", "io.github.subkek.customdiscs.libs.com.fasterxml")
+    relocate("org.yaml.snakeyaml", "io.github.subkek.customdiscs.libs.org.yaml.snakeyaml")
+    relocate("org.simpleyaml", "io.github.subkek.customdiscs.libs.org.simpleyaml")
+    relocate("org.jflac", "io.github.subkek.customdiscs.libs.org.jflac")
+    relocate("org.json", "io.github.subkek.customdiscs.libs.org.json")
+    //relocate("org.mozilla", "io.github.subkek.customdiscs.libs.org.mozilla")
+    relocate("org.tritonus", "io.github.subkek.customdiscs.libs.org.tritonus")
+    relocate("mozilla", "io.github.subkek.customdiscs.libs.mozilla")
+    relocate("junit", "io.github.subkek.customdiscs.libs.junit")
+    relocate("javazoom", "io.github.subkek.customdiscs.libs.javazoom")
+    relocate("certificates", "io.github.subkek.customdiscs.libs.certificates")
+    relocate("net.sourceforge.jaad.aac", "io.github.subkek.customdiscs.libs.net.sourceforge.jaad.aac")
     relocate("net.kyori", "io.github.subkek.customdiscs.libs.net.kyori")
+    relocate("net.iharder", "io.github.subkek.customdiscs.libs.net.iharder")
+    relocate("com.sedmelluq", "io.github.subkek.customdiscs.libs.com.sedmelluq") {
+        exclude("com/sedmelluq/discord/lavaplayer/natives/**")
+    }
+
+    //minimize()
 }
 
 tasks.processResources {

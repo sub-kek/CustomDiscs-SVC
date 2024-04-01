@@ -13,7 +13,6 @@ import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
 import io.github.subkek.customdiscs.event.ClearDiscs;
 import io.github.subkek.customdiscs.event.JukeBox;
 import io.github.subkek.customdiscs.language.FileLanguage;
-import io.github.subkek.customdiscs.libs.AssetsDownloader;
 import io.github.subkek.customdiscs.metrics.BStatsLink;
 import io.github.subkek.customdiscs.particle.BukkitParticleManager;
 import io.github.subkek.customdiscs.particle.FoliaParticleManager;
@@ -28,7 +27,6 @@ import java.io.File;
 import java.util.Objects;
 
 public final class CustomDiscs extends JavaPlugin {
-  public String defaultResourceHash = "N/A";
   public static final String PLUGIN_ID = "CustomDiscs";
   @Getter private static CustomDiscs instance = null;
   private VoicePlugin voicechatPlugin;
@@ -40,8 +38,6 @@ public final class CustomDiscs extends JavaPlugin {
     CustomDiscs.instance = this;
 
     if (getDataFolder().mkdir()) getLogger().info("Created plugin data folder");
-
-    AssetsDownloader.loadLibraries(getDataFolder());
 
     CustomDiscsConfiguration.load();
 
