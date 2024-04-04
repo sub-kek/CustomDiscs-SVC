@@ -1,10 +1,10 @@
-package io.github.subkek.customdiscs.command.SubCommands;
+package io.github.subkek.customdiscs.command.subcommand;
 
 import io.github.subkek.customdiscs.CustomDiscs;
 import io.github.subkek.customdiscs.command.CustomDiscsCommand;
 import io.github.subkek.customdiscs.command.SubCommand;
 import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
-import io.github.subkek.customdiscs.utils.Formatter;
+import io.github.subkek.customdiscs.util.Formatter;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.command.CommandSender;
 

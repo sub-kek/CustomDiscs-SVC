@@ -1,16 +1,17 @@
-package io.github.subkek.customdiscs.command.SubCommands;
+package io.github.subkek.customdiscs.command.subcommand;
 
 import io.github.subkek.customdiscs.CustomDiscs;
 import io.github.subkek.customdiscs.command.SubCommand;
 import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
-import io.github.subkek.customdiscs.utils.Formatter;
+import io.github.subkek.customdiscs.util.Formatter;
+import org.apache.commons.io.FileUtils;
 import org.bukkit.command.CommandSender;
-import org.codehaus.plexus.util.FileUtils;
 
 import java.io.File;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Path;
+import java.util.logging.Level;
 
 public class DownloadCommand implements SubCommand {
   private final CustomDiscs plugin = CustomDiscs.getInstance();
@@ -57,7 +58,7 @@ public class DownloadCommand implements SubCommand {
       return;
     }
 
-    Runnable downloadTask = () -> {
+    plugin.getFoliaLib().getImpl().runAsync(task -> {
       try {
         URL fileURL = new URL(args[1]);
         String filename = args[2];
@@ -89,13 +90,11 @@ public class DownloadCommand implements SubCommand {
 
         sender.sendMessage(Formatter.format(plugin.language.get("download-successful"), true));
         sender.sendMessage(Formatter.format(plugin.language.get("create-disc-tooltip"), true, plugin.language.get("create-command-syntax")));
-      } catch (Exception e) {
+      } catch (Throwable e) {
+        plugin.getLogger().log(Level.SEVERE, "Error while download music: ", e);
         sender.sendMessage(Formatter.format(plugin.language.get("download-error"), true));
       }
-    };
-
-    if (plugin.isFolia()) {plugin.getServer().getAsyncScheduler().runNow(plugin, t -> downloadTask.run());}
-    else {plugin.getServer().getScheduler().runTaskAsynchronously(plugin, downloadTask);}
+    });
   }
 
   private String getFileExtension(String s) {

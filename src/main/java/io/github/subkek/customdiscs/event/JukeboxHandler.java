@@ -5,7 +5,7 @@ import io.github.subkek.customdiscs.LavaPlayerManager;
 import io.github.subkek.customdiscs.PlayerManager;
 import io.github.subkek.customdiscs.VoicePlugin;
 import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
-import io.github.subkek.customdiscs.utils.Formatter;
+import io.github.subkek.customdiscs.util.Formatter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Objects;
 
-public class JukeBox implements Listener {
+public class JukeboxHandler implements Listener {
   private final CustomDiscs plugin = CustomDiscs.getInstance();
   PlayerManager playerManager = PlayerManager.instance();
 

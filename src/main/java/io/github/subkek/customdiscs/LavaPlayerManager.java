@@ -4,16 +4,17 @@ import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
-import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackState;
 import com.sedmelluq.discord.lavaplayer.track.playback.AudioFrame;
 import de.maxhenkel.voicechat.api.ServerPlayer;
 import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
 import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
-import io.github.subkek.customdiscs.utils.Formatter;
+import io.github.subkek.customdiscs.util.Formatter;
 import net.kyori.adventure.platform.bukkit.BukkitComponentSerializer;
 import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.ChatMessageType;
@@ -34,8 +35,11 @@ public class LavaPlayerManager {
   private final Map<UUID, LavaPlayer> playerMap = new HashMap<>();
 
   public LavaPlayerManager() {
-    AudioSourceManagers.registerLocalSource(lavaPlayerManager);
-    AudioSourceManagers.registerRemoteSources(lavaPlayerManager);
+    lavaPlayerManager.registerSourceManager(new YoutubeAudioSourceManager(
+        false,
+        CustomDiscsConfiguration.youtubeEmail.isBlank() ? null : CustomDiscsConfiguration.youtubeEmail,
+        CustomDiscsConfiguration.youtubePassword.isBlank() ? null : CustomDiscsConfiguration.youtubePassword
+    ));
   }
 
   public void playLocationalAudioYoutube(Block block, VoicechatServerApi api, String ytUrl, Component actionbarComponent) {
@@ -102,7 +106,7 @@ public class LavaPlayerManager {
     private String ytUrl;
     private LocationalAudioChannel audioChannel;
     private Collection<ServerPlayer> playersInRange;
-    private Thread lavaPlayerThread = new Thread(this::startTrackJob, "LavaPlayer");
+    private final Thread lavaPlayerThread = new Thread(this::startTrackJob, "LavaPlayer");
     private final CompletableFuture<AudioTrack> trackFuture = new CompletableFuture<>();
     private UUID playerUUID;
     private AudioPlayer audioPlayer;
@@ -119,11 +123,7 @@ public class LavaPlayerManager {
 
           @Override
           public void playlistLoaded(AudioPlaylist audioPlaylist) {
-            for (ServerPlayer serverPlayer : playersInRange) {
-              Player bukkitPlayer = (Player) serverPlayer.getPlayer();
-              bukkitPlayer.sendMessage(Formatter.format(plugin.language.get("cant-play-playlist-error"), true));
-            }
-            trackFuture.complete(null);
+            trackFuture.complete(audioPlaylist.getSelectedTrack());
             LavaPlayerManager.getInstance().stopPlaying(playerUUID);
           }
 
@@ -153,7 +153,11 @@ public class LavaPlayerManager {
           return;
         }
 
-        AudioTrack audioTrack = trackFuture.get();
+        AudioTrack audioTrack;
+        if (Objects.isNull(audioTrack = trackFuture.get())) {
+          stopPlaying(playerUUID);
+          return;
+        }
 
         int volume = Math.round(CustomDiscsConfiguration.musicDiscVolume * 100);
         audioPlayer.setVolume(volume);
@@ -162,21 +166,19 @@ public class LavaPlayerManager {
 
         audioPlayer.playTrack(audioTrack);
 
-        while (audioPlayer.getPlayingTrack() != null) {
-          try {
-            AudioFrame frame = audioPlayer.provide(5L, TimeUnit.MILLISECONDS);
+        try {
+          while (!audioTrack.getState().equals(AudioTrackState.FINISHED)) {
+            AudioFrame frame;
+            if (Objects.isNull(frame = audioPlayer.provide(5L, TimeUnit.MILLISECONDS))) continue;
 
             audioChannel.send(frame.getData());
 
-            if (start == 0L)
-              start = System.currentTimeMillis();
-
+            if (start == 0L) start = System.currentTimeMillis();
             long wait = (start + frame.getTimecode()) - System.currentTimeMillis();
-
-            TimeUnit.MILLISECONDS.sleep(wait);
-          } catch (Exception e) {
-            TimeUnit.MILLISECONDS.sleep(10);
+            if (wait > 0) {TimeUnit.MILLISECONDS.sleep(wait);}
           }
+        } catch (InterruptedException e) {
+          // ignored
         }
 
         LavaPlayerManager.getInstance().stopPlaying(playerUUID);

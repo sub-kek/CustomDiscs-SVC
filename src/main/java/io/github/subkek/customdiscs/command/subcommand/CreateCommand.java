@@ -1,9 +1,9 @@
-package io.github.subkek.customdiscs.command.SubCommands;
+package io.github.subkek.customdiscs.command.subcommand;
 
 import io.github.subkek.customdiscs.CustomDiscs;
 import io.github.subkek.customdiscs.command.SubCommand;
 import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
-import io.github.subkek.customdiscs.utils.Formatter;
+import io.github.subkek.customdiscs.util.Formatter;
 import net.kyori.adventure.platform.bukkit.BukkitComponentSerializer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -18,30 +18,31 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CreateYtCommand implements SubCommand {
+public class CreateCommand implements SubCommand {
   private final CustomDiscs plugin = CustomDiscs.getInstance();
 
   @Override
   public String getName() {
-    return "createyt";
+    return "create";
   }
 
   @Override
   public String getDescription() {
-    return plugin.language.get("createyt-command-description");
+    return plugin.language.get("create-command-description");
   }
 
   @Override
   public String getSyntax() {
-    return plugin.language.get("createyt-command-syntax");
+    return plugin.language.get("create-command-syntax");
   }
 
   @Override
   public boolean hasPermission(CommandSender sender) {
-    return sender.hasPermission("customdiscs.createyt");
+    return sender.hasPermission("customdiscs.create");
   }
 
   @Override
@@ -65,11 +66,33 @@ public class CreateYtCommand implements SubCommand {
 
     if (isMusicDisc(player)) {
       if (args.length >= 3) {
+        String songName;
+        String filename = args[1];
+        if (filename.contains("../")) {
+          sender.sendMessage(Formatter.format(plugin.language.get("invalid-file-name"), true));
+          return;
+        }
+
         if (customName(readQuotes(args)).equalsIgnoreCase("")) {
           sender.sendMessage(Formatter.format(plugin.language.get("write-disc-name-error"), true));
           return;
         }
 
+        File getDirectory = new File(CustomDiscs.getInstance().getDataFolder(), "musicdata");
+        File songFile = new File(getDirectory.getPath(), filename);
+        if (songFile.exists()) {
+          if (getFileExtension(filename).equals("wav") || getFileExtension(filename).equals("mp3") || getFileExtension(filename).equals("flac")) {
+            songName = args[1];
+          } else {
+            sender.sendMessage(Formatter.format(plugin.language.get("unknown-extension-error"), true));
+            return;
+          }
+        } else {
+          sender.sendMessage(Formatter.format(plugin.language.get("file-not-found"), true));
+          return;
+        }
+
+        //Sets the lore of the item to the quotes from the command.
         ItemStack disc = new ItemStack(player.getInventory().getItemInMainHand());
 
         if (isBurned(disc) && CustomDiscsConfiguration.discCleaning) {
@@ -79,7 +102,7 @@ public class CreateYtCommand implements SubCommand {
 
         ItemMeta meta = disc.getItemMeta();
 
-        meta.setDisplayName(plugin.language.get("youtube-disc"));
+        meta.setDisplayName(plugin.language.get("simple-disc"));
         final TextComponent customLoreSong = Component.text()
             .decoration(TextDecoration.ITALIC, false)
             .content(customName(readQuotes(args)))
@@ -88,23 +111,31 @@ public class CreateYtCommand implements SubCommand {
         meta.addItemFlags(ItemFlag.values());
         meta.setLore(List.of(BukkitComponentSerializer.legacy().serialize(customLoreSong)));
 
-        String youtubeUrl = args[1];
-
         PersistentDataContainer data = meta.getPersistentDataContainer();
-        NamespacedKey discMeta = new NamespacedKey(CustomDiscs.getInstance(), "customdisc");
-        if (data.has(discMeta, PersistentDataType.STRING))
-          data.remove(new NamespacedKey(CustomDiscs.getInstance(), "customdisc"));
-        data.set(new NamespacedKey(CustomDiscs.getInstance(), "customdiscyt"), PersistentDataType.STRING, youtubeUrl);
+        NamespacedKey discYtMeta = new NamespacedKey(CustomDiscs.getInstance(), "customdiscyt");
+        if (data.has(discYtMeta, PersistentDataType.STRING))
+          data.remove(new NamespacedKey(CustomDiscs.getInstance(), "customdiscyt"));
+        data.set(new NamespacedKey(CustomDiscs.getInstance(), "customdisc"), PersistentDataType.STRING, filename);
 
         player.getInventory().getItemInMainHand().setItemMeta(meta);
 
-        sender.sendMessage(Formatter.format(plugin.language.get("disc-youtube-link"), youtubeUrl));
+        sender.sendMessage(Formatter.format(plugin.language.get("disc-file-output"), songName));
         sender.sendMessage(Formatter.format(plugin.language.get("disc-name-output"), customName(readQuotes(args))));
+
       } else {
-        sender.sendMessage(Formatter.format(plugin.language.get("unknown-arguments-error"), true, plugin.language.get("createyt-command-syntax")));
+        sender.sendMessage(Formatter.format(plugin.language.get("unknown-arguments-error"), true, plugin.language.get("create-command-syntax")));
       }
     } else {
       sender.sendMessage(Formatter.format(plugin.language.get("disc-not-in-hand-error"), true));
+    }
+  }
+
+  private String getFileExtension(String s) {
+    int index = s.lastIndexOf(".");
+    if (index > 0) {
+      return s.substring(index + 1);
+    } else {
+      return "";
     }
   }
 
@@ -140,7 +171,8 @@ public class CreateYtCommand implements SubCommand {
   }
 
   private String customName(ArrayList<String> q) {
-    StringBuilder sb = new StringBuilder();
+
+    StringBuffer sb = new StringBuffer();
 
     for (String s : q) {
       sb.append(s);
@@ -150,7 +182,7 @@ public class CreateYtCommand implements SubCommand {
     if (sb.isEmpty()) {
       return sb.toString();
     } else {
-      return sb.substring(0, sb.length() - 1);
+      return sb.toString().substring(0, sb.length() - 1);
     }
   }
 

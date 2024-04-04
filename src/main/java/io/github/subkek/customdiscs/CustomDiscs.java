@@ -7,15 +7,14 @@ import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
+import com.tcoded.folialib.FoliaLib;
 import de.maxhenkel.voicechat.api.BukkitVoicechatService;
 import io.github.subkek.customdiscs.command.CustomDiscsCommand;
+import io.github.subkek.customdiscs.command.CustomDiscsTabCompleter;
 import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
-import io.github.subkek.customdiscs.event.ClearDiscs;
-import io.github.subkek.customdiscs.event.JukeBox;
-import io.github.subkek.customdiscs.language.FileLanguage;
+import io.github.subkek.customdiscs.event.JukeboxHandler;
+import io.github.subkek.customdiscs.language.YamlLanguage;
 import io.github.subkek.customdiscs.metrics.BStatsLink;
-import io.github.subkek.customdiscs.particle.BukkitParticleManager;
-import io.github.subkek.customdiscs.particle.FoliaParticleManager;
 import io.github.subkek.customdiscs.particle.ParticleManager;
 import lombok.Getter;
 import org.bukkit.NamespacedKey;
@@ -24,14 +23,14 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.util.Objects;
 
 public final class CustomDiscs extends JavaPlugin {
   public static final String PLUGIN_ID = "CustomDiscs";
   @Getter private static CustomDiscs instance = null;
   private VoicePlugin voicechatPlugin;
-  public FileLanguage language = null;
+  public YamlLanguage language = null;
   private ParticleManager particleManager;
+  @Getter private FoliaLib foliaLib = new FoliaLib(this);
 
   @Override
   public void onEnable() {
@@ -41,8 +40,8 @@ public final class CustomDiscs extends JavaPlugin {
 
     CustomDiscsConfiguration.load();
 
-    language = new FileLanguage();
-    language.init(CustomDiscsConfiguration.locale);
+    language = new YamlLanguage();
+    language.init();
 
     linkBStats();
 
@@ -61,13 +60,14 @@ public final class CustomDiscs extends JavaPlugin {
       getLogger().severe("Failed to enable CustomDiscs plugin");
     }
 
-    getServer().getPluginManager().registerEvents(new JukeBox(), this);
-    getServer().getPluginManager().registerEvents(new ClearDiscs(), this);
-    Objects.requireNonNull(getCommand("customdisc")).setExecutor(new CustomDiscsCommand());
+    getServer().getPluginManager().registerEvents(new JukeboxHandler(), this);
+    CustomDiscsCommand customDiscsCommand = new CustomDiscsCommand();
+    getCommand("customdisc").setExecutor(customDiscsCommand);
+    getCommand("customdisc").setTabCompleter(new CustomDiscsTabCompleter(customDiscsCommand));
+
 
     ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
-    particleManager = isFolia() ? new FoliaParticleManager() : new BukkitParticleManager();
-
+    particleManager = new ParticleManager();
     protocolManager.addPacketListener(new PacketAdapter(this, ListenerPriority.NORMAL, PacketType.Play.Server.WORLD_EVENT) {
       @Override
       public void onPacketSending(PacketEvent event) {
@@ -98,12 +98,7 @@ public final class CustomDiscs extends JavaPlugin {
       getLogger().info("Successfully disabled CustomDiscs plugin");
     }
 
-    if (isFolia()) {
-      getServer().getGlobalRegionScheduler().cancelTasks(this);
-      getServer().getAsyncScheduler().cancelTasks(this);
-    } else {
-      getServer().getScheduler().cancelTasks(this);
-    }
+    foliaLib.getImpl().cancelAllTasks();
   }
 
   private void linkBStats() {
@@ -115,14 +110,5 @@ public final class CustomDiscs extends JavaPlugin {
       CustomDiscsConfiguration.discsPlayed = 0;
       return value;
     }));
-  }
-
-  public boolean isFolia() {
-    try {
-      Class.forName("io.papermc.paper.threadedregions.RegionizedServer");
-      return true;
-    } catch (ClassNotFoundException e) {
-      return false;
-    }
   }
 }

@@ -24,6 +24,7 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 
+@SuppressWarnings("all")
 public class BStatsLink {
 
   private final Plugin plugin;
@@ -58,7 +59,7 @@ public class BStatsLink {
     boolean logSentData = config.getBoolean("logSentData", false);
     boolean logResponseStatusText = config.getBoolean("logResponseStatusText", false);
     metricsBase = new MetricsBase("bukkit", serverUUID, serviceId, enabled, this::appendPlatformData, this::appendServiceData,
-        CustomDiscs.getInstance().isFolia() ? submitDataTask -> Bukkit.getAsyncScheduler().runNow(plugin, t -> submitDataTask.run()) : submitDataTask -> Bukkit.getScheduler().runTask(plugin, submitDataTask),
+        submitDataTask -> CustomDiscs.getInstance().getFoliaLib().getImpl().runNextTick(t -> submitDataTask.run()),
         plugin::isEnabled, (message, error) -> this.plugin.getLogger().log(Level.WARNING, message, error), (message) -> this.plugin.getLogger().log(Level.INFO, message), logErrors, logSentData, logResponseStatusText);
   }
 

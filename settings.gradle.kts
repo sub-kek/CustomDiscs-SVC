@@ -12,6 +12,7 @@ dependencyResolutionManagement {
         maven("https://repo.maven.apache.org/maven2/")
         maven("https://repo.viaversion.com/")
         maven("https://maven.firstdarkdev.xyz/releases/")
+        maven("https://nexuslite.gcnt.net/repos/other/")
     }
 }
 

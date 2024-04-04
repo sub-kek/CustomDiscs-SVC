@@ -6,34 +6,25 @@ plugins {
 
 allprojects {
     group = "io.github.subkek.customdiscs"
-    version = "1.3.9"
+    version = "1.4.0"
 }
 
 java.sourceCompatibility = JavaVersion.VERSION_16
 java.targetCompatibility = JavaVersion.VERSION_16
 java.disableAutoTargetJvm()
 
-val apiAndDocs: Configuration by configurations.creating {
-    attributes {
-        attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category.DOCUMENTATION))
-        attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
-        attribute(DocsType.DOCS_TYPE_ATTRIBUTE, objects.named(DocsType.SOURCES))
-        attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_RUNTIME))
-    }
-}
-configurations.api {
-    extendsFrom(apiAndDocs)
-}
-
 dependencies {
-    //compileOnly("org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT")
-    compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
+    compileOnly("org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT")
+    //compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
 
     compileOnly("de.maxhenkel.voicechat:voicechat-api:2.5.0")
     compileOnly("com.comphenix.protocol:ProtocolLib:5.0.0")
 
+    shadow("com.googlecode.json-simple:json-simple:1.1.1")
     shadow("com.googlecode.soundlibs:mp3spi:1.9.5.4")
     shadow("org.jflac:jflac-codec:1.5.2")
+    shadow("commons-io:commons-io:2.14.0")
+    shadow("com.tcoded:FoliaLib:0.3.1")
     compileOnly("dev.arbjerg:lavaplayer:0eaeee195f0315b2617587aa3537fa202df07ddc-SNAPSHOT")
     shadow("dev.arbjerg:lavaplayer:0eaeee195f0315b2617587aa3537fa202df07ddc-SNAPSHOT") {
         exclude("org.slf4j")
@@ -42,9 +33,6 @@ dependencies {
     shadow(platform("net.kyori:adventure-bom:4.13.1"))
     shadow("net.kyori:adventure-api")
     shadow("net.kyori:adventure-text-minimessage")
-    shadow("net.kyori:adventure-text-serializer-gson") {
-        exclude("com.google.code.gson")
-    }
     shadow("net.kyori:adventure-platform-bukkit:4.3.2")
 
     shadow("org.yaml:snakeyaml:2.2")
@@ -83,9 +71,12 @@ tasks.shadowJar {
     relocate("junit", "io.github.subkek.customdiscs.libs.junit")
     relocate("javazoom", "io.github.subkek.customdiscs.libs.javazoom")
     relocate("certificates", "io.github.subkek.customdiscs.libs.certificates")
+    relocate("org.hamcrest", "io.github.subkek.customdiscs.libs.org.hamcrest")
+    relocate("org.junit", "io.github.subkek.customdiscs.libs.org.junit")
     relocate("net.sourceforge.jaad.aac", "io.github.subkek.customdiscs.libs.net.sourceforge.jaad.aac")
     relocate("net.kyori", "io.github.subkek.customdiscs.libs.net.kyori")
     relocate("net.iharder", "io.github.subkek.customdiscs.libs.net.iharder")
+    relocate("com.tcoded", "io.github.subkek.customdiscs.libs.com.tcoded")
     relocate("com.sedmelluq", "io.github.subkek.customdiscs.libs.com.sedmelluq") {
         exclude("com/sedmelluq/discord/lavaplayer/natives/**")
     }

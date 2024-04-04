@@ -1,9 +1,9 @@
-package io.github.subkek.customdiscs.command.SubCommands;
+package io.github.subkek.customdiscs.command.subcommand;
 
 import io.github.subkek.customdiscs.CustomDiscs;
 import io.github.subkek.customdiscs.command.SubCommand;
 import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
-import io.github.subkek.customdiscs.utils.Formatter;
+import io.github.subkek.customdiscs.util.Formatter;
 import org.bukkit.command.CommandSender;
 
 public class ReloadCommand implements SubCommand {
@@ -47,7 +47,7 @@ public class ReloadCommand implements SubCommand {
     }
 
     CustomDiscsConfiguration.load();
-    plugin.language.init(CustomDiscsConfiguration.locale);
+    plugin.language.init();
     sender.sendMessage(Formatter.format(plugin.language.get("config-reloaded"), true));
   }
 }

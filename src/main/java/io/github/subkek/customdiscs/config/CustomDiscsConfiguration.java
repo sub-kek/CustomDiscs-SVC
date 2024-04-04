@@ -1,7 +1,8 @@
 package io.github.subkek.customdiscs.config;
 
 import io.github.subkek.customdiscs.CustomDiscs;
-import io.github.subkek.customdiscs.utils.Languages;
+import io.github.subkek.customdiscs.util.Formatter;
+import io.github.subkek.customdiscs.util.Language;
 import org.jetbrains.annotations.Nullable;
 import org.simpleyaml.configuration.comments.CommentType;
 import org.simpleyaml.configuration.file.YamlFile;
@@ -16,7 +17,7 @@ import java.util.logging.Level;
 
 public class CustomDiscsConfiguration {
   private static final CustomDiscs plugin = CustomDiscs.getInstance();
-  private static final YamlFile config = new YamlFile();
+  public static final YamlFile config = new YamlFile();
 
   public static void load() {
     File configFile = Path.of(plugin.getDataFolder().getPath(), "config.yml").toFile();
@@ -117,15 +118,14 @@ public class CustomDiscsConfiguration {
   public static String locale;
   public static boolean discCleaning;
   public static int discsPlayed = 0;
+  public static String youtubeEmail;
+  public static String youtubePassword;
   private static void customDiscsSettings() {
     musicDiscDistance = getInt("music-disc-distance", 16, "The distance from which music discs can be heard in blocks.");
     musicDiscVolume = Float.parseFloat(getString("music-disc-volume", "1", "The master volume of music discs from 0-1. (You can set values like 0.5 for 50% volume)."));
     maxDownloadSize = getInt("max-download-size", 50, "The maximum download size in megabytes.");
-    discCleaning = getBoolean("cleaning-disc", false, "Enable disc cleaning before re-record disc", "This feature for my server use this not recommended");
-    locale = getString("locale", Languages.ENGLISH.toString(), "Language of plugin", "Supported en_US, ru_RU");
-    if (!Languages.languageExists(locale)) {
-      locale = Languages.ENGLISH.toString();
-      plugin.getLogger().warning("Your language is not supported! Please set supported language in the config! If you need your own translate edit any lang in jar.");
-    }
+    youtubeEmail = getString("providers.youtube.email", "", "Email has been used to bypass age-restricted videos");
+    youtubePassword = getString("providers.youtube.password", "", "Password for email has been used to bypass age-restricted videos");
+    locale = getString("locale", Language.ENGLISH.getLabel(), "Language of plugin", Formatter.format("Supported: {0}", Language.getAllSeparatedComma()));
   }
 }
