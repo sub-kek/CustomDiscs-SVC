@@ -2,7 +2,7 @@
 ## Special thanks
 [Navoei CustomDiscs](https://github.com/Navoei/CustomDiscs) | [henkelmax AudioPlayer](https://github.com/henkelmax/audio-player) | [sedmelluq lavaplayer](https://github.com/sedmelluq/lavaplayer)
 
-> ![WARN]
+> [!WARNING]
 > 1.20.5 and 1.20.6 soon
 > After 1.21 release
 
