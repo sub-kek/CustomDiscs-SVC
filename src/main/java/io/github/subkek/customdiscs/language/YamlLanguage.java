@@ -29,8 +29,8 @@ public class YamlLanguage {
       boolean isNewFile = false;
 
       if (!languageFile.exists()) {
-        InputStream inputStream = plugin.getClass().getClassLoader().getResourceAsStream(Formatter.format("language{0}{1}.yml", File.separator,
-            languageExists(CustomDiscsConfiguration.locale) ? CustomDiscsConfiguration.locale : Language.ENGLISH.getLabel()
+        InputStream inputStream = plugin.getClass().getClassLoader().getResourceAsStream(Formatter.format("language/{0}.yml",
+           languageExists(CustomDiscsConfiguration.locale) ? CustomDiscsConfiguration.locale : Language.ENGLISH.getLabel()
         ));
         Files.copy(inputStream, languageFile.toPath());
         isNewFile = true;
