@@ -2,11 +2,6 @@
 ## Special thanks
 [Navoei CustomDiscs](https://github.com/Navoei/CustomDiscs) | [henkelmax AudioPlayer](https://github.com/henkelmax/audio-player) | [sedmelluq lavaplayer](https://github.com/sedmelluq/lavaplayer)
 
-> [!WARNING]
-> 1.20.5 and 1.20.6 soon
-> 
-> After 1.21 release
-
 Create music discs using mp3, wav and flac files, and play audio from YouTube. Enhance and create a unique atmosphere in your game world.
 ## Configuration
 ```yaml
