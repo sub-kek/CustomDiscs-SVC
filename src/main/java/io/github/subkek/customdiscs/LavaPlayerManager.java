@@ -4,7 +4,6 @@ import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
-import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -13,6 +12,7 @@ import com.sedmelluq.discord.lavaplayer.track.playback.AudioFrame;
 import de.maxhenkel.voicechat.api.ServerPlayer;
 import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
+import dev.lavalink.youtube.YoutubeAudioSourceManager;
 import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
 import io.github.subkek.customdiscs.util.Formatter;
 import net.kyori.adventure.platform.bukkit.BukkitComponentSerializer;
@@ -35,11 +35,7 @@ public class LavaPlayerManager {
   private final Map<UUID, LavaPlayer> playerMap = new HashMap<>();
 
   public LavaPlayerManager() {
-    lavaPlayerManager.registerSourceManager(new YoutubeAudioSourceManager(
-        false,
-        CustomDiscsConfiguration.youtubeEmail.isBlank() ? null : CustomDiscsConfiguration.youtubeEmail,
-        CustomDiscsConfiguration.youtubePassword.isBlank() ? null : CustomDiscsConfiguration.youtubePassword
-    ));
+    lavaPlayerManager.registerSourceManager(new YoutubeAudioSourceManager(false));
   }
 
   public void playLocationalAudioYoutube(Block block, VoicechatServerApi api, String ytUrl, Component actionbarComponent) {

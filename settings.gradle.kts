@@ -8,6 +8,7 @@ dependencyResolutionManagement {
         maven("https://repo.dmulloy2.net/repository/public/")
         maven("https://maven.maxhenkel.de/repository/public")
         maven("https://jitpack.io")
+        maven("https://maven.lavalink.dev/releases")
         maven("https://maven.lavalink.dev/snapshots")
         maven("https://repo.maven.apache.org/maven2/")
         maven("https://repo.viaversion.com/")
