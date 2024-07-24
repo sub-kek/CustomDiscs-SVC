@@ -164,6 +164,8 @@ public class LavaPlayerManager {
 
         try {
           while (audioPlayer.getPlayingTrack() != null) {
+            if (audioTrack.getState() == AudioTrackState.FINISHED) break;
+
             AudioFrame frame;
             if (Objects.isNull(frame = audioPlayer.provide(5L, TimeUnit.MILLISECONDS))) continue;
 
