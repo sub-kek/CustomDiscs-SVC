@@ -6,7 +6,7 @@ plugins {
 
 allprojects {
     group = "io.github.subkek.customdiscs"
-    version = "1.4.2"
+    version = "1.4.3"
 }
 
 java.sourceCompatibility = JavaVersion.VERSION_16
