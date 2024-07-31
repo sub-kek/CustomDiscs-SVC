@@ -5,7 +5,6 @@ import io.github.subkek.customdiscs.LavaPlayerManager;
 import io.github.subkek.customdiscs.PlayerManager;
 import io.github.subkek.customdiscs.VoicePlugin;
 import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
-import io.github.subkek.customdiscs.util.Formatter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -45,7 +44,7 @@ public class JukeboxHandler implements Listener {
 
     if (isCustomDisc && !jukeboxContainsDisc(block)) {
       if (!player.hasPermission("customdiscs.play")) {
-        player.sendMessage(Formatter.format(plugin.language.get("play-no-permission-error"), true));
+        plugin.sendMessage(player, plugin.getLanguage().PComponent("play-no-permission-error"));
         return;
       }
       CustomDiscsConfiguration.discsPlayed++;
@@ -57,12 +56,12 @@ public class JukeboxHandler implements Listener {
       if (soundFilePath.toFile().exists()) {
         String songName = Objects.requireNonNull(event.getItem().getItemMeta().getLore()).get(0);
 
-        Component customActionBarSongPlaying = Component.text(Formatter.format(plugin.language.get("now-playing"), songName));
+        Component customActionBarSongPlaying = plugin.getLanguage().component("now-playing", songName);
 
         assert VoicePlugin.voicechatServerApi != null;
         playerManager.playLocationalAudio(VoicePlugin.voicechatServerApi, soundFilePath, block, customActionBarSongPlaying);
       } else {
-        player.sendMessage(Formatter.format(plugin.language.get("file-not-found"), true));
+        plugin.sendMessage(player, plugin.getLanguage().PComponent("file-not-found"));
         event.setCancelled(true);
         throw new FileNotFoundException("File not found!");
       }
@@ -70,7 +69,7 @@ public class JukeboxHandler implements Listener {
 
     if (isYouTubeCustomDisc && !jukeboxContainsDisc(block)) {
       if (!player.hasPermission("customdiscs.playt")) {
-        player.sendMessage(Formatter.format(plugin.language.get("play-no-permission-error"), true));
+        plugin.sendMessage(player, plugin.getLanguage().PComponent("play-no-permission-error"));
         return;
       }
 
@@ -80,7 +79,7 @@ public class JukeboxHandler implements Listener {
 
       String songName = Objects.requireNonNull(event.getItem().getItemMeta().getLore()).get(0);
 
-      Component customActionBarSongPlaying = Component.text(Formatter.format(plugin.language.get("now-playing"), songName));
+      Component customActionBarSongPlaying = plugin.getLanguage().component("now-playing", songName);
 
       assert VoicePlugin.voicechatServerApi != null;
       LavaPlayerManager.getInstance().playLocationalAudioYoutube(block, VoicePlugin.voicechatServerApi, soundLink, customActionBarSongPlaying);

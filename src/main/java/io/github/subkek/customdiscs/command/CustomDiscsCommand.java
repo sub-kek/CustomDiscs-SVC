@@ -2,7 +2,6 @@ package io.github.subkek.customdiscs.command;
 
 import io.github.subkek.customdiscs.CustomDiscs;
 import io.github.subkek.customdiscs.command.subcommand.*;
-import io.github.subkek.customdiscs.util.Formatter;
 import lombok.Getter;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -33,7 +32,7 @@ public class CustomDiscsCommand implements CommandExecutor {
         }
       }
     }
-    sender.sendMessage(Formatter.format(plugin.language.get("unknown-command"), true, getSubCommands().get("help").getSyntax()));
+    plugin.sendMessage(sender, plugin.getLanguage().PComponent("unknown-command", getSubCommands().get("help").getSyntax()));
     return true;
   }
 }

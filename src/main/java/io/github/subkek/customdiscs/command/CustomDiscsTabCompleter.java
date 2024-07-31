@@ -32,20 +32,20 @@ public class CustomDiscsTabCompleter implements TabCompleter {
         switch (args[0]) {
           case "create" -> {
             if (parentCommand.getSubCommands().get("create").hasPermission(sender))
-              arguments.add(plugin.language.get("download-command-2nd-argument"));
+              arguments.add(plugin.getLanguage().string("download-command-2nd-argument"));
           }
 
           case "createyt" -> {
             if (parentCommand.getSubCommands().get("createyt").hasPermission(sender))
-              arguments.add(plugin.language.get("createyt-command-1st-argument"));
+              arguments.add(plugin.getLanguage().string("createyt-command-1st-argument"));
           }
 
           case "download" -> {
             if (parentCommand.getSubCommands().get("download").hasPermission(sender))
-              arguments.add(plugin.language.get("download-command-1st-argument"));
+              arguments.add(plugin.getLanguage().string("download-command-1st-argument"));
           }
 
-          default -> arguments.add(plugin.language.get("unknown-argument-complete"));
+          default -> arguments.add(plugin.getLanguage().string("unknown-argument-complete"));
         }
       }
 
@@ -53,15 +53,15 @@ public class CustomDiscsTabCompleter implements TabCompleter {
         switch (args[0]) {
           case "download" -> {
             if (parentCommand.getSubCommands().get("download").hasPermission(sender))
-              arguments.add(plugin.language.get("download-command-2nd-argument"));
+              arguments.add(plugin.getLanguage().string("download-command-2nd-argument"));
           }
 
           case "create", "createyt" -> {
             if (parentCommand.getSubCommands().get(args[0]).hasPermission(sender))
-              arguments.add(plugin.language.get("create-commands-2nd-argument"));
+              arguments.add(plugin.getLanguage().string("create-commands-2nd-argument"));
           }
 
-          default -> arguments.add(plugin.language.get("unknown-argument-complete"));
+          default -> arguments.add(plugin.getLanguage().string("unknown-argument-complete"));
         }
       }
 
@@ -70,13 +70,13 @@ public class CustomDiscsTabCompleter implements TabCompleter {
           switch (args[0]) {
             case "create", "createyt" -> {
               if (parentCommand.getSubCommands().get(args[0]).hasPermission(sender))
-                arguments.add(plugin.language.get("create-commands-2nd-argument"));
+                arguments.add(plugin.getLanguage().string("create-commands-2nd-argument"));
             }
 
-            default -> arguments.add(plugin.language.get("unknown-argument-complete"));
+            default -> arguments.add(plugin.getLanguage().string("unknown-argument-complete"));
           }
         } else {
-          arguments.add(plugin.language.get("unknown-argument-complete"));
+          arguments.add(plugin.getLanguage().string("unknown-argument-complete"));
         }
       }
     }

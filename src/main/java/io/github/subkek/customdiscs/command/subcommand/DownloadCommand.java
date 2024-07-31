@@ -3,7 +3,6 @@ package io.github.subkek.customdiscs.command.subcommand;
 import io.github.subkek.customdiscs.CustomDiscs;
 import io.github.subkek.customdiscs.command.SubCommand;
 import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
-import io.github.subkek.customdiscs.util.Formatter;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.command.CommandSender;
 
@@ -23,12 +22,12 @@ public class DownloadCommand implements SubCommand {
 
   @Override
   public String getDescription() {
-    return plugin.language.get("download-command-description");
+    return plugin.getLanguage().string("download-command-description");
   }
 
   @Override
   public String getSyntax() {
-    return plugin.language.get("download-command-syntax");
+    return plugin.getLanguage().string("download-command-syntax");
   }
 
   @Override
@@ -44,17 +43,17 @@ public class DownloadCommand implements SubCommand {
   @Override
   public void perform(CommandSender sender, String[] args) {
     if (!hasPermission(sender)) {
-      sender.sendMessage(Formatter.format(plugin.language.get("no-permission-error"), true));
+      plugin.sendMessage(sender, plugin.getLanguage().PComponent("no-permission-error"));
       return;
     }
 
     if (!canPerform(sender)) {
-      sender.sendMessage(Formatter.format(plugin.language.get("cant-perform-command-error"), true));
+      plugin.sendMessage(sender, plugin.getLanguage().PComponent("cant-perform-command-error"));
       return;
     }
 
     if (args.length < 3) {
-      sender.sendMessage(Formatter.format(plugin.language.get("unknown-arguments-error"), true, plugin.language.get("download-command-syntax")));
+      plugin.sendMessage(sender, plugin.getLanguage().PComponent("unknown-arguments-error", plugin.getLanguage().string("download-command-syntax")));
       return;
     }
 
@@ -63,16 +62,16 @@ public class DownloadCommand implements SubCommand {
         URL fileURL = new URL(args[1]);
         String filename = args[2];
         if (filename.contains("../")) {
-          sender.sendMessage(Formatter.format(plugin.language.get("invalid-file-name"), true));
+          plugin.sendMessage(sender, plugin.getLanguage().PComponent("invalid-file-name"));
           return;
         }
 
         if (!getFileExtension(filename).equals("wav") && !getFileExtension(filename).equals("mp3") && !getFileExtension(filename).equals("flac")) {
-          sender.sendMessage(Formatter.format(plugin.language.get("unknown-extension-error"), true));
+          plugin.sendMessage(sender, plugin.getLanguage().PComponent("unknown-extension-error"));
           return;
         }
 
-        sender.sendMessage(Formatter.format(plugin.language.get("downloading"), true));
+        plugin.sendMessage(sender, plugin.getLanguage().PComponent("downloading"));
         Path downloadPath = Path.of(plugin.getDataFolder().getPath(), "musicdata", filename);
         File downloadFile = new File(downloadPath.toUri());
 
@@ -81,18 +80,18 @@ public class DownloadCommand implements SubCommand {
         if (connection != null) {
           long size = connection.getContentLengthLong() / 1048576;
           if (size > CustomDiscsConfiguration.maxDownloadSize) {
-            sender.sendMessage(Formatter.format(plugin.language.get("download-file-large-error"), true, String.valueOf(CustomDiscsConfiguration.maxDownloadSize)));
+            plugin.sendMessage(sender, plugin.getLanguage().PComponent("download-file-large-error", String.valueOf(CustomDiscsConfiguration.maxDownloadSize)));
             return;
           }
         }
 
         FileUtils.copyURLToFile(fileURL, downloadFile);
 
-        sender.sendMessage(Formatter.format(plugin.language.get("download-successful"), true));
-        sender.sendMessage(Formatter.format(plugin.language.get("create-disc-tooltip"), true, plugin.language.get("create-command-syntax")));
+        plugin.sendMessage(sender, plugin.getLanguage().PComponent("download-successful"));
+        plugin.sendMessage(sender, plugin.getLanguage().PComponent("create-disc-tooltip", plugin.getLanguage().string("create-command-syntax")));
       } catch (Throwable e) {
         plugin.getLogger().log(Level.SEVERE, "Error while download music: ", e);
-        sender.sendMessage(Formatter.format(plugin.language.get("download-error"), true));
+        plugin.sendMessage(sender, plugin.getLanguage().PComponent("download-error"));
       }
     });
   }

@@ -6,13 +6,9 @@ import de.maxhenkel.voicechat.api.audiochannel.AudioChannel;
 import de.maxhenkel.voicechat.api.audiochannel.AudioPlayer;
 import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
 import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
-import io.github.subkek.customdiscs.util.Formatter;
 import javazoom.spi.mpeg.sampled.convert.MpegFormatConversionProvider;
 import javazoom.spi.mpeg.sampled.file.MpegAudioFileReader;
-import net.kyori.adventure.platform.bukkit.BukkitComponentSerializer;
 import net.kyori.adventure.text.Component;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -78,7 +74,7 @@ public class PlayerManager {
 
       for (ServerPlayer serverPlayer : playersInRange) {
         Player bukkitPlayer = (Player) serverPlayer.getPlayer();
-        bukkitPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(BukkitComponentSerializer.legacy().serialize(actionbarComponent)));
+        plugin.getAudience().sender(bukkitPlayer).sendActionBar(actionbarComponent);
       }
 
       if (audioPlayer == null) {
@@ -105,7 +101,7 @@ public class PlayerManager {
     } catch (Exception e) {
       for (ServerPlayer serverPlayer : playersInRange) {
         Player bukkitPlayer = (Player) serverPlayer.getPlayer();
-        bukkitPlayer.sendMessage(Formatter.format(plugin.language.get("disc-play-error"), true));
+        plugin.sendMessage(bukkitPlayer, plugin.getLanguage().PComponent("disc-play-error"));
       }
       return null;
     }

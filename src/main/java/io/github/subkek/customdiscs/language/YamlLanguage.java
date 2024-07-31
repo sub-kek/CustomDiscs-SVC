@@ -4,7 +4,7 @@ import io.github.subkek.customdiscs.CustomDiscs;
 import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
 import io.github.subkek.customdiscs.util.Formatter;
 import io.github.subkek.customdiscs.util.Language;
-import net.kyori.adventure.platform.bukkit.BukkitComponentSerializer;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.simpleyaml.configuration.file.YamlFile;
 
@@ -58,10 +58,18 @@ public class YamlLanguage {
     }
   }
 
-  public String get(String key) {
-    return BukkitComponentSerializer.legacy().serialize(
-        miniMessage.deserialize(
-            language.getString(Formatter.format("language.{0}", key), "<unknown lang key>")));
+  public Component component(String key, String... replace) {
+    return miniMessage.deserialize(
+        Formatter.format(language.getString(Formatter.format("language.{0}", key), "<unknown lang key>"), replace));
+  }
+
+  public Component PComponent(String key, String... replace) {
+    return miniMessage.deserialize( string("prefix") +
+        Formatter.format(language.getString(Formatter.format("language.{0}", key), "<unknown lang key>"), replace));
+  }
+
+  public String string(String key, String... replace) {
+    return Formatter.format(language.getString(Formatter.format("language.{0}", key), "<unknown lang key>"), replace);
   }
 
   public boolean languageExists(String label) {

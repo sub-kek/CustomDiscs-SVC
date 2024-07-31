@@ -14,11 +14,7 @@ import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
 import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
-import io.github.subkek.customdiscs.util.Formatter;
-import net.kyori.adventure.platform.bukkit.BukkitComponentSerializer;
 import net.kyori.adventure.text.Component;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -60,7 +56,7 @@ public class LavaPlayerManager {
 
     for (ServerPlayer serverPlayer : lavaPlayer.playersInRange) {
       Player bukkitPlayer = (Player) serverPlayer.getPlayer();
-      bukkitPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(BukkitComponentSerializer.legacy().serialize(actionbarComponent)));
+      plugin.getAudience().sender(bukkitPlayer).sendActionBar(actionbarComponent);
     }
   }
 
@@ -127,7 +123,7 @@ public class LavaPlayerManager {
           public void noMatches() {
             for (ServerPlayer serverPlayer : playersInRange) {
               Player bukkitPlayer = (Player) serverPlayer.getPlayer();
-              bukkitPlayer.sendMessage(Formatter.format(plugin.language.get("url-no-matches-error"), true));
+              plugin.sendMessage(bukkitPlayer, plugin.getLanguage().PComponent("url-no-matches-error"));
             }
             trackFuture.complete(null);
             stopPlaying(playerUUID);
@@ -137,7 +133,7 @@ public class LavaPlayerManager {
           public void loadFailed(FriendlyException e) {
             for (ServerPlayer serverPlayer : playersInRange) {
               Player bukkitPlayer = (Player) serverPlayer.getPlayer();
-              bukkitPlayer.sendMessage(Formatter.format(plugin.language.get("audio-load-error"), true));
+              plugin.sendMessage(bukkitPlayer, plugin.getLanguage().PComponent("audio-load-error"));
             }
             trackFuture.complete(null);
             stopPlaying(playerUUID);
@@ -183,7 +179,7 @@ public class LavaPlayerManager {
       } catch (Throwable e) {
         for (ServerPlayer serverPlayer : playersInRange) {
           Player bukkitPlayer = (Player) serverPlayer.getPlayer();
-          bukkitPlayer.sendMessage(Formatter.format(plugin.language.get("disc-play-error"), true));
+          plugin.sendMessage(bukkitPlayer, plugin.getLanguage().PComponent("disc-play-error"));
           plugin.getLogger().log(Level.SEVERE, "Error while playing disc: ", e);
         }
       }

@@ -3,8 +3,6 @@ package io.github.subkek.customdiscs.command.subcommand;
 import io.github.subkek.customdiscs.CustomDiscs;
 import io.github.subkek.customdiscs.command.CustomDiscsCommand;
 import io.github.subkek.customdiscs.command.SubCommand;
-import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
-import io.github.subkek.customdiscs.util.Formatter;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.command.CommandSender;
 
@@ -20,12 +18,12 @@ public class HelpCommand implements SubCommand {
 
   @Override
   public String getDescription() {
-    return plugin.language.get("help-command-description");
+    return plugin.getLanguage().string("help-command-description");
   }
 
   @Override
   public String getSyntax() {
-    return plugin.language.get("help-command-syntax");
+    return plugin.getLanguage().string("help-command-syntax");
   }
 
   @Override
@@ -41,24 +39,22 @@ public class HelpCommand implements SubCommand {
   @Override
   public void perform(CommandSender sender, String[] args) {
     if (!hasPermission(sender)) {
-      sender.sendMessage(Formatter.format(plugin.language.get("no-permission-error"), true));
+      plugin.sendMessage(sender, plugin.getLanguage().PComponent("no-permission-error"));
       return;
     }
 
     if (!canPerform(sender)) {
-      sender.sendMessage(Formatter.format(plugin.language.get("cant-perform-command-error"), true));
+      plugin.sendMessage(sender, plugin.getLanguage().PComponent("cant-perform-command-error"));
       return;
     }
 
-    sender.sendMessage(plugin.language.get("help-header"));
+    plugin.sendMessage(sender, plugin.getLanguage().component("help-header"));
     for (SubCommand subCommand : customDiscsCommand.getSubCommands().values()) {
       if (subCommand.hasPermission(sender)) {
-        sender.sendMessage(Formatter.format(plugin.language.get("help-command"),subCommand.getSyntax(), subCommand.getDescription()));
+        plugin.sendMessage(sender, plugin.getLanguage().component("help-command", subCommand.getSyntax(), subCommand.getDescription()));
       }
     }
 
-    if (CustomDiscsConfiguration.discCleaning)
-      sender.sendMessage(plugin.language.get("help-disc-cleaning"));
-    sender.sendMessage(plugin.language.get("help-footer"));
+    plugin.sendMessage(sender, plugin.getLanguage().component("help-footer"));
   }
 }

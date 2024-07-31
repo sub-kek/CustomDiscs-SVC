@@ -3,7 +3,6 @@ package io.github.subkek.customdiscs.command.subcommand;
 import io.github.subkek.customdiscs.CustomDiscs;
 import io.github.subkek.customdiscs.command.SubCommand;
 import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
-import io.github.subkek.customdiscs.util.Formatter;
 import org.bukkit.command.CommandSender;
 
 public class ReloadCommand implements SubCommand {
@@ -16,12 +15,12 @@ public class ReloadCommand implements SubCommand {
 
   @Override
   public String getDescription() {
-    return plugin.language.get("reload-command-description");
+    return plugin.getLanguage().string("reload-command-description");
   }
 
   @Override
   public String getSyntax() {
-    return plugin.language.get("reload-command-syntax");
+    return plugin.getLanguage().string("reload-command-syntax");
   }
 
   @Override
@@ -37,17 +36,17 @@ public class ReloadCommand implements SubCommand {
   @Override
   public void perform(CommandSender sender, String[] args) {
     if (!hasPermission(sender)) {
-      sender.sendMessage(Formatter.format(plugin.language.get("no-permission-error"), true));
+      plugin.sendMessage(sender, plugin.getLanguage().PComponent("no-permission-error"));
       return;
     }
 
     if (!canPerform(sender)) {
-      sender.sendMessage(Formatter.format(plugin.language.get("cant-perform-command-error"), true));
+      plugin.sendMessage(sender, plugin.getLanguage().PComponent("cant-perform-command-error"));
       return;
     }
 
     CustomDiscsConfiguration.load();
-    plugin.language.init();
-    sender.sendMessage(Formatter.format(plugin.language.get("config-reloaded"), true));
+    plugin.getLanguage().init();
+    plugin.sendMessage(sender, plugin.getLanguage().PComponent("config-reloaded"));
   }
 }

@@ -17,8 +17,11 @@ import io.github.subkek.customdiscs.language.YamlLanguage;
 import io.github.subkek.customdiscs.metrics.BStatsLink;
 import io.github.subkek.customdiscs.particle.ParticleManager;
 import lombok.Getter;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.text.Component;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Jukebox;
+import org.bukkit.command.CommandSender;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -28,13 +31,16 @@ public final class CustomDiscs extends JavaPlugin {
   public static final String PLUGIN_ID = "CustomDiscs";
   @Getter private static CustomDiscs instance = null;
   private VoicePlugin voicechatPlugin;
-  public YamlLanguage language = null;
+  @Getter private YamlLanguage language = null;
   private ParticleManager particleManager;
   @Getter private FoliaLib foliaLib = new FoliaLib(this);
+  @Getter private BukkitAudiences audience;
 
   @Override
   public void onEnable() {
     CustomDiscs.instance = this;
+
+    audience = BukkitAudiences.create(this);
 
     if (getDataFolder().mkdir()) getLogger().info("Created plugin data folder");
 
@@ -110,5 +116,13 @@ public final class CustomDiscs extends JavaPlugin {
       CustomDiscsConfiguration.discsPlayed = 0;
       return value;
     }));
+  }
+
+  public void sendMessage(CommandSender sender, Component component) {
+    audience.sender(sender).sendMessage(component);
+  }
+
+  public static void debug(String message, String... format) {
+
   }
 }
