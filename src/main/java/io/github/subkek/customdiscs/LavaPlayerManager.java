@@ -195,6 +195,10 @@ public class LavaPlayerManager {
               TimeUnit.MILLISECONDS.sleep(wait);
             }
           }
+        } catch (InterruptedException e) {
+          CustomDiscs.debug("LavaPlayer {0} got InterruptedException its stop most likely", playerUUID.toString());
+          lavaPlayerThread.interrupt();
+          return;
         } catch (Throwable e) {
           CustomDiscs.debug("LavaPlayer {0} got Throwable Exception: {1}", playerUUID.toString(), e.getMessage());
         }

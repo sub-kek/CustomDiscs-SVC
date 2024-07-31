@@ -98,7 +98,8 @@ public class CreateCommand implements SubCommand {
 
         ItemMeta meta = disc.getItemMeta();
 
-        meta.setDisplayName(plugin.getLanguage().string("simple-disc"));
+        meta.setDisplayName(BukkitComponentSerializer.legacy().serialize(
+            plugin.getLanguage().component("simple-disc")));
         final TextComponent customLoreSong = Component.text()
             .decoration(TextDecoration.ITALIC, false)
             .content(customName)

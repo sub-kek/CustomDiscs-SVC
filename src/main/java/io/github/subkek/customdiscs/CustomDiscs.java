@@ -33,7 +33,7 @@ public final class CustomDiscs extends JavaPlugin {
   @Getter private static CustomDiscs instance = null;
   private VoicePlugin voicechatPlugin;
   @Getter private YamlLanguage language = null;
-  private ParticleManager particleManager;
+  @Getter private ParticleManager particleManager;
   @Getter private FoliaLib foliaLib = new FoliaLib(this);
   @Getter private BukkitAudiences audience;
 
@@ -88,7 +88,6 @@ public final class CustomDiscs extends JavaPlugin {
           if (jukebox.getRecord().getItemMeta().getPersistentDataContainer().has(new NamespacedKey(CustomDiscs.getInstance(), "customdisc"), PersistentDataType.STRING) ||
               jukebox.getRecord().getItemMeta().getPersistentDataContainer().has(new NamespacedKey(CustomDiscs.getInstance(), "customdiscyt"), PersistentDataType.STRING)) {
             event.setCancelled(true);
-            particleManager.start(jukebox);
           }
         }
       }
@@ -124,6 +123,8 @@ public final class CustomDiscs extends JavaPlugin {
   }
 
   public static void debug(String message, String... format) {
+    if (!CustomDiscsConfiguration.debug) return;
+
     CustomDiscs plugin = getInstance();
 
     plugin.getAudience().sender(plugin.getServer().getConsoleSender())

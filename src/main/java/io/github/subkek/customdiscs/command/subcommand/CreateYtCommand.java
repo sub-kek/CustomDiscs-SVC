@@ -75,7 +75,8 @@ public class CreateYtCommand implements SubCommand {
 
         ItemMeta meta = disc.getItemMeta();
 
-        meta.setDisplayName(plugin.getLanguage().string("youtube-disc"));
+        meta.setDisplayName(BukkitComponentSerializer.legacy().serialize(
+            plugin.getLanguage().component("youtube-disc")));
         final TextComponent customLoreSong = Component.text()
             .decoration(TextDecoration.ITALIC, false)
             .content(customName)

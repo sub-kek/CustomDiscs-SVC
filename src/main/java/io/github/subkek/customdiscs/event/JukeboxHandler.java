@@ -47,7 +47,10 @@ public class JukeboxHandler implements Listener {
         plugin.sendMessage(player, plugin.getLanguage().PComponent("play-no-permission-error"));
         return;
       }
+
       CustomDiscsConfiguration.discsPlayed++;
+
+      plugin.getParticleManager().start(getJukebox(block));
 
       String soundFileName = event.getItem().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(plugin, "customdisc"), PersistentDataType.STRING);
 
@@ -75,6 +78,8 @@ public class JukeboxHandler implements Listener {
       }
 
       CustomDiscsConfiguration.discsPlayed++;
+
+      plugin.getParticleManager().start(getJukebox(block));
 
       String soundLink = event.getItem().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(plugin, "customdiscyt"), PersistentDataType.STRING);
 
@@ -147,6 +152,10 @@ public class JukeboxHandler implements Listener {
   public boolean jukeboxContainsDisc(Block b) {
     Jukebox jukebox = (Jukebox) b.getLocation().getBlock().getState();
     return jukebox.getRecord().getType() != Material.AIR;
+  }
+
+  public Jukebox getJukebox(Block b) {
+    return (Jukebox) b.getLocation().getBlock().getState();
   }
 
   public boolean isCustomMusicDisc(ItemStack item) {
