@@ -119,11 +119,15 @@ public class CustomDiscsConfiguration {
   public static int discsPlayed = 0;
   public static String youtubeEmail;
   public static String youtubePassword;
+  public static int customModelData;
+  public static boolean useCustomModelData;
   public static boolean debug;
   private static void customDiscsSettings() {
     musicDiscDistance = getInt("music-disc-distance", 16, "The distance from which music discs can be heard in blocks.");
     musicDiscVolume = Float.parseFloat(getString("music-disc-volume", "1", "The master volume of music discs from 0-1. (You can set values like 0.5 for 50% volume)."));
     maxDownloadSize = getInt("max-download-size", 50, "The maximum download size in megabytes.");
+    useCustomModelData = getBoolean("custom-model-data.enable", false);
+    customModelData = getInt("custom-model-data.value", 0);
     youtubeEmail = getString("providers.youtube.email", "", "Email has been used to bypass age-restricted videos");
     youtubePassword = getString("providers.youtube.password", "", "Password for email has been used to bypass age-restricted videos");
     locale = getString("locale", Language.ENGLISH.getLabel(), "Language of plugin", Formatter.format("Supported: {0}", Language.getAllSeparatedComma()));

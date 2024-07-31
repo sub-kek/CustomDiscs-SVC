@@ -107,6 +107,8 @@ public class CreateCommand implements SubCommand {
             .build();
         meta.addItemFlags(ItemFlag.values());
         meta.setLore(List.of(BukkitComponentSerializer.legacy().serialize(customLoreSong)));
+        if (CustomDiscsConfiguration.useCustomModelData)
+          meta.setCustomModelData(CustomDiscsConfiguration.customModelData);
 
         PersistentDataContainer data = meta.getPersistentDataContainer();
         NamespacedKey discYtMeta = new NamespacedKey(CustomDiscs.getInstance(), "customdiscyt");

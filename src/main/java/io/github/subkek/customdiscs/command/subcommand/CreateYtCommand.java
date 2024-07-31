@@ -84,6 +84,8 @@ public class CreateYtCommand implements SubCommand {
             .build();
         meta.addItemFlags(ItemFlag.values());
         meta.setLore(List.of(BukkitComponentSerializer.legacy().serialize(customLoreSong)));
+        if (CustomDiscsConfiguration.useCustomModelData)
+          meta.setCustomModelData(CustomDiscsConfiguration.customModelData);
 
         String youtubeUrl = args[1];
 
