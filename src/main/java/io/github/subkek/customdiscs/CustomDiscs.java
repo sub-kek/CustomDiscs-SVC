@@ -16,6 +16,7 @@ import io.github.subkek.customdiscs.event.JukeboxHandler;
 import io.github.subkek.customdiscs.language.YamlLanguage;
 import io.github.subkek.customdiscs.metrics.BStatsLink;
 import io.github.subkek.customdiscs.particle.ParticleManager;
+import io.github.subkek.customdiscs.util.Formatter;
 import lombok.Getter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
@@ -123,6 +124,12 @@ public final class CustomDiscs extends JavaPlugin {
   }
 
   public static void debug(String message, String... format) {
+    CustomDiscs plugin = getInstance();
 
+    plugin.getAudience().sender(plugin.getServer().getConsoleSender())
+        .sendMessage(plugin.getLanguage().deserialize(
+            Formatter.format("<yellow>[CustomDiscs Debug] {0}", message),
+            format
+        ));
   }
 }

@@ -29,7 +29,6 @@ language:
   createyt-command-description: '<white>Create disc with music from YouTube.'
   youtube-disc: '<white>YouTube disc'
   write-disc-name-error: 'You must specify the disc name.'
-  disc-already-burned-error: '<white>Music cannot be recorded on a recorded or raw erased disc <dark_aqua>/cd <white>for instructions.'
   disc-not-in-hand-error: 'Take disc in hand before!'
   disc-youtube-link: '<white>Audio URL: <dark_aqua>{0}'
   disc-name-output: '<white>Disc name: <dark_aqua>{0}'

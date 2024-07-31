@@ -116,7 +116,6 @@ public class CustomDiscsConfiguration {
   public static float musicDiscVolume;
   public static int maxDownloadSize;
   public static String locale;
-  public static boolean discCleaning;
   public static int discsPlayed = 0;
   public static String youtubeEmail;
   public static String youtubePassword;

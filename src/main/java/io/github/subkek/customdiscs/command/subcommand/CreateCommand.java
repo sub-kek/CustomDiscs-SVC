@@ -96,11 +96,6 @@ public class CreateCommand implements SubCommand {
         //Sets the lore of the item to the quotes from the command.
         ItemStack disc = new ItemStack(player.getInventory().getItemInMainHand());
 
-        if (isBurned(disc) && CustomDiscsConfiguration.discCleaning) {
-          plugin.sendMessage(sender, plugin.getLanguage().PComponent("disc-already-burned-error"));
-          return;
-        }
-
         ItemMeta meta = disc.getItemMeta();
 
         meta.setDisplayName(plugin.getLanguage().string("simple-disc"));
@@ -152,21 +147,5 @@ public class CreateCommand implements SubCommand {
 
   private boolean isMusicDisc(Player p) {
     return p.getInventory().getItemInMainHand().getType().toString().contains("MUSIC_DISC");
-  }
-
-  private boolean isBurned(ItemStack item) {
-    if (!item.hasItemMeta()) return false;
-
-    ItemMeta itemMeta = item.getItemMeta();
-    PersistentDataContainer data = itemMeta.getPersistentDataContainer();
-
-    if (data.has(new NamespacedKey(CustomDiscs.getInstance(), "cleared"), PersistentDataType.STRING)) {
-      return data.get(new NamespacedKey(CustomDiscs.getInstance(), "cleared"), PersistentDataType.STRING).equals("true") ||
-          data.has(new NamespacedKey(CustomDiscs.getInstance(), "customdisc"), PersistentDataType.STRING) ||
-          data.has(new NamespacedKey(CustomDiscs.getInstance(), "customdiscyt"), PersistentDataType.STRING);
-    }
-
-    return data.has(new NamespacedKey(CustomDiscs.getInstance(), "customdisc"), PersistentDataType.STRING) ||
-        data.has(new NamespacedKey(CustomDiscs.getInstance(), "customdiscyt"), PersistentDataType.STRING);
   }
 }

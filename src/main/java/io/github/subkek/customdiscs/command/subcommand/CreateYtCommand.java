@@ -73,11 +73,6 @@ public class CreateYtCommand implements SubCommand {
 
         ItemStack disc = new ItemStack(player.getInventory().getItemInMainHand());
 
-        if (isBurned(disc) && CustomDiscsConfiguration.discCleaning) {
-          plugin.sendMessage(sender, plugin.getLanguage().PComponent("disc-already-burned-error"));
-          return;
-        }
-
         ItemMeta meta = disc.getItemMeta();
 
         meta.setDisplayName(plugin.getLanguage().string("youtube-disc"));
@@ -121,21 +116,5 @@ public class CreateYtCommand implements SubCommand {
 
   private boolean isMusicDisc(Player p) {
     return p.getInventory().getItemInMainHand().getType().toString().contains("MUSIC_DISC");
-  }
-
-  private boolean isBurned(ItemStack item) {
-    if (!item.hasItemMeta()) return false;
-
-    ItemMeta itemMeta = item.getItemMeta();
-    PersistentDataContainer data = itemMeta.getPersistentDataContainer();
-
-    if (data.has(new NamespacedKey(CustomDiscs.getInstance(), "cleared"), PersistentDataType.STRING)) {
-      return data.get(new NamespacedKey(CustomDiscs.getInstance(), "cleared"), PersistentDataType.STRING).equals("true") ||
-          data.has(new NamespacedKey(CustomDiscs.getInstance(), "customdisc"), PersistentDataType.STRING) ||
-          data.has(new NamespacedKey(CustomDiscs.getInstance(), "customdiscyt"), PersistentDataType.STRING);
-    }
-
-    return data.has(new NamespacedKey(CustomDiscs.getInstance(), "customdisc"), PersistentDataType.STRING) ||
-        data.has(new NamespacedKey(CustomDiscs.getInstance(), "customdiscyt"), PersistentDataType.STRING);
   }
 }

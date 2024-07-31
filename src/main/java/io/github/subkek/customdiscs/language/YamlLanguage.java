@@ -64,12 +64,20 @@ public class YamlLanguage {
   }
 
   public Component PComponent(String key, String... replace) {
-    return miniMessage.deserialize( string("prefix") +
+    return miniMessage.deserialize(string("prefix") +
         Formatter.format(language.getString(Formatter.format("language.{0}", key), "<unknown lang key>"), replace));
   }
 
   public String string(String key, String... replace) {
     return Formatter.format(language.getString(Formatter.format("language.{0}", key), "<unknown lang key>"), replace);
+  }
+
+  public String PString(String key, String... replace) {
+    return string("prefix") + string("key", replace);
+  }
+
+  public Component deserialize(String message, String... replace) {
+    return miniMessage.deserialize(Formatter.format(message, replace));
   }
 
   public boolean languageExists(String label) {

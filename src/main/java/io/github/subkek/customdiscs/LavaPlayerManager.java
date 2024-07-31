@@ -36,7 +36,9 @@ public class LavaPlayerManager {
 
   public void playLocationalAudioYoutube(Block block, VoicechatServerApi api, String ytUrl, Component actionbarComponent) {
     UUID uuid = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
+    CustomDiscs.debug("LavaPlayer UUID is {0}", uuid.toString());
     if (playerMap.containsKey(uuid)) stopPlaying(uuid);
+    CustomDiscs.debug("LavaPlayer {0} not already exists", uuid.toString());
 
     LavaPlayer lavaPlayer = new LavaPlayer();
     playerMap.put(uuid, lavaPlayer);
@@ -76,12 +78,19 @@ public class LavaPlayerManager {
 
   public void stopPlaying(UUID uuid) {
     if (playerMap.containsKey(uuid)) {
-      LavaPlayer lavaPlayer = playerMap.get(uuid);
-      playerMap.remove(uuid);
+      CustomDiscs.debug(
+          "Stopping LavaPlayer {0}",
+          uuid.toString());
+
+      LavaPlayer lavaPlayer = playerMap.remove(uuid);
 
       lavaPlayer.trackFuture.complete(null);
       lavaPlayer.audioPlayer.destroy();
       lavaPlayer.lavaPlayerThread.interrupt();
+    } else {
+      CustomDiscs.debug(
+          "Couldn't find LavaPlayer {0} to stop",
+          uuid.toString());
     }
   }
 
@@ -110,44 +119,57 @@ public class LavaPlayerManager {
         lavaPlayerManager.loadItem(ytUrl, new AudioLoadResultHandler() {
           @Override
           public void trackLoaded(AudioTrack audioTrack) {
+            CustomDiscs.debug(
+                "LavaPlayer {0} loaded track {1} successfully",
+                playerUUID.toString(), audioTrack.getInfo().title);
             trackFuture.complete(audioTrack);
           }
 
           @Override
           public void playlistLoaded(AudioPlaylist audioPlaylist) {
-            trackFuture.complete(audioPlaylist.getSelectedTrack());
-            LavaPlayerManager.getInstance().stopPlaying(playerUUID);
+            AudioTrack selected = audioPlaylist.getSelectedTrack();
+            CustomDiscs.debug(
+                "LavaPlayer {0} loaded track {1} from playlist successfully",
+                playerUUID.toString(), selected.getInfo().title);
+            trackFuture.complete(selected);
           }
 
           @Override
           public void noMatches() {
+            CustomDiscs.debug(
+                "LavaPlayer {0} not found the track {1}",
+                playerUUID.toString(), ytUrl);
             for (ServerPlayer serverPlayer : playersInRange) {
               Player bukkitPlayer = (Player) serverPlayer.getPlayer();
               plugin.sendMessage(bukkitPlayer, plugin.getLanguage().PComponent("url-no-matches-error"));
             }
-            trackFuture.complete(null);
             stopPlaying(playerUUID);
           }
 
           @Override
           public void loadFailed(FriendlyException e) {
+            CustomDiscs.debug(
+                "LavaPlayer {0} failed to load the track {1}. Exception msg: {2}",
+                playerUUID.toString(), ytUrl, e.getMessage());
             for (ServerPlayer serverPlayer : playersInRange) {
               Player bukkitPlayer = (Player) serverPlayer.getPlayer();
               plugin.sendMessage(bukkitPlayer, plugin.getLanguage().PComponent("audio-load-error"));
             }
-            trackFuture.complete(null);
             stopPlaying(playerUUID);
           }
         });
 
         if (lavaPlayerThread.isInterrupted()) {
-          trackFuture.complete(null);
           return;
         }
 
         AudioTrack audioTrack;
         if (Objects.isNull(audioTrack = trackFuture.get())) {
-          stopPlaying(playerUUID);
+          CustomDiscs.debug(
+              "LavaPlayer {0} excepted track is null, interrupting and return",
+              playerUUID.toString());
+          if (!lavaPlayerThread.isInterrupted())
+            stopPlaying(playerUUID);
           return;
         }
 
@@ -159,7 +181,7 @@ public class LavaPlayerManager {
         audioPlayer.playTrack(audioTrack);
 
         try {
-          while (audioPlayer.getPlayingTrack() != null) {
+          while (audioPlayer.getPlayingTrack() != null && !lavaPlayerThread.isInterrupted()) {
             if (audioTrack.getState() == AudioTrackState.FINISHED) break;
 
             AudioFrame frame;
@@ -169,13 +191,15 @@ public class LavaPlayerManager {
 
             if (start == 0L) start = System.currentTimeMillis();
             long wait = (start + frame.getTimecode()) - System.currentTimeMillis();
-            if (wait > 0) {TimeUnit.MILLISECONDS.sleep(wait);}
+            if (wait > 0) {
+              TimeUnit.MILLISECONDS.sleep(wait);
+            }
           }
-        } catch (InterruptedException e) {
-          // ignored
+        } catch (Throwable e) {
+          CustomDiscs.debug("LavaPlayer {0} got Throwable Exception: {1}", playerUUID.toString(), e.getMessage());
         }
 
-        LavaPlayerManager.getInstance().stopPlaying(playerUUID);
+        stopPlaying(playerUUID);
       } catch (Throwable e) {
         for (ServerPlayer serverPlayer : playersInRange) {
           Player bukkitPlayer = (Player) serverPlayer.getPlayer();
