@@ -55,6 +55,7 @@ public class JukeboxHandler implements Listener {
 
       if (soundFilePath.toFile().exists()) {
         String songName = Objects.requireNonNull(event.getItem().getItemMeta().getLore()).get(0);
+        songName = songName.replace("§7", "<gray>");
 
         Component customActionBarSongPlaying = plugin.getLanguage().component("now-playing", songName);
 
@@ -78,6 +79,7 @@ public class JukeboxHandler implements Listener {
       String soundLink = event.getItem().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(plugin, "customdiscyt"), PersistentDataType.STRING);
 
       String songName = Objects.requireNonNull(event.getItem().getItemMeta().getLore()).get(0);
+      songName = songName.replace("§7", "<gray>");
 
       Component customActionBarSongPlaying = plugin.getLanguage().component("now-playing", songName);
 
