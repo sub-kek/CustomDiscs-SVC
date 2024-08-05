@@ -51,7 +51,10 @@ public class BStatsLink {
                   + "performance penalty associated with having metrics enabled, and data sent to bStats is fully\n"
                   + "anonymous.")
           .copyDefaults(true);
-      try {config.save(configFile);} catch (IOException ignored) {}
+      try {
+        config.save(configFile);
+      } catch (IOException ignored) {
+      }
     }
     boolean enabled = config.getBoolean("enabled", true);
     String serverUUID = config.getString("serverUuid");
@@ -63,7 +66,9 @@ public class BStatsLink {
         plugin::isEnabled, (message, error) -> this.plugin.getLogger().log(Level.WARNING, message, error), (message) -> this.plugin.getLogger().log(Level.INFO, message), logErrors, logSentData, logResponseStatusText);
   }
 
-  public void addCustomChart(CustomChart chart) {metricsBase.addCustomChart(chart);}
+  public void addCustomChart(CustomChart chart) {
+    metricsBase.addCustomChart(chart);
+  }
 
   private void appendPlatformData(JsonObjectBuilder builder) {
     builder.appendField("playerAmount", getPlayerAmount());
@@ -77,13 +82,17 @@ public class BStatsLink {
     builder.appendField("coreCount", Runtime.getRuntime().availableProcessors());
   }
 
-  private void appendServiceData(JsonObjectBuilder builder) {builder.appendField("pluginVersion", plugin.getDescription().getVersion());}
+  private void appendServiceData(JsonObjectBuilder builder) {
+    builder.appendField("pluginVersion", plugin.getDescription().getVersion());
+  }
 
   private int getPlayerAmount() {
     try {
       Method onlinePlayersMethod = Class.forName("org.bukkit.Server").getMethod("getOnlinePlayers");
       return onlinePlayersMethod.getReturnType().equals(Collection.class) ? ((Collection<?>) onlinePlayersMethod.invoke(Bukkit.getServer())).size() : ((Player[]) onlinePlayersMethod.invoke(Bukkit.getServer())).length;
-    } catch (Exception e) {return Bukkit.getOnlinePlayers().size();}
+    } catch (Exception e) {
+      return Bukkit.getOnlinePlayers().size();
+    }
   }
 
   public static class MetricsBase {
@@ -140,7 +149,9 @@ public class BStatsLink {
       if (enabled) startSubmitting();
     }
 
-    public void addCustomChart(CustomChart chart) {this.customCharts.add(chart);}
+    public void addCustomChart(CustomChart chart) {
+      this.customCharts.add(chart);
+    }
 
     private void startSubmitting() {
       final Runnable submitTask =
@@ -204,7 +215,9 @@ public class BStatsLink {
       StringBuilder builder = new StringBuilder();
       try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
         String line;
-        while ((line = bufferedReader.readLine()) != null) {builder.append(line);}
+        while ((line = bufferedReader.readLine()) != null) {
+          builder.append(line);
+        }
       }
       if (logResponseStatusText) infoLogger.accept("Sent data to bStats and received response: " + builder);
     }
@@ -421,7 +434,9 @@ public class BStatsLink {
 
     private boolean hasAtLeastOneField = false;
 
-    public JsonObjectBuilder() {builder.append("{");}
+    public JsonObjectBuilder() {
+      builder.append("{");
+    }
 
     public JsonObjectBuilder appendNull(String key) {
       appendFieldUnescaped(key, "null");
@@ -504,10 +519,14 @@ public class BStatsLink {
 
       private final String value;
 
-      private JsonObject(String value) {this.value = value;}
+      private JsonObject(String value) {
+        this.value = value;
+      }
 
       @Override
-      public String toString() {return value;}
+      public String toString() {
+        return value;
+      }
     }
   }
 }

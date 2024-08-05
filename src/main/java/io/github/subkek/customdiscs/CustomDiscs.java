@@ -28,7 +28,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 
-public final class CustomDiscs extends JavaPlugin {
+public class CustomDiscs extends JavaPlugin {
   public static final String PLUGIN_ID = "CustomDiscs";
   @Getter private static CustomDiscs instance = null;
   private VoicePlugin voicechatPlugin;
@@ -97,6 +97,8 @@ public final class CustomDiscs extends JavaPlugin {
   @Override
   public void onDisable() {
     LavaPlayerManager.getInstance().stopPlayingAll();
+    LavaPlayerManager.getInstance().save();
+
     PlayerManager.instance().stopAll();
 
     if (voicechatPlugin != null) {

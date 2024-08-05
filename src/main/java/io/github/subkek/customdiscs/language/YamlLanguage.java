@@ -30,7 +30,7 @@ public class YamlLanguage {
 
       if (!languageFile.exists()) {
         InputStream inputStream = plugin.getClass().getClassLoader().getResourceAsStream(Formatter.format("language/{0}.yml",
-           languageExists(CustomDiscsConfiguration.locale) ? CustomDiscsConfiguration.locale : Language.ENGLISH.getLabel()
+            languageExists(CustomDiscsConfiguration.locale) ? CustomDiscsConfiguration.locale : Language.ENGLISH.getLabel()
         ));
         Files.copy(inputStream, languageFile.toPath());
         isNewFile = true;

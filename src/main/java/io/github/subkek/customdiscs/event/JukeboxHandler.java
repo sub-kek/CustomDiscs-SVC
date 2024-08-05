@@ -30,7 +30,7 @@ public class JukeboxHandler implements Listener {
   private final CustomDiscs plugin = CustomDiscs.getInstance();
   PlayerManager playerManager = PlayerManager.instance();
 
-  @EventHandler (priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void onInsert(PlayerInteractEvent event) throws IOException {
     Player player = event.getPlayer();
     Block block = event.getClickedBlock();
@@ -93,7 +93,7 @@ public class JukeboxHandler implements Listener {
     }
   }
 
-  @EventHandler (priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void onEject(PlayerInteractEvent event) {
 
     Player player = event.getPlayer();
@@ -128,7 +128,7 @@ public class JukeboxHandler implements Listener {
     }
   }
 
-  @EventHandler (priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void onJukeboxBreak(BlockBreakEvent event) {
 
     Block block = event.getBlock();
@@ -139,7 +139,7 @@ public class JukeboxHandler implements Listener {
     LavaPlayerManager.getInstance().stopPlaying(block);
   }
 
-  @EventHandler (priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void onJukeboxExplode(EntityExplodeEvent event) {
     for (Block explodedBlock : event.blockList()) {
       if (explodedBlock.getType() == Material.JUKEBOX) {

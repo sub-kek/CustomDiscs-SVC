@@ -4,6 +4,7 @@ import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
+import com.sedmelluq.discord.lavaplayer.source.AudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -13,12 +14,15 @@ import de.maxhenkel.voicechat.api.ServerPlayer;
 import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
+import dev.lavalink.youtube.http.YoutubeOauth2Handler;
 import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
+import java.io.*;
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -26,12 +30,61 @@ import java.util.logging.Level;
 
 public class LavaPlayerManager {
   private final CustomDiscs plugin = CustomDiscs.getInstance();
+  File refreshTokenFile = new File(plugin.getDataFolder(), ".youtube-token");
 
   private final AudioPlayerManager lavaPlayerManager = new DefaultAudioPlayerManager();
   private final Map<UUID, LavaPlayer> playerMap = new HashMap<>();
 
   public LavaPlayerManager() {
     lavaPlayerManager.registerSourceManager(new YoutubeAudioSourceManager(false));
+    YoutubeAudioSourceManager source = new YoutubeAudioSourceManager(false);
+    if (CustomDiscsConfiguration.oauth2) {
+      try {
+        String oauth2token;
+
+        if (!refreshTokenFile.isFile() || !refreshTokenFile.exists()) oauth2token = null;
+        else {
+          StringBuilder tokenBuilder = new StringBuilder();
+          BufferedReader bufferedReader = new BufferedReader(new FileReader(refreshTokenFile));
+
+          for (String line : bufferedReader.lines().toList()) {
+            tokenBuilder.append(line);
+          }
+
+          oauth2token = tokenBuilder.toString().trim();
+        }
+
+        source.useOauth2(oauth2token, false);
+
+        if (oauth2token != null) {
+          Field oauth2HandlerField = YoutubeAudioSourceManager.class.getDeclaredField("oauth2Handler");
+          oauth2HandlerField.setAccessible(true);
+          YoutubeOauth2Handler oauth2Handler = (YoutubeOauth2Handler) oauth2HandlerField.get(source);
+
+          Field enabledField = YoutubeOauth2Handler.class.getDeclaredField("enabled");
+          enabledField.setAccessible(true);
+          enabledField.set(oauth2Handler, true);
+        }
+      } catch (Throwable e) {
+        plugin.getLogger().log(Level.SEVERE, "Error load Youtube OAuth2 token: ", e);
+      }
+    }
+  }
+
+  public void save() {
+    for (AudioSourceManager manager : lavaPlayerManager.getSourceManagers()) {
+      if (!(manager instanceof YoutubeAudioSourceManager)) continue;
+
+      String refreshToken = ((YoutubeAudioSourceManager) manager).getOauth2RefreshToken();
+      if (refreshToken == null) continue;
+
+      try {
+        BufferedWriter writer = new BufferedWriter(new FileWriter(refreshTokenFile));
+        writer.write(refreshToken);
+      } catch (IOException e) {
+        plugin.getLogger().log(Level.SEVERE, "Error save Youtube OAuth2 token: ", e);
+      }
+    }
   }
 
   public void playLocationalAudioYoutube(Block block, VoicechatServerApi api, String ytUrl, Component actionbarComponent) {
@@ -214,4 +267,3 @@ public class LavaPlayerManager {
     }
   }
 }
-

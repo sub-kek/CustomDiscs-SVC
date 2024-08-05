@@ -19,8 +19,11 @@ public class ParticleManager {
     if (locationParticleManager.contains(uuid)) return;
     locationParticleManager.add(uuid);
     jukebox.stopPlaying();
-    if (plugin.getFoliaLib().isFolia()) {plugin.getFoliaLib().getImpl().runAtLocation(jukebox.getLocation(), task -> jukebox.stopPlaying());}
-    else {jukebox.stopPlaying();}
+    if (plugin.getFoliaLib().isFolia()) {
+      plugin.getFoliaLib().getImpl().runAtLocation(jukebox.getLocation(), task -> jukebox.stopPlaying());
+    } else {
+      jukebox.stopPlaying();
+    }
 
     plugin.getFoliaLib().getImpl().runAtLocationTimer(jukebox.getLocation(), task -> {
       if (!LavaPlayerManager.getInstance().isAudioPlayerPlaying(jukebox.getLocation()) && !PlayerManager.instance().isAudioPlayerPlaying(jukebox.getLocation())) {
