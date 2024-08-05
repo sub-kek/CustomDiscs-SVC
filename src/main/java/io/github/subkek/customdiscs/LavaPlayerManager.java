@@ -36,7 +36,6 @@ public class LavaPlayerManager {
   private final Map<UUID, LavaPlayer> playerMap = new HashMap<>();
 
   public LavaPlayerManager() {
-    lavaPlayerManager.registerSourceManager(new YoutubeAudioSourceManager(false));
     YoutubeAudioSourceManager source = new YoutubeAudioSourceManager(false);
     if (CustomDiscsConfiguration.oauth2) {
       try {
@@ -69,18 +68,25 @@ public class LavaPlayerManager {
         plugin.getLogger().log(Level.SEVERE, "Error load Youtube OAuth2 token: ", e);
       }
     }
+    lavaPlayerManager.registerSourceManager(source);
   }
 
   public void save() {
     for (AudioSourceManager manager : lavaPlayerManager.getSourceManagers()) {
       if (!(manager instanceof YoutubeAudioSourceManager)) continue;
 
+      CustomDiscs.debug("Found Youtube source to save OAuth2");
+
       String refreshToken = ((YoutubeAudioSourceManager) manager).getOauth2RefreshToken();
       if (refreshToken == null) continue;
+
+      CustomDiscs.debug("refreshToken not null");
 
       try {
         BufferedWriter writer = new BufferedWriter(new FileWriter(refreshTokenFile));
         writer.write(refreshToken);
+        writer.close();
+        CustomDiscs.debug("refreshToken written");
       } catch (IOException e) {
         plugin.getLogger().log(Level.SEVERE, "Error save Youtube OAuth2 token: ", e);
       }
@@ -148,7 +154,9 @@ public class LavaPlayerManager {
   }
 
   public void stopPlayingAll() {
-    playerMap.keySet().forEach(this::stopPlaying);
+    try {
+      playerMap.keySet().forEach(this::stopPlaying);
+    } catch (Throwable ignored) {}
   }
 
   public boolean isAudioPlayerPlaying(Location blockLocation) {
