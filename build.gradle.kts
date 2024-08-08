@@ -6,7 +6,7 @@ plugins {
 
 allprojects {
     group = "io.github.subkek.customdiscs"
-    version = "1.4.6"
+    version = "1.4.7"
 }
 
 java.sourceCompatibility = JavaVersion.VERSION_16
@@ -24,7 +24,7 @@ dependencies {
     shadow("org.jflac:jflac-codec:1.5.2")
     shadow("commons-io:commons-io:2.14.0")
     shadow("com.tcoded:FoliaLib:0.3.1")
-    shadow("dev.lavalink.youtube:common:9e234eb0ef4e4c926ffd3a76ae78ae3102c1dbb5-SNAPSHOT")
+    shadow("dev.lavalink.youtube:common:1ebceb954b6032462f87286ceb5faead906d899b-SNAPSHOT")
     shadow("dev.arbjerg:lavaplayer:2.2.1") {
         exclude("org.slf4j")
     }

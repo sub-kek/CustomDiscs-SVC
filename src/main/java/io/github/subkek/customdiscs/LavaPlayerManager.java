@@ -154,9 +154,7 @@ public class LavaPlayerManager {
   }
 
   public void stopPlayingAll() {
-    try {
-      playerMap.keySet().forEach(this::stopPlaying);
-    } catch (Throwable ignored) {}
+    Set.copyOf(playerMap.keySet()).forEach(this::stopPlaying);
   }
 
   public boolean isAudioPlayerPlaying(Location blockLocation) {
