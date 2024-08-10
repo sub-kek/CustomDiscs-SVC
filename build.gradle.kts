@@ -16,7 +16,7 @@ java.disableAutoTargetJvm()
 dependencies {
     compileOnly("org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT")
     //compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
-
+ 
     compileOnly("de.maxhenkel.voicechat:voicechat-api:2.5.0")
     compileOnly("com.comphenix.protocol:ProtocolLib:5.0.0")
 
@@ -24,7 +24,7 @@ dependencies {
     shadow("org.jflac:jflac-codec:1.5.2")
     shadow("commons-io:commons-io:2.14.0")
     shadow("com.tcoded:FoliaLib:0.3.1")
-    shadow("dev.lavalink.youtube:common:1ebceb954b6032462f87286ceb5faead906d899b-SNAPSHOT")
+    shadow("dev.lavalink.youtube:common:a7f91afd3f88dba14a59fa351cdccdd8abd9f923-SNAPSHOT")
     shadow("dev.arbjerg:lavaplayer:2.2.1") {
         exclude("org.slf4j")
     }
