@@ -16,6 +16,7 @@ import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
 import dev.lavalink.youtube.http.YoutubeOauth2Handler;
 import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
+import io.github.subkek.customdiscs.event.HopperHandler;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -103,6 +104,7 @@ public class LavaPlayerManager {
     playerMap.put(uuid, lavaPlayer);
 
     lavaPlayer.ytUrl = ytUrl;
+    lavaPlayer.block = block;
     lavaPlayer.playerUUID = uuid;
     lavaPlayer.audioChannel = api.createLocationalAudioChannel(UUID.randomUUID(), api.fromServerLevel(block.getWorld()), api.createPosition(block.getLocation().getX() + 0.5d, block.getLocation().getY() + 0.5d, block.getLocation().getZ() + 0.5d));
 
@@ -146,6 +148,9 @@ public class LavaPlayerManager {
       lavaPlayer.trackFuture.complete(null);
       lavaPlayer.audioPlayer.destroy();
       lavaPlayer.lavaPlayerThread.interrupt();
+
+      plugin.getFoliaLib().getImpl().runAtLocation(lavaPlayer.block.getLocation(), task ->
+          HopperHandler.instance().discToHopper(lavaPlayer.block));
     } else {
       CustomDiscs.debug(
           "Couldn't find LavaPlayer {0} to stop",
@@ -170,6 +175,7 @@ public class LavaPlayerManager {
     private final CompletableFuture<AudioTrack> trackFuture = new CompletableFuture<>();
     private UUID playerUUID;
     private AudioPlayer audioPlayer;
+    private Block block;
 
     private void startTrackJob() {
       try {

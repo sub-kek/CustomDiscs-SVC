@@ -12,6 +12,7 @@ import de.maxhenkel.voicechat.api.BukkitVoicechatService;
 import io.github.subkek.customdiscs.command.CustomDiscsCommand;
 import io.github.subkek.customdiscs.command.CustomDiscsTabCompleter;
 import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
+import io.github.subkek.customdiscs.event.HopperHandler;
 import io.github.subkek.customdiscs.event.JukeboxHandler;
 import io.github.subkek.customdiscs.language.YamlLanguage;
 import io.github.subkek.customdiscs.metrics.BStatsLink;
@@ -68,6 +69,8 @@ public class CustomDiscs extends JavaPlugin {
     }
 
     getServer().getPluginManager().registerEvents(new JukeboxHandler(), this);
+    getServer().getPluginManager().registerEvents(HopperHandler.instance(), this);
+
     CustomDiscsCommand customDiscsCommand = new CustomDiscsCommand();
     getCommand("customdisc").setExecutor(customDiscsCommand);
     getCommand("customdisc").setTabCompleter(new CustomDiscsTabCompleter(customDiscsCommand));

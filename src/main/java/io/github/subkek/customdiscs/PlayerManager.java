@@ -6,6 +6,7 @@ import de.maxhenkel.voicechat.api.audiochannel.AudioChannel;
 import de.maxhenkel.voicechat.api.audiochannel.AudioPlayer;
 import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
 import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
+import io.github.subkek.customdiscs.event.HopperHandler;
 import javazoom.spi.mpeg.sampled.convert.MpegFormatConversionProvider;
 import javazoom.spi.mpeg.sampled.file.MpegAudioFileReader;
 import net.kyori.adventure.text.Component;
@@ -81,6 +82,11 @@ public class PlayerManager {
         playerMap.remove(id);
         return;
       }
+
+      audioPlayer.setOnStopped(() -> {
+        plugin.getFoliaLib().getImpl().runAtLocation(block.getLocation(), task ->
+            HopperHandler.instance().discToHopper(block));
+      });
 
       synchronized (stopped) {
         if (!stopped.get()) {

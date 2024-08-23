@@ -29,10 +29,10 @@ dependencies {
         exclude("org.slf4j")
     }
 
-    shadow(platform("net.kyori:adventure-bom:4.13.1"))
+    shadow(platform("net.kyori:adventure-bom:4.17.0"))
     shadow("net.kyori:adventure-api")
     shadow("net.kyori:adventure-text-minimessage")
-    shadow("net.kyori:adventure-platform-bukkit:4.3.2")
+    shadow("net.kyori:adventure-platform-bukkit:4.3.4")
 
     shadow("org.yaml:snakeyaml:2.2")
     shadow ("me.carleslc.Simple-YAML:Simple-Yaml:1.8.4") {

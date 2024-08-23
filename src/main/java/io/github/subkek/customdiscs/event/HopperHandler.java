@@ -9,45 +9,37 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.Jukebox;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
+import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Objects;
 
-public class JukeboxHandler implements Listener {
-  private final CustomDiscs plugin = CustomDiscs.getInstance();
+public class HopperHandler implements Listener {
+  CustomDiscs plugin = CustomDiscs.getInstance();
+
   PlayerManager playerManager = PlayerManager.instance();
+  LavaPlayerManager lavaPlayerManager = LavaPlayerManager.getInstance();
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-  public void onInsert(PlayerInteractEvent event) throws IOException {
-    Player player = event.getPlayer();
-    Block block = event.getClickedBlock();
+  public void onJukeboxInsertFromHopper(InventoryMoveItemEvent event) {
 
-    if (event.getAction() != Action.RIGHT_CLICK_BLOCK || event.getClickedBlock() == null || event.getItem() == null || event.getItem().getItemMeta() == null || block == null)
-      return;
-    if (event.getClickedBlock().getType() != Material.JUKEBOX) return;
+    if (event.getDestination().getLocation() == null) return;
+    if (!event.getDestination().getLocation().getBlock().getType().equals(Material.JUKEBOX)) return;
 
     boolean isCustomDisc = isCustomMusicDisc(event.getItem());
     boolean isYouTubeCustomDisc = isCustomMusicDiscYouTube(event.getItem());
 
-    if (isCustomDisc && !jukeboxContainsDisc(block)) {
-      if (!player.hasPermission("customdiscs.play")) {
-        plugin.sendMessage(player, plugin.getLanguage().PComponent("play-no-permission-error"));
-        return;
-      }
+    Block block = event.getDestination().getLocation().getBlock();
 
+    if (isCustomDisc && !jukeboxContainsDisc(block)) {
       CustomDiscsConfiguration.discsPlayed++;
 
       plugin.getParticleManager().start(getJukebox(block));
@@ -64,19 +56,10 @@ public class JukeboxHandler implements Listener {
 
         assert VoicePlugin.voicechatServerApi != null;
         playerManager.playLocationalAudio(VoicePlugin.voicechatServerApi, soundFilePath, block, customActionBarSongPlaying);
-      } else {
-        plugin.sendMessage(player, plugin.getLanguage().PComponent("file-not-found"));
-        event.setCancelled(true);
-        throw new FileNotFoundException("File not found!");
       }
     }
 
     if (isYouTubeCustomDisc && !jukeboxContainsDisc(block)) {
-      if (!player.hasPermission("customdiscs.playt")) {
-        plugin.sendMessage(player, plugin.getLanguage().PComponent("play-no-permission-error"));
-        return;
-      }
-
       CustomDiscsConfiguration.discsPlayed++;
 
       plugin.getParticleManager().start(getJukebox(block));
@@ -94,63 +77,55 @@ public class JukeboxHandler implements Listener {
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-  public void onEject(PlayerInteractEvent event) {
+  public void onJukeboxEjectToHopper(InventoryMoveItemEvent event) {
+    if (event.getSource().getLocation() == null) return;
+    if (!event.getSource().getLocation().getBlock().getType().equals(Material.JUKEBOX)) return;
+    if (event.getItem().getItemMeta() == null) return;
+    if (!isCustomMusicDisc(event.getItem())) return;
 
-    Player player = event.getPlayer();
-    Block block = event.getClickedBlock();
-
-    if (event.getAction() != Action.RIGHT_CLICK_BLOCK || event.getClickedBlock() == null || block == null) return;
-    if (event.getClickedBlock().getType() != Material.JUKEBOX) return;
-
-    if (jukeboxContainsDisc(block)) {
-      ItemStack itemInvolvedInEvent = getItemStack(event, player);
-
-      if (player.isSneaking() && !itemInvolvedInEvent.getType().equals(Material.AIR)) return;
-
-      if (jukeboxContainsDisc(block)) {
-        stopDisc(block);
-        LavaPlayerManager.getInstance().stopPlaying(block);
-      }
-    }
+    event.setCancelled(playerManager.isAudioPlayerPlaying(event.getSource().getLocation()) ||
+        lavaPlayerManager.isAudioPlayerPlaying(event.getSource().getLocation()));
   }
 
-  private static ItemStack getItemStack(PlayerInteractEvent event, Player player) {
-    ItemStack itemInvolvedInEvent;
-    if (event.getMaterial().equals(Material.AIR)) {
+  public void discToHopper(Block block) {
+    if (block == null) return;
+    if (!block.getLocation().getChunk().isLoaded()) return;
 
-      if (!player.getInventory().getItemInMainHand().getType().equals(Material.AIR)) {
-        itemInvolvedInEvent = player.getInventory().getItemInMainHand();
-      } else if (!player.getInventory().getItemInOffHand().getType().equals(Material.AIR)) {
-        itemInvolvedInEvent = player.getInventory().getItemInOffHand();
-      } else {
-        itemInvolvedInEvent = new ItemStack(Material.AIR);
+    plugin.getFoliaLib().getImpl().runAtLocation(block.getLocation(), task -> {
+      if (!block.getType().equals(Material.JUKEBOX)) return;
+
+      Jukebox jukebox = (Jukebox) block;
+      if (jukebox.isPlaying()) {
+        jukebox.stopPlaying();
       }
 
-    } else {
-      itemInvolvedInEvent = new ItemStack(event.getMaterial());
-    }
-    return itemInvolvedInEvent;
+      block.setType(Material.JUKEBOX);
+      jukebox.update(true, true);
+    });
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-  public void onJukeboxBreak(BlockBreakEvent event) {
+  public void onChunkLoad(ChunkLoadEvent event) {
+    plugin.getFoliaLib().getImpl().runAtLocation(event.getChunk().getBlock(0, 0, 0).getLocation(), task -> {
+      for (BlockState blockState : event.getChunk().getTileEntities()) {
+        if (blockState instanceof Jukebox jukebox) {
+          if (!jukeboxContainsDisc(jukebox.getBlock())) continue;
 
-    Block block = event.getBlock();
+          boolean isCustomDisc = isCustomMusicDisc(jukebox.getRecord());
+          boolean isYouTubeCustomDisc = isCustomMusicDiscYouTube(jukebox.getRecord());
 
-    if (block.getType() != Material.JUKEBOX) return;
+          if (!playerManager.isAudioPlayerPlaying(blockState.getLocation()) && isCustomDisc) {
+            blockState.getBlock().setType(Material.JUKEBOX);
+            jukebox.update(true, true);
+          }
 
-    stopDisc(block);
-    LavaPlayerManager.getInstance().stopPlaying(block);
-  }
-
-  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-  public void onJukeboxExplode(EntityExplodeEvent event) {
-    for (Block explodedBlock : event.blockList()) {
-      if (explodedBlock.getType() == Material.JUKEBOX) {
-        stopDisc(explodedBlock);
-        LavaPlayerManager.getInstance().stopPlaying(explodedBlock);
+          if (!lavaPlayerManager.isAudioPlayerPlaying(blockState.getLocation()) && isYouTubeCustomDisc) {
+            blockState.getBlock().setType(Material.JUKEBOX);
+            jukebox.update(true, true);
+          }
+        }
       }
-    }
+    });
   }
 
   public boolean jukeboxContainsDisc(Block b) {
@@ -163,20 +138,21 @@ public class JukeboxHandler implements Listener {
   }
 
   public boolean isCustomMusicDisc(ItemStack item) {
-
     if (item == null) return false;
-
     return item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(plugin, "customdisc"), PersistentDataType.STRING);
   }
 
   public boolean isCustomMusicDiscYouTube(ItemStack item) {
-
     if (item == null) return false;
-
     return item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(plugin, "customdiscyt"), PersistentDataType.STRING);
   }
 
-  private void stopDisc(Block block) {
-    playerManager.stopLocationalAudio(block.getLocation());
+  private static HopperHandler instance;
+
+  public static HopperHandler instance() {
+    if (instance == null) {
+      instance = new HopperHandler();
+    }
+    return instance;
   }
 }
