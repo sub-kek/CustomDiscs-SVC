@@ -101,39 +101,9 @@ public class HopperHandler implements Listener {
     });
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-  public void onChunkLoad(ChunkLoadEvent event) {
-    plugin.getFoliaLib().getImpl().runAtLocation(event.getChunk().getBlock(0, 0, 0).getLocation(), task -> {
-      for (BlockState blockState : event.getChunk().getTileEntities()) {
-        if (blockState instanceof Jukebox jukebox) {
-          if (!jukeboxContainsDisc(jukebox.getBlock())) continue;
-
-          boolean isCustomDisc = isCustomMusicDisc(jukebox.getRecord());
-          boolean isYouTubeCustomDisc = isCustomMusicDiscYouTube(jukebox.getRecord());
-
-          if (!playerManager.isAudioPlayerPlaying(blockState.getLocation()) && isCustomDisc) {
-            blockState.getBlock().setType(Material.JUKEBOX);
-            jukebox.update(true, true);
-            jukebox.stopPlaying();
-          }
-
-          if (!lavaPlayerManager.isAudioPlayerPlaying(blockState.getLocation()) && isYouTubeCustomDisc) {
-            blockState.getBlock().setType(Material.JUKEBOX);
-            jukebox.update(true, true);
-            jukebox.stopPlaying();
-          }
-        }
-      }
-    });
-  }
-
   public boolean jukeboxContainsDisc(Block b) {
     Jukebox jukebox = (Jukebox) b.getLocation().getBlock().getState();
     return jukebox.getRecord().getType() != Material.AIR;
-  }
-
-  public Jukebox getJukebox(Block b) {
-    return (Jukebox) b.getLocation().getBlock().getState();
   }
 
   public boolean isCustomMusicDisc(ItemStack item) {
