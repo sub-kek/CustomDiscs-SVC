@@ -164,7 +164,7 @@ public class LavaPlayerManager {
 
   public boolean isAudioPlayerPlaying(Location blockLocation) {
     UUID id = UUID.nameUUIDFromBytes(blockLocation.toString().getBytes());
-    CustomDiscs.debug("Checking is playing {0}", id.toString());
+    //CustomDiscs.debug("Checking is playing {0}", id.toString());
     return playerMap.containsKey(id);
   }
 

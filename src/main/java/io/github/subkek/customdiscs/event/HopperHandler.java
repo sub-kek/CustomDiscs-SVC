@@ -80,7 +80,7 @@ public class HopperHandler implements Listener {
     if (event.getItem().getItemMeta() == null) return;
     if (!isCustomMusicDisc(event.getItem()) && !isCustomMusicDiscYouTube(event.getItem())) return;
 
-    CustomDiscs.debug("Hopper try move dicsc");
+//    CustomDiscs.debug("Hopper try move dicsc");
 
     event.setCancelled(playerManager.isAudioPlayerPlaying(block.getLocation()) ||
         lavaPlayerManager.isAudioPlayerPlaying(block.getLocation()));
@@ -114,11 +114,13 @@ public class HopperHandler implements Listener {
           if (!playerManager.isAudioPlayerPlaying(blockState.getLocation()) && isCustomDisc) {
             blockState.getBlock().setType(Material.JUKEBOX);
             jukebox.update(true, true);
+            jukebox.stopPlaying();
           }
 
           if (!lavaPlayerManager.isAudioPlayerPlaying(blockState.getLocation()) && isYouTubeCustomDisc) {
             blockState.getBlock().setType(Material.JUKEBOX);
             jukebox.update(true, true);
+            jukebox.stopPlaying();
           }
         }
       }
