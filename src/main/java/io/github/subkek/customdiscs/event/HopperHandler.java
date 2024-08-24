@@ -42,8 +42,6 @@ public class HopperHandler implements Listener {
     if (isCustomDisc && !jukeboxContainsDisc(block)) {
       CustomDiscsConfiguration.discsPlayed++;
 
-      plugin.getParticleManager().start(getJukebox(block));
-
       String soundFileName = event.getItem().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(plugin, "customdisc"), PersistentDataType.STRING);
 
       Path soundFilePath = Path.of(plugin.getDataFolder().getPath(), "musicdata", soundFileName);
@@ -62,8 +60,6 @@ public class HopperHandler implements Listener {
     if (isYouTubeCustomDisc && !jukeboxContainsDisc(block)) {
       CustomDiscsConfiguration.discsPlayed++;
 
-      plugin.getParticleManager().start(getJukebox(block));
-
       String soundLink = event.getItem().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(plugin, "customdiscyt"), PersistentDataType.STRING);
 
       String songName = Objects.requireNonNull(event.getItem().getItemMeta().getLore()).get(0);
@@ -72,19 +68,22 @@ public class HopperHandler implements Listener {
       Component customActionBarSongPlaying = plugin.getLanguage().component("now-playing", songName);
 
       assert VoicePlugin.voicechatServerApi != null;
-      LavaPlayerManager.getInstance().playLocationalAudioYoutube(block, VoicePlugin.voicechatServerApi, soundLink, customActionBarSongPlaying);
+      lavaPlayerManager.playLocationalAudioYoutube(block, VoicePlugin.voicechatServerApi, soundLink, customActionBarSongPlaying);
     }
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void onJukeboxEjectToHopper(InventoryMoveItemEvent event) {
     if (event.getSource().getLocation() == null) return;
-    if (!event.getSource().getLocation().getBlock().getType().equals(Material.JUKEBOX)) return;
+    Block block = event.getSource().getLocation().getBlock();
+    if (!block.getType().equals(Material.JUKEBOX)) return;
     if (event.getItem().getItemMeta() == null) return;
-    if (!isCustomMusicDisc(event.getItem())) return;
+    if (!isCustomMusicDisc(event.getItem()) && !isCustomMusicDiscYouTube(event.getItem())) return;
 
-    event.setCancelled(playerManager.isAudioPlayerPlaying(event.getSource().getLocation()) ||
-        lavaPlayerManager.isAudioPlayerPlaying(event.getSource().getLocation()));
+    CustomDiscs.debug("Hopper try move dicsc");
+
+    event.setCancelled(playerManager.isAudioPlayerPlaying(block.getLocation()) ||
+        lavaPlayerManager.isAudioPlayerPlaying(block.getLocation()));
   }
 
   public void discToHopper(Block block) {
@@ -94,10 +93,7 @@ public class HopperHandler implements Listener {
     plugin.getFoliaLib().getImpl().runAtLocation(block.getLocation(), task -> {
       if (!block.getType().equals(Material.JUKEBOX)) return;
 
-      Jukebox jukebox = (Jukebox) block;
-      if (jukebox.isPlaying()) {
-        jukebox.stopPlaying();
-      }
+      Jukebox jukebox = (Jukebox) block.getState();
 
       block.setType(Material.JUKEBOX);
       jukebox.update(true, true);

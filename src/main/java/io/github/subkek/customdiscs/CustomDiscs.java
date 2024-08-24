@@ -91,6 +91,7 @@ public class CustomDiscs extends JavaPlugin {
           if (jukebox.getRecord().getItemMeta().getPersistentDataContainer().has(new NamespacedKey(CustomDiscs.getInstance(), "customdisc"), PersistentDataType.STRING) ||
               jukebox.getRecord().getItemMeta().getPersistentDataContainer().has(new NamespacedKey(CustomDiscs.getInstance(), "customdiscyt"), PersistentDataType.STRING)) {
             event.setCancelled(true);
+            getParticleManager().start(jukebox);
           }
         }
       }

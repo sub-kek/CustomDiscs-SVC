@@ -50,8 +50,6 @@ public class JukeboxHandler implements Listener {
 
       CustomDiscsConfiguration.discsPlayed++;
 
-      plugin.getParticleManager().start(getJukebox(block));
-
       String soundFileName = event.getItem().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(plugin, "customdisc"), PersistentDataType.STRING);
 
       Path soundFilePath = Path.of(plugin.getDataFolder().getPath(), "musicdata", soundFileName);
@@ -78,8 +76,6 @@ public class JukeboxHandler implements Listener {
       }
 
       CustomDiscsConfiguration.discsPlayed++;
-
-      plugin.getParticleManager().start(getJukebox(block));
 
       String soundLink = event.getItem().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(plugin, "customdiscyt"), PersistentDataType.STRING);
 
@@ -109,7 +105,7 @@ public class JukeboxHandler implements Listener {
 
       if (jukeboxContainsDisc(block)) {
         stopDisc(block);
-        LavaPlayerManager.getInstance().stopPlaying(block);
+        LavaPlayerManager.getInstance().stopPlaying(block, true);
       }
     }
   }
@@ -140,7 +136,7 @@ public class JukeboxHandler implements Listener {
     if (block.getType() != Material.JUKEBOX) return;
 
     stopDisc(block);
-    LavaPlayerManager.getInstance().stopPlaying(block);
+    LavaPlayerManager.getInstance().stopPlaying(block, true);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -148,7 +144,7 @@ public class JukeboxHandler implements Listener {
     for (Block explodedBlock : event.blockList()) {
       if (explodedBlock.getType() == Material.JUKEBOX) {
         stopDisc(explodedBlock);
-        LavaPlayerManager.getInstance().stopPlaying(explodedBlock);
+        LavaPlayerManager.getInstance().stopPlaying(explodedBlock, true);
       }
     }
   }
