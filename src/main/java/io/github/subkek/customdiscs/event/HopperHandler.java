@@ -97,6 +97,7 @@ public class HopperHandler implements Listener {
 
       block.setType(Material.JUKEBOX);
       jukebox.update(true, true);
+      jukebox.stopPlaying();
     });
   }
 
