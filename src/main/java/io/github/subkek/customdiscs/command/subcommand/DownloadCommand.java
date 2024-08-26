@@ -57,7 +57,7 @@ public class DownloadCommand implements SubCommand {
       return;
     }
 
-    plugin.getFoliaLib().getImpl().runAsync(task -> {
+    plugin.getFoliaLib().getScheduler().runAsync(task -> {
       try {
         URL fileURL = new URL(args[1]);
         String filename = args[2];

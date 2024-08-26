@@ -120,7 +120,7 @@ public class CustomDiscs extends JavaPlugin {
       getLogger().info("Successfully disabled CustomDiscs plugin");
     }
 
-    foliaLib.getImpl().cancelAllTasks();
+    foliaLib.getScheduler().cancelAllTasks();
   }
 
   private void linkBStats() {

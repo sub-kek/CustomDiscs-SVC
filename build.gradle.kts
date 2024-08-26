@@ -6,24 +6,41 @@ plugins {
 
 allprojects {
     group = "io.github.subkek.customdiscs"
-    version = "1.4.8"
+    version = "1.4.9"
 }
 
 java.sourceCompatibility = JavaVersion.VERSION_16
 java.targetCompatibility = JavaVersion.VERSION_16
 java.disableAutoTargetJvm()
 
+repositories {
+    mavenCentral()
+    maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+    maven("https://repo.papermc.io/repository/maven-public/")
+    maven("https://repo.dmulloy2.net/repository/public/")
+    maven("https://maven.maxhenkel.de/repository/public")
+    maven("https://jitpack.io") {
+        content {
+            includeModule("me.carleslc.Simple-YAML", "Simple-Yaml")
+            includeModule("me.carleslc.Simple-YAML", "Simple-Configuration")
+            includeModule("com.github.technicallycoded", "FoliaLib")
+        }
+    }
+    maven("https://maven.lavalink.dev/releases")
+    maven("https://maven.lavalink.dev/snapshots")
+}
+
 dependencies {
     compileOnly("org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT")
     //compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
  
     compileOnly("de.maxhenkel.voicechat:voicechat-api:2.5.0")
-    compileOnly("com.comphenix.protocol:ProtocolLib:5.0.0")
+    compileOnly("com.comphenix.protocol:ProtocolLib:5.3.0-SNAPSHOT")
 
     shadow("com.googlecode.soundlibs:mp3spi:1.9.5.4")
     shadow("org.jflac:jflac-codec:1.5.2")
-    shadow("commons-io:commons-io:2.14.0")
-    shadow("com.tcoded:FoliaLib:0.3.1")
+    shadow("commons-io:commons-io:2.16.1")
+    shadow("com.github.technicallycoded:FoliaLib:0.4.3")
     shadow("dev.lavalink.youtube:common:1.7.2")
     shadow("dev.arbjerg:lavaplayer:2.2.1") {
         exclude("org.slf4j")
@@ -39,8 +56,8 @@ dependencies {
         exclude(group="org.yaml", module="snakeyaml")
     }
 
-    compileOnly("org.projectlombok:lombok:1.18.30")
-    annotationProcessor("org.projectlombok:lombok:1.18.30")
+    compileOnly("org.projectlombok:lombok:1.18.34")
+    annotationProcessor("org.projectlombok:lombok:1.18.34")
 }
 
 tasks.jar {

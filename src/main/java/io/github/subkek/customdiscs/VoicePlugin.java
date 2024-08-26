@@ -4,8 +4,6 @@ import de.maxhenkel.voicechat.api.VoicechatApi;
 import de.maxhenkel.voicechat.api.VoicechatPlugin;
 import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.VolumeCategory;
-import de.maxhenkel.voicechat.api.events.EventRegistration;
-import de.maxhenkel.voicechat.api.events.VoicechatServerStartedEvent;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -28,15 +26,7 @@ public class VoicePlugin implements VoicechatPlugin {
   @Override
   public void initialize(VoicechatApi api) {
     voicechatApi = api;
-  }
-
-  @Override
-  public void registerEvents(EventRegistration registration) {
-    registration.registerEvent(VoicechatServerStartedEvent.class, this::onServerStarted);
-  }
-
-  public void onServerStarted(VoicechatServerStartedEvent event) {
-    voicechatServerApi = event.getVoicechat();
+    voicechatServerApi = (VoicechatServerApi) api;
 
     musicDiscs = voicechatServerApi.volumeCategoryBuilder()
         .setId(MUSIC_DISC_CATEGORY)
@@ -44,7 +34,6 @@ public class VoicePlugin implements VoicechatPlugin {
         .setIcon(getMusicDiscIcon())
         .build();
     voicechatServerApi.registerVolumeCategory(musicDiscs);
-
   }
 
   private int[][] getMusicDiscIcon() {

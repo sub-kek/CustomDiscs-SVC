@@ -43,7 +43,7 @@ public class JukeboxHandler implements Listener {
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-  public void onInsert(PlayerInteractEvent event) throws IOException {
+  public void onInsert(PlayerInteractEvent event) {
     Player player = event.getPlayer();
     Block block = event.getClickedBlock();
 
@@ -53,6 +53,8 @@ public class JukeboxHandler implements Listener {
     if (!event.getItem().hasItemMeta()) return;
     if (block == null) return;
     if (!block.getType().equals(Material.JUKEBOX)) return;
+
+    CustomDiscs.debug("On insert");
 
     boolean isCustomDisc = LegacyUtil.isCustomDisc(event.getItem());
     boolean isYouTubeCustomDisc = LegacyUtil.isCustomYouTubeDisc(event.getItem());
@@ -82,8 +84,6 @@ public class JukeboxHandler implements Listener {
         PlayerManager.getInstance().playLocationalAudio(VoicePlugin.voicechatServerApi, soundFilePath, block, customActionBarSongPlaying);
       } else {
         plugin.sendMessage(player, plugin.getLanguage().PComponent("file-not-found"));
-        event.setCancelled(true);
-        throw new FileNotFoundException("File not found!");
       }
     }
 
@@ -115,15 +115,14 @@ public class JukeboxHandler implements Listener {
     if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
     if (block == null) return;
     if (!block.getType().equals(Material.JUKEBOX)) return;
+    if (!LegacyUtil.isJukeboxContainsDisc(block)) return;
+    ItemStack itemInvolvedInEvent = getItemStack(event, player);
+    if (player.isSneaking() && !itemInvolvedInEvent.getType().equals(Material.AIR)) return;
 
-    if (LegacyUtil.isJukeboxContainsDisc(block)) {
-      ItemStack itemInvolvedInEvent = getItemStack(event, player);
+    CustomDiscs.debug("On eject");
 
-      if (player.isSneaking() && !itemInvolvedInEvent.getType().equals(Material.AIR)) return;
-
-      PlayerManager.getInstance().stopPlaying(block);
-      LavaPlayerManager.getInstance().stopPlaying(block, true);
-    }
+    PlayerManager.getInstance().stopPlaying(block);
+    LavaPlayerManager.getInstance().stopPlaying(block, true);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)

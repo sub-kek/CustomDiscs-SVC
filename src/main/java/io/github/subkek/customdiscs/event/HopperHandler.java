@@ -91,16 +91,17 @@ public class HopperHandler implements Listener {
   }
 
   public void discToHopper(Block block) {
-    if (block == null) return;
     if (!block.getLocation().getChunk().isLoaded()) return;
 
-    plugin.getFoliaLib().getImpl().runAtLocation(block.getLocation(), task -> {
+    plugin.getFoliaLib().getScheduler().runAtLocation(block.getLocation(), task -> {
       if (!block.getType().equals(Material.JUKEBOX)) return;
+
+      CustomDiscs.debug("Disc to hopper send");
 
       Jukebox jukebox = (Jukebox) block.getState();
 
       block.setType(Material.JUKEBOX);
-      jukebox.update();
+      jukebox.update(true, true);
       jukebox.stopPlaying();
     });
   }
