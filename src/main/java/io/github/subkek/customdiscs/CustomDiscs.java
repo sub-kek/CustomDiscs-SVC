@@ -21,10 +21,8 @@ import io.github.subkek.customdiscs.util.Formatter;
 import lombok.Getter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
-import org.bukkit.NamespacedKey;
 import org.bukkit.block.Jukebox;
 import org.bukkit.command.CommandSender;
-import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -37,6 +35,18 @@ public class CustomDiscs extends JavaPlugin {
   @Getter private ParticleManager particleManager;
   @Getter private FoliaLib foliaLib = new FoliaLib(this);
   @Getter private BukkitAudiences audience;
+
+  public static void debug(String message, String... format) {
+    if (!CustomDiscsConfiguration.debug) return;
+
+    CustomDiscs plugin = getInstance();
+
+    plugin.getAudience().sender(plugin.getServer().getConsoleSender())
+        .sendMessage(plugin.getLanguage().deserialize(
+            Formatter.format("<yellow>[CustomDiscs Debug] {0}", message),
+            format
+        ));
+  }
 
   @Override
   public void onEnable() {
@@ -88,8 +98,8 @@ public class CustomDiscs extends JavaPlugin {
 
           if (!jukebox.getRecord().hasItemMeta()) return;
 
-          if (jukebox.getRecord().getItemMeta().getPersistentDataContainer().has(new NamespacedKey(CustomDiscs.getInstance(), "customdisc"), PersistentDataType.STRING) ||
-              jukebox.getRecord().getItemMeta().getPersistentDataContainer().has(new NamespacedKey(CustomDiscs.getInstance(), "customdiscyt"), PersistentDataType.STRING)) {
+          if (LegacyUtil.isCustomDisc(jukebox.getRecord()) ||
+              LegacyUtil.isCustomYouTubeDisc(jukebox.getRecord())) {
             event.setCancelled(true);
             getParticleManager().start(jukebox);
           }
@@ -103,7 +113,7 @@ public class CustomDiscs extends JavaPlugin {
     LavaPlayerManager.getInstance().stopPlayingAll();
     LavaPlayerManager.getInstance().save();
 
-    PlayerManager.instance().stopAll();
+    PlayerManager.getInstance().stopAll();
 
     if (voicechatPlugin != null) {
       getServer().getServicesManager().unregister(voicechatPlugin);
@@ -126,17 +136,5 @@ public class CustomDiscs extends JavaPlugin {
 
   public void sendMessage(CommandSender sender, Component component) {
     audience.sender(sender).sendMessage(component);
-  }
-
-  public static void debug(String message, String... format) {
-    if (!CustomDiscsConfiguration.debug) return;
-
-    CustomDiscs plugin = getInstance();
-
-    plugin.getAudience().sender(plugin.getServer().getConsoleSender())
-        .sendMessage(plugin.getLanguage().deserialize(
-            Formatter.format("<yellow>[CustomDiscs Debug] {0}", message),
-            format
-        ));
   }
 }

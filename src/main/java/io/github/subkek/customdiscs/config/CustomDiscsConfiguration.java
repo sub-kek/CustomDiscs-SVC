@@ -16,8 +16,17 @@ import java.util.List;
 import java.util.logging.Level;
 
 public class CustomDiscsConfiguration {
-  private static final CustomDiscs plugin = CustomDiscs.getInstance();
   public static final YamlFile config = new YamlFile();
+  private static final CustomDiscs plugin = CustomDiscs.getInstance();
+  public static int musicDiscDistance;
+  public static float musicDiscVolume;
+  public static int maxDownloadSize;
+  public static String locale;
+  public static int discsPlayed = 0;
+  public static boolean oauth2;
+  public static int customModelData;
+  public static boolean useCustomModelData;
+  public static boolean debug;
 
   public static void load() {
     File configFile = Path.of(plugin.getDataFolder().getPath(), "config.yml").toFile();
@@ -111,16 +120,6 @@ public class CustomDiscsConfiguration {
     ensureDefault(key, defaultValue, comment);
     return config.getStringList(key);
   }
-
-  public static int musicDiscDistance;
-  public static float musicDiscVolume;
-  public static int maxDownloadSize;
-  public static String locale;
-  public static int discsPlayed = 0;
-  public static boolean oauth2;
-  public static int customModelData;
-  public static boolean useCustomModelData;
-  public static boolean debug;
 
   private static void customDiscsSettings() {
     musicDiscDistance = getInt("music-disc-distance", 16, "The distance from which music discs can be heard in blocks.");

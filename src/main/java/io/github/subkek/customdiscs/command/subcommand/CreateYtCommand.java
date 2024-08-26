@@ -1,6 +1,8 @@
 package io.github.subkek.customdiscs.command.subcommand;
 
 import io.github.subkek.customdiscs.CustomDiscs;
+import io.github.subkek.customdiscs.Keys;
+import io.github.subkek.customdiscs.LegacyUtil;
 import io.github.subkek.customdiscs.command.SubCommand;
 import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
 import net.kyori.adventure.platform.bukkit.BukkitComponentSerializer;
@@ -8,14 +10,12 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
 
 import java.util.List;
 import java.util.StringJoiner;
@@ -62,7 +62,7 @@ public class CreateYtCommand implements SubCommand {
 
     Player player = (Player) sender;
 
-    if (isMusicDisc(player)) {
+    if (LegacyUtil.isMusicDiscInHand(player)) {
       if (args.length >= 3) {
         String customName = readName(args);
 
@@ -73,7 +73,7 @@ public class CreateYtCommand implements SubCommand {
 
         ItemStack disc = new ItemStack(player.getInventory().getItemInMainHand());
 
-        ItemMeta meta = disc.getItemMeta();
+        ItemMeta meta = LegacyUtil.getItemMeta(disc);
 
         meta.setDisplayName(BukkitComponentSerializer.legacy().serialize(
             plugin.getLanguage().component("youtube-disc")));
@@ -90,10 +90,9 @@ public class CreateYtCommand implements SubCommand {
         String youtubeUrl = args[1];
 
         PersistentDataContainer data = meta.getPersistentDataContainer();
-        NamespacedKey discMeta = new NamespacedKey(CustomDiscs.getInstance(), "customdisc");
-        if (data.has(discMeta, PersistentDataType.STRING))
-          data.remove(new NamespacedKey(CustomDiscs.getInstance(), "customdisc"));
-        data.set(new NamespacedKey(CustomDiscs.getInstance(), "customdiscyt"), PersistentDataType.STRING, youtubeUrl);
+        if (data.has(Keys.CUSTOM_DISC.getKey(), Keys.CUSTOM_DISC.getDataType()))
+          data.remove(Keys.CUSTOM_DISC.getKey());
+        data.set(Keys.YOUTUBE_DISC.getKey(), Keys.YOUTUBE_DISC.getDataType(), youtubeUrl);
 
         player.getInventory().getItemInMainHand().setItemMeta(meta);
 
@@ -115,9 +114,5 @@ public class CreateYtCommand implements SubCommand {
     }
 
     return name.toString();
-  }
-
-  private boolean isMusicDisc(Player p) {
-    return p.getInventory().getItemInMainHand().getType().toString().contains("MUSIC_DISC");
   }
 }

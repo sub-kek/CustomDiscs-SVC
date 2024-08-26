@@ -1,6 +1,8 @@
 package io.github.subkek.customdiscs.command.subcommand;
 
 import io.github.subkek.customdiscs.CustomDiscs;
+import io.github.subkek.customdiscs.Keys;
+import io.github.subkek.customdiscs.LegacyUtil;
 import io.github.subkek.customdiscs.command.SubCommand;
 import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
 import net.kyori.adventure.platform.bukkit.BukkitComponentSerializer;
@@ -63,7 +65,7 @@ public class CreateCommand implements SubCommand {
 
     Player player = (Player) sender;
 
-    if (isMusicDisc(player)) {
+    if (LegacyUtil.isMusicDiscInHand(player)) {
       if (args.length >= 3) {
         String songName;
         String filename = args[1];
@@ -96,7 +98,7 @@ public class CreateCommand implements SubCommand {
         //Sets the lore of the item to the quotes from the command.
         ItemStack disc = new ItemStack(player.getInventory().getItemInMainHand());
 
-        ItemMeta meta = disc.getItemMeta();
+        ItemMeta meta = LegacyUtil.getItemMeta(disc);
 
         meta.setDisplayName(BukkitComponentSerializer.legacy().serialize(
             plugin.getLanguage().component("simple-disc")));
@@ -111,10 +113,10 @@ public class CreateCommand implements SubCommand {
           meta.setCustomModelData(CustomDiscsConfiguration.customModelData);
 
         PersistentDataContainer data = meta.getPersistentDataContainer();
-        NamespacedKey discYtMeta = new NamespacedKey(CustomDiscs.getInstance(), "customdiscyt");
+        NamespacedKey discYtMeta = Keys.YOUTUBE_DISC.getKey();
         if (data.has(discYtMeta, PersistentDataType.STRING))
-          data.remove(new NamespacedKey(CustomDiscs.getInstance(), "customdiscyt"));
-        data.set(new NamespacedKey(CustomDiscs.getInstance(), "customdisc"), PersistentDataType.STRING, filename);
+          data.remove(Keys.YOUTUBE_DISC.getKey());
+        data.set(Keys.CUSTOM_DISC.getKey(), Keys.CUSTOM_DISC.getDataType(), filename);
 
         player.getInventory().getItemInMainHand().setItemMeta(meta);
 
@@ -146,9 +148,5 @@ public class CreateCommand implements SubCommand {
     }
 
     return name.toString();
-  }
-
-  private boolean isMusicDisc(Player p) {
-    return p.getInventory().getItemInMainHand().getType().toString().contains("MUSIC_DISC");
   }
 }

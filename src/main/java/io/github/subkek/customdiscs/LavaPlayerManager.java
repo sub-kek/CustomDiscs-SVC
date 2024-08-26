@@ -30,11 +30,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 public class LavaPlayerManager {
+  private static LavaPlayerManager instance;
   private final CustomDiscs plugin = CustomDiscs.getInstance();
-  File refreshTokenFile = new File(plugin.getDataFolder(), ".youtube-token");
-
   private final AudioPlayerManager lavaPlayerManager = new DefaultAudioPlayerManager();
   private final Map<UUID, LavaPlayer> playerMap = new HashMap<>();
+  File refreshTokenFile = new File(plugin.getDataFolder(), ".youtube-token");
 
   public LavaPlayerManager() {
     YoutubeAudioSourceManager source = new YoutubeAudioSourceManager(false);
@@ -70,6 +70,13 @@ public class LavaPlayerManager {
       }
     }
     lavaPlayerManager.registerSourceManager(source);
+  }
+
+  public static LavaPlayerManager getInstance() {
+    if (Objects.isNull(instance)) {
+      instance = new LavaPlayerManager();
+    }
+    return instance;
   }
 
   public void save() {
@@ -123,15 +130,6 @@ public class LavaPlayerManager {
     }
   }
 
-  private static LavaPlayerManager instance;
-
-  public static LavaPlayerManager getInstance() {
-    if (Objects.isNull(instance)) {
-      instance = new LavaPlayerManager();
-    }
-    return instance;
-  }
-
   public void stopPlaying(Block block, boolean includeBlock) {
     UUID uuid = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
     stopPlaying(uuid, includeBlock);
@@ -149,7 +147,7 @@ public class LavaPlayerManager {
       lavaPlayer.audioPlayer.destroy();
       lavaPlayer.lavaPlayerThread.interrupt();
       if (includeBlock) {
-            HopperHandler.instance().discToHopper(lavaPlayer.block);
+        HopperHandler.instance().discToHopper(lavaPlayer.block);
       }
     } else {
       CustomDiscs.debug(
@@ -169,12 +167,11 @@ public class LavaPlayerManager {
   }
 
   private class LavaPlayer {
+    private final CompletableFuture<AudioTrack> trackFuture = new CompletableFuture<>();
     private String ytUrl;
     private LocationalAudioChannel audioChannel;
     private Collection<ServerPlayer> playersInRange;
-    private final Thread lavaPlayerThread = new Thread(this::startTrackJob, "LavaPlayer");
-    private final CompletableFuture<AudioTrack> trackFuture = new CompletableFuture<>();
-    private UUID playerUUID;
+    private UUID playerUUID;    private final Thread lavaPlayerThread = new Thread(this::startTrackJob, "LavaPlayer");
     private AudioPlayer audioPlayer;
     private Block block;
 
@@ -278,5 +275,9 @@ public class LavaPlayerManager {
         }
       }
     }
+
+
+
+
   }
 }

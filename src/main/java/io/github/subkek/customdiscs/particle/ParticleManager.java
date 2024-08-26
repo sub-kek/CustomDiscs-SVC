@@ -18,19 +18,21 @@ public class ParticleManager {
     UUID uuid = UUID.nameUUIDFromBytes(jukebox.getLocation().toString().getBytes());
     if (locationParticleManager.contains(uuid)) return;
     locationParticleManager.add(uuid);
-    jukebox.stopPlaying();
-    if (plugin.getFoliaLib().isFolia()) {
-      plugin.getFoliaLib().getImpl().runAtLocation(jukebox.getLocation(), task -> jukebox.stopPlaying());
-    } else {
-      jukebox.stopPlaying();
-    }
 
     plugin.getFoliaLib().getImpl().runAtLocationTimer(jukebox.getLocation(), task -> {
-      if (!LavaPlayerManager.getInstance().isAudioPlayerPlaying(jukebox.getLocation()) && !PlayerManager.instance().isAudioPlayerPlaying(jukebox.getLocation())) {
+      if (!LavaPlayerManager.getInstance().isAudioPlayerPlaying(jukebox.getLocation()) &&
+          !PlayerManager.getInstance().isAudioPlayerPlaying(jukebox.getLocation())) {
         locationParticleManager.remove(uuid);
+
+        jukebox.update();
+        jukebox.stopPlaying();
+
         task.cancel();
-      } else {
+      } else if (!jukebox.isPlaying()) {
         jukebox.getLocation().getWorld().spawnParticle(Particle.NOTE, jukebox.getLocation().add(0.5, 1.1, 0.5), 1);
+
+        jukebox.stopPlaying();
+        jukebox.update();
       }
     }, 1, 20);
   }

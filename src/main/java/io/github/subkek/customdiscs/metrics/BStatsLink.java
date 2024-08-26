@@ -149,6 +149,15 @@ public class BStatsLink {
       if (enabled) startSubmitting();
     }
 
+    private static byte[] compress(final String str) throws IOException {
+      if (str == null) return null;
+      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+      try (GZIPOutputStream gzip = new GZIPOutputStream(outputStream)) {
+        gzip.write(str.getBytes(StandardCharsets.UTF_8));
+      }
+      return outputStream.toByteArray();
+    }
+
     public void addCustomChart(CustomChart chart) {
       this.customCharts.add(chart);
     }
@@ -229,15 +238,6 @@ public class BStatsLink {
         if (MetricsBase.class.getPackage().getName().startsWith(defaultPackage) || MetricsBase.class.getPackage().getName().startsWith(examplePackage))
           throw new IllegalStateException("bStats Metrics class has not been relocated correctly!");
       }
-    }
-
-    private static byte[] compress(final String str) throws IOException {
-      if (str == null) return null;
-      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-      try (GZIPOutputStream gzip = new GZIPOutputStream(outputStream)) {
-        gzip.write(str.getBytes(StandardCharsets.UTF_8));
-      }
-      return outputStream.toByteArray();
     }
   }
 
@@ -438,6 +438,25 @@ public class BStatsLink {
       builder.append("{");
     }
 
+    private static String escape(String value) {
+      final StringBuilder builder = new StringBuilder();
+      for (int i = 0; i < value.length(); i++) {
+        char c = value.charAt(i);
+        if (c == '"') {
+          builder.append("\\\"");
+        } else if (c == '\\') {
+          builder.append("\\\\");
+        } else if (c <= '\u000F') {
+          builder.append("\\u000").append(Integer.toHexString(c));
+        } else if (c <= '\u001F') {
+          builder.append("\\u00").append(Integer.toHexString(c));
+        } else {
+          builder.append(c);
+        }
+      }
+      return builder.toString();
+    }
+
     public JsonObjectBuilder appendNull(String key) {
       appendFieldUnescaped(key, "null");
       return this;
@@ -494,25 +513,6 @@ public class BStatsLink {
       JsonObject object = new JsonObject(builder.append("}").toString());
       builder = null;
       return object;
-    }
-
-    private static String escape(String value) {
-      final StringBuilder builder = new StringBuilder();
-      for (int i = 0; i < value.length(); i++) {
-        char c = value.charAt(i);
-        if (c == '"') {
-          builder.append("\\\"");
-        } else if (c == '\\') {
-          builder.append("\\\\");
-        } else if (c <= '\u000F') {
-          builder.append("\\u000").append(Integer.toHexString(c));
-        } else if (c <= '\u001F') {
-          builder.append("\\u00").append(Integer.toHexString(c));
-        } else {
-          builder.append(c);
-        }
-      }
-      return builder.toString();
     }
 
     public static class JsonObject {
