@@ -102,13 +102,13 @@ public class PlayerManager {
         return;
       }
 
-      audioPlayer.setOnStopped(() -> HopperHandler.instance().discToHopper(block));
-
       synchronized (stopped) {
         if (!stopped.get()) {
           player.set(audioPlayer);
         } else {
           audioPlayer.stopPlaying();
+          stopPlaying(id);
+          HopperHandler.getInstance().discToHopper(block);
         }
       }
     });

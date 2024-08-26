@@ -21,7 +21,7 @@ public class HopperHandler implements Listener {
   PlayerManager playerManager = PlayerManager.getInstance();
   LavaPlayerManager lavaPlayerManager = LavaPlayerManager.getInstance();
 
-  public static HopperHandler instance() {
+  public static HopperHandler getInstance() {
     if (instance == null) {
       instance = new HopperHandler();
     }

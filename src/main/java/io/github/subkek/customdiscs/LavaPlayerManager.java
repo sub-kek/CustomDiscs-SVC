@@ -147,7 +147,7 @@ public class LavaPlayerManager {
       lavaPlayer.audioPlayer.destroy();
       lavaPlayer.lavaPlayerThread.interrupt();
       if (includeBlock) {
-        HopperHandler.instance().discToHopper(lavaPlayer.block);
+        HopperHandler.getInstance().discToHopper(lavaPlayer.block);
       }
     } else {
       CustomDiscs.debug(

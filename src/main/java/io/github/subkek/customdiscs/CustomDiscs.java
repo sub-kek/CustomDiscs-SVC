@@ -79,7 +79,7 @@ public class CustomDiscs extends JavaPlugin {
     }
 
     getServer().getPluginManager().registerEvents(new JukeboxHandler(), this);
-    getServer().getPluginManager().registerEvents(HopperHandler.instance(), this);
+    getServer().getPluginManager().registerEvents(HopperHandler.getInstance(), this);
 
     CustomDiscsCommand customDiscsCommand = new CustomDiscsCommand();
     getCommand("customdisc").setExecutor(customDiscsCommand);
