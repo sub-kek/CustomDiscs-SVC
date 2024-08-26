@@ -32,7 +32,6 @@ public class CustomDiscs extends JavaPlugin {
   @Getter private static CustomDiscs instance = null;
   private VoicePlugin voicechatPlugin;
   @Getter private YamlLanguage language = null;
-  @Getter private ParticleManager particleManager;
   @Getter private FoliaLib foliaLib = new FoliaLib(this);
   @Getter private BukkitAudiences audience;
 
@@ -87,7 +86,6 @@ public class CustomDiscs extends JavaPlugin {
 
 
     ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
-    particleManager = new ParticleManager();
     protocolManager.addPacketListener(new PacketAdapter(this, ListenerPriority.NORMAL, PacketType.Play.Server.WORLD_EVENT) {
       @Override
       public void onPacketSending(PacketEvent event) {
@@ -101,7 +99,7 @@ public class CustomDiscs extends JavaPlugin {
           if (LegacyUtil.isCustomDisc(jukebox.getRecord()) ||
               LegacyUtil.isCustomYouTubeDisc(jukebox.getRecord())) {
             event.setCancelled(true);
-            getParticleManager().start(jukebox);
+            ParticleManager.getInstance().start(jukebox);
           }
         }
       }

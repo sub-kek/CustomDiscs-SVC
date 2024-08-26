@@ -2,22 +2,23 @@ package io.github.subkek.customdiscs.event;
 
 import io.github.subkek.customdiscs.*;
 import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
+import io.github.subkek.customdiscs.particle.ParticleManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.Jukebox;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Objects;
 
@@ -118,8 +119,13 @@ public class JukeboxHandler implements Listener {
     if (!LegacyUtil.isJukeboxContainsDisc(block)) return;
     ItemStack itemInvolvedInEvent = getItemStack(event, player);
     if (player.isSneaking() && !itemInvolvedInEvent.getType().equals(Material.AIR)) return;
+    Jukebox jukebox = (Jukebox) block.getState();
+    if (!LegacyUtil.isCustomDisc(jukebox.getRecord()) &&
+        !LegacyUtil.isCustomYouTubeDisc(jukebox.getRecord())) return;
 
     CustomDiscs.debug("On eject");
+
+    ParticleManager.getInstance().stop(block);
 
     PlayerManager.getInstance().stopPlaying(block);
     LavaPlayerManager.getInstance().stopPlaying(block, true);
@@ -144,5 +150,18 @@ public class JukeboxHandler implements Listener {
         LavaPlayerManager.getInstance().stopPlaying(explodedBlock, true);
       }
     }
+  }
+
+  @EventHandler
+  public void onRedstone(BlockPhysicsEvent event) {
+    if (!event.getSourceBlock().getType().equals(Material.JUKEBOX)) return;
+    Block block = event.getSourceBlock();
+
+    if (!LavaPlayerManager.getInstance().isAudioPlayerPlaying(block.getLocation())
+        && !PlayerManager.getInstance().isAudioPlayerPlaying(block.getLocation())) return;
+
+    if (ParticleManager.getInstance().isNeedUpdate(block)) return;
+
+    event.setCancelled(true);
   }
 }
