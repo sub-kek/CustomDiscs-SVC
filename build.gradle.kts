@@ -23,6 +23,7 @@ repositories {
         content {
             includeModule("me.carleslc.Simple-YAML", "Simple-Yaml")
             includeModule("me.carleslc.Simple-YAML", "Simple-Configuration")
+            includeModule("me.carleslc.Simple-YAML", "Simple-YAML-Parent")
             includeModule("com.github.technicallycoded", "FoliaLib")
         }
     }
