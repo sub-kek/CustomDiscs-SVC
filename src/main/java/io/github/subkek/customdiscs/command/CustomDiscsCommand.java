@@ -12,7 +12,8 @@ import java.util.HashMap;
 
 public class CustomDiscsCommand implements CommandExecutor {
   private final CustomDiscs plugin = CustomDiscs.getInstance();
-  @Getter private final HashMap<String, SubCommand> subCommands = new HashMap<>();
+  @Getter
+  private final HashMap<String, SubCommand> subCommands = new HashMap<>();
 
   public CustomDiscsCommand() {
     subCommands.put("create", new CreateCommand());

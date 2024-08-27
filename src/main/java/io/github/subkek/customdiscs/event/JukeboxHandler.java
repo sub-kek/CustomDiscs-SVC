@@ -83,7 +83,6 @@ public class JukeboxHandler implements Listener {
 
         Component customActionBarSongPlaying = plugin.getLanguage().component("now-playing", songName);
 
-        assert VoicePlugin.voicechatServerApi != null;
         PlayerManager.getInstance().playLocationalAudio(soundFilePath, block, customActionBarSongPlaying);
       } else {
         plugin.sendMessage(player, plugin.getLanguage().PComponent("file-not-found"));
@@ -105,8 +104,7 @@ public class JukeboxHandler implements Listener {
 
       Component customActionBarSongPlaying = plugin.getLanguage().component("now-playing", songName);
 
-      assert VoicePlugin.voicechatServerApi != null;
-      LavaPlayerManager.getInstance().playLocationalAudioYoutube(block, VoicePlugin.voicechatServerApi, soundLink, customActionBarSongPlaying);
+      LavaPlayerManager.getInstance().playLocationalAudioYoutube(block, VoicePlugin.voicechatApi, soundLink, customActionBarSongPlaying);
     }
   }
 

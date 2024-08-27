@@ -51,7 +51,7 @@ public class PlayerManager {
     if (playerMap.containsKey(uuid)) stopPlaying(uuid);
     CustomDiscs.debug("Player {0} not already exists", uuid.toString());
 
-    VoicechatServerApi api = VoicePlugin.voicechatServerApi;
+    VoicechatServerApi api = VoicePlugin.voicechatApi;
 
     DiscPlayer discPlayer = new DiscPlayer();
     playerMap.put(uuid, discPlayer);
@@ -77,7 +77,7 @@ public class PlayerManager {
   }
 
   private AudioPlayer playChannel(DiscPlayer discPlayer) {
-    VoicechatServerApi api = VoicePlugin.voicechatServerApi;
+    VoicechatServerApi api = VoicePlugin.voicechatApi;
 
     try {
       short[] audio = readSoundFile(discPlayer.soundFilePath);
@@ -203,7 +203,7 @@ public class PlayerManager {
     private Collection<ServerPlayer> playersInRange;
     private UUID playerUUID;
     private AudioPlayer audioPlayer;
-    private Block block;    private final Thread audioPlayerThread = new Thread(this::startTrackJob, "AudioPlayerThread");
+    private Block block;
 
     private void startTrackJob() {
       try {
@@ -233,6 +233,8 @@ public class PlayerManager {
         }
       }
     }
+
+    private final Thread audioPlayerThread = new Thread(this::startTrackJob, "AudioPlayerThread");
 
 
   }

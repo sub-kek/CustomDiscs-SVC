@@ -55,7 +55,6 @@ public class HopperHandler implements Listener {
 
         Component customActionBarSongPlaying = plugin.getLanguage().component("now-playing", songName);
 
-        assert VoicePlugin.voicechatServerApi != null;
         playerManager.playLocationalAudio(soundFilePath, block, customActionBarSongPlaying);
       }
     }
@@ -71,8 +70,7 @@ public class HopperHandler implements Listener {
 
       Component customActionBarSongPlaying = plugin.getLanguage().component("now-playing", songName);
 
-      assert VoicePlugin.voicechatServerApi != null;
-      lavaPlayerManager.playLocationalAudioYoutube(block, VoicePlugin.voicechatServerApi, soundLink, customActionBarSongPlaying);
+      lavaPlayerManager.playLocationalAudioYoutube(block, VoicePlugin.voicechatApi, soundLink, customActionBarSongPlaying);
     }
   }
 

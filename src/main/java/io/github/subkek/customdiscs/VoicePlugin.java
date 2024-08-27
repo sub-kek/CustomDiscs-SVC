@@ -4,6 +4,8 @@ import de.maxhenkel.voicechat.api.VoicechatApi;
 import de.maxhenkel.voicechat.api.VoicechatPlugin;
 import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.VolumeCategory;
+import de.maxhenkel.voicechat.api.events.EventRegistration;
+import de.maxhenkel.voicechat.api.events.VoicechatServerStartedEvent;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -14,8 +16,7 @@ import java.util.logging.Level;
 public class VoicePlugin implements VoicechatPlugin {
   public static String MUSIC_DISC_CATEGORY = "music_discs";
 
-  public static VoicechatApi voicechatApi;
-  public static VoicechatServerApi voicechatServerApi;
+  public static VoicechatServerApi voicechatApi;
   public static VolumeCategory musicDiscs;
 
   @Override
@@ -25,15 +26,19 @@ public class VoicePlugin implements VoicechatPlugin {
 
   @Override
   public void initialize(VoicechatApi api) {
-    voicechatApi = api;
-    voicechatServerApi = (VoicechatServerApi) api;
+    voicechatApi = (VoicechatServerApi) api;
+  }
 
-    musicDiscs = voicechatServerApi.volumeCategoryBuilder()
-        .setId(MUSIC_DISC_CATEGORY)
-        .setName("Music Discs")
-        .setIcon(getMusicDiscIcon())
-        .build();
-    voicechatServerApi.registerVolumeCategory(musicDiscs);
+  @Override
+  public void registerEvents(EventRegistration registration) {
+    registration.registerEvent(VoicechatServerStartedEvent.class, event -> {
+      musicDiscs = voicechatApi.volumeCategoryBuilder()
+          .setId(MUSIC_DISC_CATEGORY)
+          .setName("Music Discs")
+          .setIcon(getMusicDiscIcon())
+          .build();
+      voicechatApi.registerVolumeCategory(musicDiscs);
+    });
   }
 
   private int[][] getMusicDiscIcon() {

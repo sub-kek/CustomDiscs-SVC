@@ -29,11 +29,15 @@ import java.io.File;
 
 public class CustomDiscs extends JavaPlugin {
   public static final String PLUGIN_ID = "CustomDiscs";
-  @Getter private static CustomDiscs instance = null;
+  @Getter
+  private static CustomDiscs instance = null;
   private VoicePlugin voicechatPlugin;
-  @Getter private YamlLanguage language = null;
-  @Getter private FoliaLib foliaLib = new FoliaLib(this);
-  @Getter private BukkitAudiences audience;
+  @Getter
+  private YamlLanguage language = null;
+  @Getter
+  private FoliaLib foliaLib = new FoliaLib(this);
+  @Getter
+  private BukkitAudiences audience;
 
   public static void debug(String message, String... format) {
     if (!CustomDiscsConfiguration.debug) return;
