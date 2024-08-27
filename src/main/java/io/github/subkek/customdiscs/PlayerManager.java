@@ -203,8 +203,7 @@ public class PlayerManager {
     private Collection<ServerPlayer> playersInRange;
     private UUID playerUUID;
     private AudioPlayer audioPlayer;
-    private final Thread audioPlayerThread = new Thread(this::startTrackJob, "AudioPlayerThread");
-    private Block block;
+    private Block block;    private final Thread audioPlayerThread = new Thread(this::startTrackJob, "AudioPlayerThread");
 
     private void startTrackJob() {
       try {
@@ -234,5 +233,7 @@ public class PlayerManager {
         }
       }
     }
+
+
   }
 }

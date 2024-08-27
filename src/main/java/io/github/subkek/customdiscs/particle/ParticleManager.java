@@ -5,7 +5,6 @@ import io.github.subkek.customdiscs.CustomDiscs;
 import io.github.subkek.customdiscs.LavaPlayerManager;
 import io.github.subkek.customdiscs.PlayerManager;
 import lombok.Data;
-import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.block.Jukebox;
 
