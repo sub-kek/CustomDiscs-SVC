@@ -56,7 +56,7 @@ public class HopperHandler implements Listener {
         Component customActionBarSongPlaying = plugin.getLanguage().component("now-playing", songName);
 
         assert VoicePlugin.voicechatServerApi != null;
-        playerManager.playLocationalAudio(VoicePlugin.voicechatServerApi, soundFilePath, block, customActionBarSongPlaying);
+        playerManager.playLocationalAudio(soundFilePath, block, customActionBarSongPlaying);
       }
     }
 

@@ -55,10 +55,12 @@ public class JukeboxHandler implements Listener {
     if (block == null) return;
     if (!block.getType().equals(Material.JUKEBOX)) return;
 
-    CustomDiscs.debug("On insert");
-
     boolean isCustomDisc = LegacyUtil.isCustomDisc(event.getItem());
     boolean isYouTubeCustomDisc = LegacyUtil.isCustomYouTubeDisc(event.getItem());
+
+    if (!isCustomDisc && !isYouTubeCustomDisc) return;
+
+    CustomDiscs.debug("On insert");
 
     ItemMeta discMeta = LegacyUtil.getItemMeta(event.getItem());
 
@@ -82,7 +84,7 @@ public class JukeboxHandler implements Listener {
         Component customActionBarSongPlaying = plugin.getLanguage().component("now-playing", songName);
 
         assert VoicePlugin.voicechatServerApi != null;
-        PlayerManager.getInstance().playLocationalAudio(VoicePlugin.voicechatServerApi, soundFilePath, block, customActionBarSongPlaying);
+        PlayerManager.getInstance().playLocationalAudio(soundFilePath, block, customActionBarSongPlaying);
       } else {
         plugin.sendMessage(player, plugin.getLanguage().PComponent("file-not-found"));
       }
@@ -153,7 +155,7 @@ public class JukeboxHandler implements Listener {
   }
 
   @EventHandler
-  public void onRedstone(BlockPhysicsEvent event) {
+  public void onPhysics(BlockPhysicsEvent event) {
     if (!event.getSourceBlock().getType().equals(Material.JUKEBOX)) return;
     Block block = event.getSourceBlock();
 

@@ -2,7 +2,6 @@ package io.github.subkek.customdiscs;
 
 import de.maxhenkel.voicechat.api.ServerPlayer;
 import de.maxhenkel.voicechat.api.VoicechatServerApi;
-import de.maxhenkel.voicechat.api.audiochannel.AudioChannel;
 import de.maxhenkel.voicechat.api.audiochannel.AudioPlayer;
 import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
 import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
@@ -22,14 +21,8 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.*;
+import java.util.logging.Level;
 
 public class PlayerManager {
   private static final AudioFormat FORMAT = new AudioFormat(
@@ -43,17 +36,7 @@ public class PlayerManager {
   );
   private static PlayerManager instance;
   private final CustomDiscs plugin = CustomDiscs.getInstance();
-  private final Map<UUID, Stoppable> playerMap;
-  private final ExecutorService executorService;
-
-  public PlayerManager() {
-    this.playerMap = new ConcurrentHashMap<>();
-    this.executorService = Executors.newSingleThreadExecutor(r -> {
-      Thread thread = new Thread(r, "AudioPlayerThread");
-      thread.setDaemon(true);
-      return thread;
-    });
-  }
+  private final Map<UUID, DiscPlayer> playerMap = new HashMap<>();
 
   public static PlayerManager getInstance() {
     if (instance == null) {
@@ -62,66 +45,47 @@ public class PlayerManager {
     return instance;
   }
 
-  public void playLocationalAudio(VoicechatServerApi api, Path soundFilePath, Block block, Component actionbarComponent) {
-    UUID id = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
+  public void playLocationalAudio(Path soundFilePath, Block block, Component actionbarComponent) {
+    UUID uuid = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
+    CustomDiscs.debug("Player UUID is {0}", uuid.toString());
+    if (playerMap.containsKey(uuid)) stopPlaying(uuid);
+    CustomDiscs.debug("Player {0} not already exists", uuid.toString());
 
-    LocationalAudioChannel audioChannel = api.createLocationalAudioChannel(id, api.fromServerLevel(block.getWorld()), api.createPosition(block.getLocation().getX() + 0.5d, block.getLocation().getY() + 0.5d, block.getLocation().getZ() + 0.5d));
+    VoicechatServerApi api = VoicePlugin.voicechatServerApi;
 
-    if (audioChannel == null) return;
+    DiscPlayer discPlayer = new DiscPlayer();
+    playerMap.put(uuid, discPlayer);
 
-    audioChannel.setCategory(VoicePlugin.MUSIC_DISC_CATEGORY);
-    audioChannel.setDistance(CustomDiscsConfiguration.musicDiscDistance);
+    discPlayer.block = block;
+    discPlayer.soundFilePath = soundFilePath;
+    discPlayer.playerUUID = uuid;
+    discPlayer.audioChannel = api.createLocationalAudioChannel(uuid, api.fromServerLevel(block.getWorld()), api.createPosition(block.getLocation().getX() + 0.5d, block.getLocation().getY() + 0.5d, block.getLocation().getZ() + 0.5d));
 
-    AtomicBoolean stopped = new AtomicBoolean();
-    AtomicReference<de.maxhenkel.voicechat.api.audiochannel.AudioPlayer> player = new AtomicReference<>();
+    if (discPlayer.audioChannel == null) return;
 
-    if (playerMap.containsKey(id)) stopPlaying(id);
+    discPlayer.audioChannel.setCategory(VoicePlugin.MUSIC_DISC_CATEGORY);
+    discPlayer.audioChannel.setDistance(CustomDiscsConfiguration.musicDiscDistance);
 
-    playerMap.put(id, () -> {
-      synchronized (stopped) {
-        stopped.set(true);
-        de.maxhenkel.voicechat.api.audiochannel.AudioPlayer audioPlayer = player.get();
-        if (audioPlayer != null) {
-          audioPlayer.stopPlaying();
-        }
-      }
-    });
+    discPlayer.playersInRange = api.getPlayersInRange(api.fromServerLevel(block.getWorld()), api.createPosition(block.getLocation().getX() + 0.5d, block.getLocation().getY() + 0.5d, block.getLocation().getZ() + 0.5d), CustomDiscsConfiguration.musicDiscDistance);
 
-    executorService.execute(() -> {
-      Collection<ServerPlayer> playersInRange = api.getPlayersInRange(api.fromServerLevel(block.getWorld()), api.createPosition(block.getLocation().getX() + 0.5d, block.getLocation().getY() + 0.5d, block.getLocation().getZ() + 0.5d), CustomDiscsConfiguration.musicDiscDistance);
+    discPlayer.audioPlayerThread.start();
 
-      de.maxhenkel.voicechat.api.audiochannel.AudioPlayer audioPlayer = playChannel(api, audioChannel, soundFilePath, playersInRange);
-
-      for (ServerPlayer serverPlayer : playersInRange) {
-        Player bukkitPlayer = (Player) serverPlayer.getPlayer();
-        plugin.getAudience().sender(bukkitPlayer).sendActionBar(actionbarComponent);
-      }
-
-      if (audioPlayer == null) {
-        playerMap.remove(id);
-        return;
-      }
-
-      synchronized (stopped) {
-        if (!stopped.get()) {
-          player.set(audioPlayer);
-        } else {
-          audioPlayer.stopPlaying();
-          stopPlaying(id);
-          HopperHandler.getInstance().discToHopper(block);
-        }
-      }
-    });
+    for (ServerPlayer serverPlayer : discPlayer.playersInRange) {
+      Player bukkitPlayer = (Player) serverPlayer.getPlayer();
+      plugin.getAudience().sender(bukkitPlayer).sendActionBar(actionbarComponent);
+    }
   }
 
-  private de.maxhenkel.voicechat.api.audiochannel.AudioPlayer playChannel(VoicechatServerApi api, AudioChannel audioChannel, Path soundFilePath, Collection<ServerPlayer> playersInRange) {
+  private AudioPlayer playChannel(DiscPlayer discPlayer) {
+    VoicechatServerApi api = VoicePlugin.voicechatServerApi;
+
     try {
-      short[] audio = readSoundFile(soundFilePath);
-      AudioPlayer audioPlayer = api.createAudioPlayer(audioChannel, api.createEncoder(), audio);
+      short[] audio = readSoundFile(discPlayer.soundFilePath);
+      AudioPlayer audioPlayer = api.createAudioPlayer(discPlayer.audioChannel, api.createEncoder(), audio);
       audioPlayer.startPlaying();
       return audioPlayer;
     } catch (Exception e) {
-      for (ServerPlayer serverPlayer : playersInRange) {
+      for (ServerPlayer serverPlayer : discPlayer.playersInRange) {
         Player bukkitPlayer = (Player) serverPlayer.getPlayer();
         plugin.sendMessage(bukkitPlayer, plugin.getLanguage().PComponent("disc-play-error"));
       }
@@ -193,15 +157,30 @@ public class PlayerManager {
   }
 
   public void stopPlaying(UUID uuid) {
-    Stoppable player = playerMap.get(uuid);
-    if (player != null) {
-      player.stop();
+    if (playerMap.containsKey(uuid)) {
+      CustomDiscs.debug(
+          "Stopping Player {0}",
+          uuid.toString());
+
+      DiscPlayer discPlayer = playerMap.get(uuid);
+
+      if (discPlayer.audioPlayer != null) {
+        discPlayer.audioPlayer.stopPlaying();
+      } else {
+        playerMap.remove(uuid);
+
+        discPlayer.audioPlayerThread.interrupt();
+        HopperHandler.getInstance().discToHopper(discPlayer.block);
+      }
+    } else {
+      CustomDiscs.debug(
+          "Couldn't find Player {0} to stop",
+          uuid.toString());
     }
-    playerMap.remove(uuid);
   }
 
   public void stopAll() {
-    playerMap.keySet().forEach(this::stopPlaying);
+    Set.copyOf(playerMap.keySet()).forEach(this::stopPlaying);
   }
 
   public boolean isAudioPlayerPlaying(Location blockLocation) {
@@ -218,7 +197,42 @@ public class PlayerManager {
     }
   }
 
-  private interface Stoppable {
-    void stop();
+  private class DiscPlayer {
+    private Path soundFilePath;
+    private LocationalAudioChannel audioChannel;
+    private Collection<ServerPlayer> playersInRange;
+    private UUID playerUUID;
+    private AudioPlayer audioPlayer;
+    private final Thread audioPlayerThread = new Thread(this::startTrackJob, "AudioPlayerThread");
+    private Block block;
+
+    private void startTrackJob() {
+      try {
+        audioPlayer = playChannel(this);
+
+        if (audioPlayer == null) {
+          CustomDiscs.debug("Excepted audioPlayer is null");
+          stopPlaying(playerUUID);
+          return;
+        }
+
+        audioPlayer.setOnStopped(() -> {
+          CustomDiscs.debug(
+              "VoiceChat AudioPlayer {0} got stop",
+              playerUUID.toString());
+
+          playerMap.remove(playerUUID);
+
+          audioPlayerThread.interrupt();
+          HopperHandler.getInstance().discToHopper(block);
+        });
+      } catch (Throwable e) {
+        for (ServerPlayer serverPlayer : playersInRange) {
+          Player bukkitPlayer = (Player) serverPlayer.getPlayer();
+          plugin.sendMessage(bukkitPlayer, plugin.getLanguage().PComponent("disc-play-error"));
+          plugin.getLogger().log(Level.SEVERE, "Error while playing disc: ", e);
+        }
+      }
+    }
   }
 }

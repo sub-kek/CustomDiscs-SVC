@@ -172,7 +172,8 @@ public class LavaPlayerManager {
     private LocationalAudioChannel audioChannel;
     private Collection<ServerPlayer> playersInRange;
     private UUID playerUUID;
-    private AudioPlayer audioPlayer;    private final Thread lavaPlayerThread = new Thread(this::startTrackJob, "LavaPlayer");
+    private AudioPlayer audioPlayer;
+    private final Thread lavaPlayerThread = new Thread(this::startTrackJob, "LavaPlayerThread");
     private Block block;
 
     private void startTrackJob() {
@@ -275,7 +276,5 @@ public class LavaPlayerManager {
         }
       }
     }
-
-
   }
 }

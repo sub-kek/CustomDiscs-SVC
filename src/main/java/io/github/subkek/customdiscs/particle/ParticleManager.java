@@ -26,17 +26,21 @@ public class ParticleManager {
   public boolean isNeedUpdate(Block block) {
     UUID uuid = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
     ParticleJukebox particleJukebox = locationParticleManager.get(uuid);
-    if (particleJukebox == null) return false;
+    if (particleJukebox == null) {
+      CustomDiscs.debug("particleJukebox returning needUpdate false");
+      return false;
+    }
     return particleJukebox.isNeedUpdate();
   }
 
   public void stop(Block block) {
     UUID uuid = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
-    ParticleJukebox particleJukebox = locationParticleManager.get(uuid);
-    particleJukebox.setNeedUpdate(true);
-    particleJukebox.task.cancel();
-    particleJukebox.setCancelled(true);
-    locationParticleManager.remove(uuid);
+    if (locationParticleManager.containsKey(uuid)) {
+      ParticleJukebox particleJukebox = locationParticleManager.remove(uuid);
+      particleJukebox.setNeedUpdate(true);
+      particleJukebox.task.cancel();
+      particleJukebox.setCancelled(true);
+    }
   }
 
   public void start(Jukebox jukebox) {
@@ -52,20 +56,23 @@ public class ParticleManager {
 
         stop(jukebox.getBlock());
         return;
+      }
 
-      } else if (!jukebox.isPlaying()) {
-        jukebox.getWorld().spawnParticle(Particle.NOTE, jukebox.getLocation().add(0.5, 1.1, 0.5), 1);
+      if (!particleJukebox.isUpdatedFirst()) {
+        particleJukebox.setUpdatedFirst(true);
+        particleJukebox.setNeedUpdate(true);
       }
 
       jukebox.stopPlaying();
-      jukebox.update(false, false);
+      jukebox.update(true, false);
       particleJukebox.setNeedUpdate(false);
     }, 1, 20);
   }
 
   @Data
   private static final class ParticleJukebox {
-    private boolean needUpdate = true;
+    private boolean needUpdate = false;
+    private boolean updatedFirst = false;
     private WrappedTask task;
     private boolean cancelled;
   }
