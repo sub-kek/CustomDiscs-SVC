@@ -16,12 +16,12 @@ import java.util.Objects;
 import java.util.logging.Level;
 
 public class YamlLanguage {
-  private final CustomDiscs plugin = CustomDiscs.getPlugin();
   private final YamlFile language = new YamlFile();
   private final MiniMessage miniMessage = MiniMessage.miniMessage();
 
   @SuppressWarnings("all")
   public void init() {
+    CustomDiscs plugin = CustomDiscs.getPlugin();
     try {
       File languageFolder = Path.of(plugin.getDataFolder().getPath(), "language").toFile();
       languageFolder.mkdir();
@@ -54,7 +54,7 @@ public class YamlLanguage {
         language.save(languageFile);
       }
     } catch (Throwable e) {
-      plugin.getLogger().log(Level.SEVERE, "Error while loading language: ", e);
+      CustomDiscs.error("Error while loading language: ", e);
     }
   }
 
@@ -80,7 +80,7 @@ public class YamlLanguage {
   }
 
   public boolean languageExists(String label) {
-    InputStream inputStream = plugin.getClass().getClassLoader().getResourceAsStream(Formatter.format("language{0}{1}.yml", File.separator, label));
+    InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(Formatter.format("language{0}{1}.yml", File.separator, label));
     return !Objects.isNull(inputStream);
   }
 }

@@ -102,9 +102,9 @@ public class CustomDiscs extends JavaPlugin {
     if (service != null) {
       voicechatPlugin = new VoicePlugin();
       service.registerPlugin(voicechatPlugin);
-      getLogger().info("Successfully enabled voicechat hook");
+      info("Successfully enabled voicechat hook");
     } else {
-      getLogger().severe("Failed to enable voicechat hook");
+      error("Failed to enable voicechat hook");
     }
   }
 
@@ -126,7 +126,7 @@ public class CustomDiscs extends JavaPlugin {
 
     if (voicechatPlugin != null) {
       getServer().getServicesManager().unregister(voicechatPlugin);
-      getLogger().info("Successfully disabled CustomDiscs plugin");
+      CustomDiscs.info("Successfully disabled CustomDiscs plugin");
     }
 
     foliaLib.getScheduler().cancelAllTasks();

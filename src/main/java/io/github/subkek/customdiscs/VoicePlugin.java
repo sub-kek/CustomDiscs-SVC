@@ -11,7 +11,6 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.Enumeration;
-import java.util.logging.Level;
 
 public class VoicePlugin implements VoicechatPlugin {
   public static String MUSIC_DISC_CATEGORY = "music_discs";
@@ -62,7 +61,7 @@ public class VoicePlugin implements VoicechatPlugin {
         return image;
       }
     } catch (Throwable e) {
-      CustomDiscs.getPlugin().getLogger().log(Level.SEVERE, "Error getting music discs icon");
+      CustomDiscs.error("Error getting music discs icon: ", e);
     }
     return null;
   }

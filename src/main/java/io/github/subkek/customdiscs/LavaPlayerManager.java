@@ -65,7 +65,7 @@ public class LavaPlayerManager {
           enabledField.set(oauth2Handler, true);
         }
       } catch (Throwable e) {
-        plugin.getLogger().log(Level.SEVERE, "Error load Youtube OAuth2 token: ", e);
+        CustomDiscs.error("Error load Youtube OAuth2 token: ", e);
       }
     }
     lavaPlayerManager.registerSourceManager(source);
@@ -95,7 +95,7 @@ public class LavaPlayerManager {
         writer.close();
         CustomDiscs.debug("refreshToken written");
       } catch (IOException e) {
-        plugin.getLogger().log(Level.SEVERE, "Error save Youtube OAuth2 token: ", e);
+        CustomDiscs.error("Error save Youtube OAuth2 token: ", e);
       }
     }
   }
@@ -287,7 +287,7 @@ public class LavaPlayerManager {
         for (ServerPlayer serverPlayer : playersInRange) {
           Player bukkitPlayer = (Player) serverPlayer.getPlayer();
           CustomDiscs.sendMessage(bukkitPlayer, plugin.getLanguage().PComponent("disc-play-error"));
-          plugin.getLogger().log(Level.SEVERE, "Error while playing disc: ", e);
+          CustomDiscs.error("Error while playing disc: ", e);
         }
       }
     }

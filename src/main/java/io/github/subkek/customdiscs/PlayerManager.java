@@ -141,7 +141,7 @@ public class PlayerManager {
 
   private byte[] adjustVolume(byte[] audioSamples, double volume) {
     if (volume > 1d || volume < 0d) {
-      plugin.getServer().getLogger().severe("The volume must be between 0 and 1 in the config!");
+      CustomDiscs.error("The volume must be between 0 and 1 in the config!");
       return null;
     }
 
@@ -243,7 +243,7 @@ public class PlayerManager {
         for (ServerPlayer serverPlayer : playersInRange) {
           Player bukkitPlayer = (Player) serverPlayer.getPlayer();
           CustomDiscs.sendMessage(bukkitPlayer, plugin.getLanguage().PComponent("disc-play-error"));
-          plugin.getLogger().log(Level.SEVERE, "Error while playing disc: ", e);
+          CustomDiscs.error("Error while playing disc: ", e);
         }
       }
     }

@@ -86,7 +86,7 @@ public class DownloadSubCommand extends AbstractSubCommand {
         CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("create-disc-tooltip",
             plugin.getLanguage().string("create-command-syntax")));
       } catch (Throwable e) {
-        plugin.getLogger().log(Level.SEVERE, "Error while download music: ", e);
+        CustomDiscs.error("Error while download music: ", e);
         CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("download-error"));
       }
     });
