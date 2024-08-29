@@ -3,6 +3,8 @@ language:
   prefix:
     normal: '<dark_aqua>CustomDiscs <white>- '
     debug: '<yellow>[CustomDiscs Debug] '
+    info: '<blue>[CustomDiscs Info] <reset>'
+    error: '<red>[CustomDiscs Error] <reset> '
   cant-perform-command-error: 'You can''t execute that command!'
   no-permission-error: 'No permissions to perform that command!'
   play-no-permission-error: 'No permissions to play that disc!'
