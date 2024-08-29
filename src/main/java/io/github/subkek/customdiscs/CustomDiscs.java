@@ -77,7 +77,7 @@ public class CustomDiscs extends JavaPlugin {
       public void onPacketSending(PacketEvent event) {
         PacketContainer packet = event.getPacket();
 
-        if (packet.getIntegers().read(0).toString().equals("1010")) {
+        if (packet.getIntegers().read(0).equals(1010)) {
           Jukebox jukebox = (Jukebox) packet.getBlockPositionModifier().read(0).toLocation(event.getPlayer().getWorld()).getBlock().getState();
 
           if (!jukebox.getRecord().hasItemMeta()) return;
