@@ -9,8 +9,9 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.tcoded.folialib.FoliaLib;
 import de.maxhenkel.voicechat.api.BukkitVoicechatService;
+import dev.jorel.commandapi.CommandAPI;
+import dev.jorel.commandapi.CommandAPIBukkitConfig;
 import io.github.subkek.customdiscs.command.CustomDiscsCommand;
-import io.github.subkek.customdiscs.command.CustomDiscsTabCompleter;
 import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
 import io.github.subkek.customdiscs.event.HopperHandler;
 import io.github.subkek.customdiscs.event.JukeboxHandler;
@@ -24,13 +25,12 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.block.Jukebox;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
 public class CustomDiscs extends JavaPlugin {
   public static final String PLUGIN_ID = "CustomDiscs";
-  @Getter
-  private static CustomDiscs instance = null;
   private VoicePlugin voicechatPlugin;
   @Getter
   private YamlLanguage language = null;
@@ -39,22 +39,18 @@ public class CustomDiscs extends JavaPlugin {
   @Getter
   private BukkitAudiences audience;
 
-  public static void debug(String message, String... format) {
-    if (!CustomDiscsConfiguration.debug) return;
+  public static CustomDiscs getPlugin() {
+    return getPlugin(CustomDiscs.class);
+  }
 
-    CustomDiscs plugin = getInstance();
-
-    plugin.getAudience().sender(plugin.getServer().getConsoleSender())
-        .sendMessage(plugin.getLanguage().deserialize(
-            Formatter.format("<yellow>[CustomDiscs Debug] {0}", message),
-            format
-        ));
+  @Override
+  public void onLoad() {
+    CommandAPI.onLoad(new CommandAPIBukkitConfig(this).verboseOutput(true));
+    new CustomDiscsCommand().register("customdiscs");
   }
 
   @Override
   public void onEnable() {
-    CustomDiscs.instance = this;
-
     audience = BukkitAudiences.create(this);
 
     if (getDataFolder().mkdir()) getLogger().info("Created plugin data folder");
@@ -83,11 +79,6 @@ public class CustomDiscs extends JavaPlugin {
 
     getServer().getPluginManager().registerEvents(new JukeboxHandler(), this);
     getServer().getPluginManager().registerEvents(HopperHandler.getInstance(), this);
-
-    CustomDiscsCommand customDiscsCommand = new CustomDiscsCommand();
-    getCommand("customdisc").setExecutor(customDiscsCommand);
-    getCommand("customdisc").setTabCompleter(new CustomDiscsTabCompleter(customDiscsCommand));
-
 
     ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
     protocolManager.addPacketListener(new PacketAdapter(this, ListenerPriority.NORMAL, PacketType.Play.Server.WORLD_EVENT) {
@@ -126,7 +117,7 @@ public class CustomDiscs extends JavaPlugin {
   }
 
   private void linkBStats() {
-    BStatsLink bstats = new BStatsLink(getInstance(), 20077);
+    BStatsLink bstats = new BStatsLink(getPlugin(), 20077);
 
     bstats.addCustomChart(new BStatsLink.SimplePie("plugin_language", () -> CustomDiscsConfiguration.locale));
     bstats.addCustomChart(new BStatsLink.SingleLineChart("discs_played", () -> {
@@ -136,7 +127,21 @@ public class CustomDiscs extends JavaPlugin {
     }));
   }
 
-  public void sendMessage(CommandSender sender, Component component) {
-    audience.sender(sender).sendMessage(component);
+  public static void sendMessage(CommandSender sender, Component component) {
+    getPlugin().getAudience().sender(sender).sendMessage(component);
+  }
+
+  public static void debug(@NotNull String message, Object... format) {
+    if (!CustomDiscsConfiguration.debug) return;
+    sendMessage(
+        getPlugin().getServer().getConsoleSender(),
+        getPlugin().getLanguage().deserialize(
+            Formatter.format(
+                "{0}{1}",
+                getPlugin().getLanguage().string("prefix.debug"),
+                Formatter.format(message, format)
+            )
+        )
+    );
   }
 }

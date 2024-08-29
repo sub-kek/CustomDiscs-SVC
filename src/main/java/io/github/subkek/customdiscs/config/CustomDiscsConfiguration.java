@@ -17,7 +17,7 @@ import java.util.logging.Level;
 
 public class CustomDiscsConfiguration {
   public static final YamlFile config = new YamlFile();
-  private static final CustomDiscs plugin = CustomDiscs.getInstance();
+  private static final CustomDiscs plugin = CustomDiscs.getPlugin();
   public static int musicDiscDistance;
   public static float musicDiscVolume;
   public static int maxDownloadSize;

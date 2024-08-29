@@ -31,7 +31,7 @@ import java.util.logging.Level;
 
 public class LavaPlayerManager {
   private static LavaPlayerManager instance;
-  private final CustomDiscs plugin = CustomDiscs.getInstance();
+  private final CustomDiscs plugin = CustomDiscs.getPlugin();
   private final AudioPlayerManager lavaPlayerManager = new DefaultAudioPlayerManager();
   private final Map<UUID, LavaPlayer> playerMap = new HashMap<>();
   File refreshTokenFile = new File(plugin.getDataFolder(), ".youtube-token");
@@ -205,7 +205,7 @@ public class LavaPlayerManager {
                 playerUUID.toString(), ytUrl);
             for (ServerPlayer serverPlayer : playersInRange) {
               Player bukkitPlayer = (Player) serverPlayer.getPlayer();
-              plugin.sendMessage(bukkitPlayer, plugin.getLanguage().PComponent("url-no-matches-error"));
+              CustomDiscs.sendMessage(bukkitPlayer, plugin.getLanguage().PComponent("url-no-matches-error"));
             }
             stopPlaying(playerUUID, true);
           }
@@ -217,7 +217,7 @@ public class LavaPlayerManager {
                 playerUUID.toString(), ytUrl, e.getMessage());
             for (ServerPlayer serverPlayer : playersInRange) {
               Player bukkitPlayer = (Player) serverPlayer.getPlayer();
-              plugin.sendMessage(bukkitPlayer, plugin.getLanguage().PComponent("audio-load-error"));
+              CustomDiscs.sendMessage(bukkitPlayer, plugin.getLanguage().PComponent("audio-load-error"));
             }
             stopPlaying(playerUUID, true);
           }
@@ -271,12 +271,10 @@ public class LavaPlayerManager {
       } catch (Throwable e) {
         for (ServerPlayer serverPlayer : playersInRange) {
           Player bukkitPlayer = (Player) serverPlayer.getPlayer();
-          plugin.sendMessage(bukkitPlayer, plugin.getLanguage().PComponent("disc-play-error"));
+          CustomDiscs.sendMessage(bukkitPlayer, plugin.getLanguage().PComponent("disc-play-error"));
           plugin.getLogger().log(Level.SEVERE, "Error while playing disc: ", e);
         }
       }
     }
-
-
   }
 }

@@ -1,6 +1,8 @@
 version: 'plugin version'
 language:
-  prefix: '<dark_aqua>CustomDiscs <white>- '
+  prefix:
+    normal: '<dark_aqua>CustomDiscs <white>- '
+    debug: '<yellow>[CustomDiscs Debug] '
   cant-perform-command-error: 'You can''t execute that command!'
   no-permission-error: 'No permissions to perform that command!'
   play-no-permission-error: 'No permissions to play that disc!'

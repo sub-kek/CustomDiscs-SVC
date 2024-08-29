@@ -1,6 +1,8 @@
-version: 'plugin version'
+version: ''
 language:
-  prefix: '<dark_aqua>CustomDiscs <white>- '
+  prefix:
+    normal: '<dark_aqua>CustomDiscs <white>- '
+    debug: '<yellow>[CustomDiscs Debug] '
   cant-perform-command-error: 'Вы не можете выполнять эту команду!'
   no-permission-error: 'Нет прав на выполнение команды'
   play-no-permission-error: 'Нет прав на воспроизведение такой пластинки'

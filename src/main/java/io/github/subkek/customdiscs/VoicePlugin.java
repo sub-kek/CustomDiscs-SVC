@@ -62,7 +62,7 @@ public class VoicePlugin implements VoicechatPlugin {
         return image;
       }
     } catch (Throwable e) {
-      CustomDiscs.getInstance().getLogger().log(Level.SEVERE, "Error getting music discs icon");
+      CustomDiscs.getPlugin().getLogger().log(Level.SEVERE, "Error getting music discs icon");
     }
     return null;
   }

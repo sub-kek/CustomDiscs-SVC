@@ -1,16 +1,21 @@
 package io.github.subkek.customdiscs.command.subcommand;
 
+import dev.jorel.commandapi.executors.CommandArguments;
 import io.github.subkek.customdiscs.CustomDiscs;
-import io.github.subkek.customdiscs.command.SubCommand;
+import io.github.subkek.customdiscs.command.AbstractSubCommand;
 import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
 import org.bukkit.command.CommandSender;
 
-public class ReloadCommand implements SubCommand {
-  private final CustomDiscs plugin = CustomDiscs.getInstance();
+public class ReloadSubCommand extends AbstractSubCommand {
+  private final CustomDiscs plugin = CustomDiscs.getPlugin();
 
-  @Override
-  public String getName() {
-    return "reload";
+  public ReloadSubCommand() {
+    super("help");
+
+    this.withFullDescription(getDescription());
+    this.withUsage(getSyntax());
+
+    this.executes(this::execute);
   }
 
   @Override
@@ -28,25 +33,14 @@ public class ReloadCommand implements SubCommand {
     return sender.hasPermission("customdiscs.reload");
   }
 
-  @Override
-  public boolean canPerform(CommandSender sender) {
-    return true;
-  }
-
-  @Override
-  public void perform(CommandSender sender, String[] args) {
+  public void execute(CommandSender sender, CommandArguments arguments) {
     if (!hasPermission(sender)) {
-      plugin.sendMessage(sender, plugin.getLanguage().PComponent("no-permission-error"));
-      return;
-    }
-
-    if (!canPerform(sender)) {
-      plugin.sendMessage(sender, plugin.getLanguage().PComponent("cant-perform-command-error"));
+      CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("no-permission-error"));
       return;
     }
 
     CustomDiscsConfiguration.load();
     plugin.getLanguage().init();
-    plugin.sendMessage(sender, plugin.getLanguage().PComponent("config-reloaded"));
+    CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("config-reloaded"));
   }
 }

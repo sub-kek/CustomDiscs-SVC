@@ -1,7 +1,10 @@
 package io.github.subkek.customdiscs.command.subcommand;
 
+import dev.jorel.commandapi.arguments.StringArgument;
+import dev.jorel.commandapi.arguments.TextArgument;
+import dev.jorel.commandapi.executors.CommandArguments;
 import io.github.subkek.customdiscs.CustomDiscs;
-import io.github.subkek.customdiscs.command.SubCommand;
+import io.github.subkek.customdiscs.command.AbstractSubCommand;
 import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.command.CommandSender;
@@ -12,12 +15,19 @@ import java.net.URLConnection;
 import java.nio.file.Path;
 import java.util.logging.Level;
 
-public class DownloadCommand implements SubCommand {
-  private final CustomDiscs plugin = CustomDiscs.getInstance();
+public class DownloadSubCommand extends AbstractSubCommand {
+  private final CustomDiscs plugin = CustomDiscs.getPlugin();
 
-  @Override
-  public String getName() {
-    return "download";
+  public DownloadSubCommand() {
+    super("download");
+
+    this.withFullDescription(getDescription());
+    this.withUsage(getSyntax());
+
+    this.withArguments(new StringArgument("url"));
+    this.withArguments(new StringArgument("filename"));
+
+    this.executes(this::execute);
   }
 
   @Override
@@ -35,43 +45,28 @@ public class DownloadCommand implements SubCommand {
     return sender.hasPermission("customdiscs.download");
   }
 
-  @Override
-  public boolean canPerform(CommandSender sender) {
-    return true;
-  }
-
-  @Override
-  public void perform(CommandSender sender, String[] args) {
+  public void execute(CommandSender sender, CommandArguments arguments) {
     if (!hasPermission(sender)) {
-      plugin.sendMessage(sender, plugin.getLanguage().PComponent("no-permission-error"));
-      return;
-    }
-
-    if (!canPerform(sender)) {
-      plugin.sendMessage(sender, plugin.getLanguage().PComponent("cant-perform-command-error"));
-      return;
-    }
-
-    if (args.length < 3) {
-      plugin.sendMessage(sender, plugin.getLanguage().PComponent("unknown-arguments-error", plugin.getLanguage().string("download-command-syntax")));
+      CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("no-permission-error"));
       return;
     }
 
     plugin.getFoliaLib().getScheduler().runAsync(task -> {
       try {
-        URL fileURL = new URL(args[1]);
-        String filename = args[2];
+        URL fileURL = new URL(getArgumentValue(arguments, "url", String.class));
+        String filename = getArgumentValue(arguments, "filename", String.class);
+
         if (filename.contains("../")) {
-          plugin.sendMessage(sender, plugin.getLanguage().PComponent("invalid-file-name"));
+          CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("invalid-file-name"));
           return;
         }
 
         if (!getFileExtension(filename).equals("wav") && !getFileExtension(filename).equals("mp3") && !getFileExtension(filename).equals("flac")) {
-          plugin.sendMessage(sender, plugin.getLanguage().PComponent("unknown-extension-error"));
+          CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("unknown-extension-error"));
           return;
         }
 
-        plugin.sendMessage(sender, plugin.getLanguage().PComponent("downloading"));
+        CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("downloading"));
         Path downloadPath = Path.of(plugin.getDataFolder().getPath(), "musicdata", filename);
         File downloadFile = new File(downloadPath.toUri());
 
@@ -80,18 +75,18 @@ public class DownloadCommand implements SubCommand {
         if (connection != null) {
           long size = connection.getContentLengthLong() / 1048576;
           if (size > CustomDiscsConfiguration.maxDownloadSize) {
-            plugin.sendMessage(sender, plugin.getLanguage().PComponent("download-file-large-error", String.valueOf(CustomDiscsConfiguration.maxDownloadSize)));
+            CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("download-file-large-error", String.valueOf(CustomDiscsConfiguration.maxDownloadSize)));
             return;
           }
         }
 
         FileUtils.copyURLToFile(fileURL, downloadFile);
 
-        plugin.sendMessage(sender, plugin.getLanguage().PComponent("download-successful"));
-        plugin.sendMessage(sender, plugin.getLanguage().PComponent("create-disc-tooltip", plugin.getLanguage().string("create-command-syntax")));
+        CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("download-successful"));
+        CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("create-disc-tooltip", plugin.getLanguage().string("create-command-syntax")));
       } catch (Throwable e) {
         plugin.getLogger().log(Level.SEVERE, "Error while download music: ", e);
-        plugin.sendMessage(sender, plugin.getLanguage().PComponent("download-error"));
+        CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("download-error"));
       }
     });
   }

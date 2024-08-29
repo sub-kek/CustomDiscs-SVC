@@ -16,7 +16,7 @@ import java.util.Objects;
 import java.util.logging.Level;
 
 public class YamlLanguage {
-  private final CustomDiscs plugin = CustomDiscs.getInstance();
+  private final CustomDiscs plugin = CustomDiscs.getPlugin();
   private final YamlFile language = new YamlFile();
   private final MiniMessage miniMessage = MiniMessage.miniMessage();
 
@@ -38,7 +38,7 @@ public class YamlLanguage {
 
       language.load(languageFile);
 
-      if (isNewFile) {
+      if (isNewFile && !CustomDiscsConfiguration.debug) {
         language.set("version", plugin.getDescription().getVersion());
         language.save(languageFile);
       }
@@ -49,7 +49,7 @@ public class YamlLanguage {
         InputStream inputStream = plugin.getClass().getClassLoader().getResourceAsStream(Formatter.format("language{0}{1}.yml", File.separator, CustomDiscsConfiguration.locale));
         Files.copy(inputStream, languageFile.toPath());
         language.load(languageFile);
-        language.set("version", plugin.getDescription().getVersion());
+        if (!CustomDiscsConfiguration.debug) language.set("version", plugin.getDescription().getVersion());
         language.set("language-old", oldLanguage);
         language.save(languageFile);
       }
@@ -58,26 +58,25 @@ public class YamlLanguage {
     }
   }
 
-  public Component component(String key, String... replace) {
-    return miniMessage.deserialize(
-        Formatter.format(language.getString(Formatter.format("language.{0}", key), "<unknown lang key>"), replace));
+  private String getFormattedString(String key, Object... replace) {
+    return Formatter.format(language.getString(
+        Formatter.format("language.{0}", key), "<unknown lang key>"), replace);
   }
 
-  public Component PComponent(String key, String... replace) {
-    return miniMessage.deserialize(string("prefix") +
-        Formatter.format(language.getString(Formatter.format("language.{0}", key), "<unknown lang key>"), replace));
+  public Component component(String key, Object... replace) {
+    return miniMessage.deserialize(getFormattedString(key, replace));
   }
 
-  public String string(String key, String... replace) {
-    return Formatter.format(language.getString(Formatter.format("language.{0}", key), "<unknown lang key>"), replace);
+  public Component PComponent(String key, Object... replace) {
+    return miniMessage.deserialize(string("prefix.normal") + getFormattedString(key, replace));
   }
 
-  public String PString(String key, String... replace) {
-    return string("prefix") + string("key", replace);
-  }
-
-  public Component deserialize(String message, String... replace) {
+  public Component deserialize(String message, Object... replace) {
     return miniMessage.deserialize(Formatter.format(message, replace));
+  }
+
+  public String string(String key, Object... replace) {
+    return getFormattedString(key, replace);
   }
 
   public boolean languageExists(String label) {

@@ -17,7 +17,7 @@ import java.util.Objects;
 
 public class HopperHandler implements Listener {
   private static HopperHandler instance;
-  CustomDiscs plugin = CustomDiscs.getInstance();
+  CustomDiscs plugin = CustomDiscs.getPlugin();
   PlayerManager playerManager = PlayerManager.getInstance();
   LavaPlayerManager lavaPlayerManager = LavaPlayerManager.getInstance();
 

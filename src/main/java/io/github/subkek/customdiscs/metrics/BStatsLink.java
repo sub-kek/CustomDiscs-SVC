@@ -62,7 +62,7 @@ public class BStatsLink {
     boolean logSentData = config.getBoolean("logSentData", false);
     boolean logResponseStatusText = config.getBoolean("logResponseStatusText", false);
     metricsBase = new MetricsBase("bukkit", serverUUID, serviceId, enabled, this::appendPlatformData, this::appendServiceData,
-        submitDataTask -> CustomDiscs.getInstance().getFoliaLib().getScheduler().runNextTick(t -> submitDataTask.run()),
+        submitDataTask -> CustomDiscs.getPlugin().getFoliaLib().getScheduler().runNextTick(t -> submitDataTask.run()),
         plugin::isEnabled, (message, error) -> this.plugin.getLogger().log(Level.WARNING, message, error), (message) -> this.plugin.getLogger().log(Level.INFO, message), logErrors, logSentData, logResponseStatusText);
   }
 

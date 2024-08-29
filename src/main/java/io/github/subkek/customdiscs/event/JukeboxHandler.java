@@ -23,7 +23,7 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 public class JukeboxHandler implements Listener {
-  private final CustomDiscs plugin = CustomDiscs.getInstance();
+  private final CustomDiscs plugin = CustomDiscs.getPlugin();
 
   private static ItemStack getItemStack(PlayerInteractEvent event, Player player) {
     ItemStack itemInvolvedInEvent;
@@ -66,7 +66,7 @@ public class JukeboxHandler implements Listener {
 
     if (isCustomDisc && !LegacyUtil.isJukeboxContainsDisc(block)) {
       if (!player.hasPermission("customdiscs.play")) {
-        plugin.sendMessage(player, plugin.getLanguage().PComponent("play-no-permission-error"));
+        CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("play-no-permission-error"));
         return;
       }
 
@@ -85,13 +85,13 @@ public class JukeboxHandler implements Listener {
 
         PlayerManager.getInstance().playLocationalAudio(soundFilePath, block, customActionBarSongPlaying);
       } else {
-        plugin.sendMessage(player, plugin.getLanguage().PComponent("file-not-found"));
+        CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("file-not-found"));
       }
     }
 
     if (isYouTubeCustomDisc && !LegacyUtil.isJukeboxContainsDisc(block)) {
       if (!player.hasPermission("customdiscs.playt")) {
-        plugin.sendMessage(player, plugin.getLanguage().PComponent("play-no-permission-error"));
+        CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("play-no-permission-error"));
         return;
       }
 

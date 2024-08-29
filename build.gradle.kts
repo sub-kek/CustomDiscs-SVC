@@ -1,17 +1,15 @@
+import net.minecrell.pluginyml.bukkit.BukkitPluginDescription.Permission.Default as PermDefault
+
 plugins {
     id("java-library")
-    id("io.github.kota65535.dependency-report") version "2.0.1"
-    id("com.github.johnrengelman.shadow") version ("8.1.1")
+    id("io.github.goooler.shadow") version "8.1.8"
+    id("net.minecrell.plugin-yml.bukkit") version "0.6.0"
 }
 
 allprojects {
-    group = "io.github.subkek.customdiscs"
-    version = "1.5.1"
+    group = "io.github.subkek"
+    version = properties["plugin_version"]!!
 }
-
-java.sourceCompatibility = JavaVersion.VERSION_16
-java.targetCompatibility = JavaVersion.VERSION_16
-java.disableAutoTargetJvm()
 
 repositories {
     mavenCentral()
@@ -47,6 +45,8 @@ dependencies {
         exclude("org.slf4j")
     }
 
+    shadow("dev.jorel:commandapi-bukkit-shade:9.5.3")
+
     shadow(platform("net.kyori:adventure-bom:4.17.0"))
     shadow("net.kyori:adventure-api")
     shadow("net.kyori:adventure-text-minimessage")
@@ -59,6 +59,55 @@ dependencies {
 
     compileOnly("org.projectlombok:lombok:1.18.34")
     annotationProcessor("org.projectlombok:lombok:1.18.34")
+}
+
+val pluginId = properties["plugin_id"]
+
+bukkit {
+    name = rootProject.name
+    version = rootProject.version as String
+    main = "io.github.subkek.customdiscs.CustomDiscs"
+
+    authors = listOf("subkek")
+    website = "https://discord.gg/eRvwvmEXWz"
+    apiVersion = "1.16"
+
+    foliaSupported = true
+
+    permissions {
+        register("$pluginId.help") {
+            default = PermDefault.TRUE
+        }
+        register("$pluginId.reload") {
+            default = PermDefault.OP
+        }
+        register("$pluginId.download") {
+            default = PermDefault.TRUE
+        }
+        register("$pluginId.create") {
+            default = PermDefault.TRUE
+        }
+        register("$pluginId.createyt") {
+            default = PermDefault.TRUE
+        }
+        register("$pluginId.play") {
+            default = PermDefault.TRUE
+        }
+        register("$pluginId.playt") {
+            default = PermDefault.TRUE
+        }
+    }
+
+    depend = listOf(
+        "voicechat",
+        "ProtocolLib"
+    )
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_16
+    targetCompatibility = JavaVersion.VERSION_16
+    disableAutoTargetJvm()
 }
 
 tasks.jar {
@@ -75,38 +124,32 @@ tasks.shadowJar {
     configurations = listOf(project.configurations.shadow.get())
     mergeServiceFiles()
 
-    relocate("org.apache", "io.github.subkek.customdiscs.libs.org.apache")
-    relocate("org.jsoup", "io.github.subkek.customdiscs.libs.org.jsoup")
-    relocate("com.fasterxml", "io.github.subkek.customdiscs.libs.com.fasterxml")
-    relocate("org.yaml.snakeyaml", "io.github.subkek.customdiscs.libs.org.yaml.snakeyaml")
-    relocate("org.simpleyaml", "io.github.subkek.customdiscs.libs.org.simpleyaml")
-    relocate("org.jflac", "io.github.subkek.customdiscs.libs.org.jflac")
-    relocate("org.json", "io.github.subkek.customdiscs.libs.org.json")
-    //relocate("org.mozilla", "io.github.subkek.customdiscs.libs.org.mozilla")
-    relocate("org.tritonus", "io.github.subkek.customdiscs.libs.org.tritonus")
-    relocate("mozilla", "io.github.subkek.customdiscs.libs.mozilla")
-    relocate("junit", "io.github.subkek.customdiscs.libs.junit")
-    relocate("javazoom", "io.github.subkek.customdiscs.libs.javazoom")
-    relocate("certificates", "io.github.subkek.customdiscs.libs.certificates")
-    relocate("org.hamcrest", "io.github.subkek.customdiscs.libs.org.hamcrest")
-    relocate("org.junit", "io.github.subkek.customdiscs.libs.org.junit")
-    relocate("net.sourceforge.jaad.aac", "io.github.subkek.customdiscs.libs.net.sourceforge.jaad.aac")
-    relocate("net.kyori", "io.github.subkek.customdiscs.libs.net.kyori")
-    relocate("net.iharder", "io.github.subkek.customdiscs.libs.net.iharder")
-    relocate("com.tcoded", "io.github.subkek.customdiscs.libs.com.tcoded")
-    relocate("com.grack", "io.github.subkek.customdiscs.libs.com.grack")
-    relocate("dev.lavalink", "io.github.subkek.customdiscs.libs.dev.lavalink")
-    relocate("org.intellij", "io.github.subkek.customdiscs.libs.org.intellij")
-    relocate("org.jetbrains", "io.github.subkek.customdiscs.libs.org.jetbrains")
-    relocate("com.sedmelluq", "io.github.subkek.customdiscs.libs.com.sedmelluq") {
+    fun relocate(pkg: String) = relocate(pkg, "$group.customdiscs.libs.$pkg") {
         exclude("com/sedmelluq/discord/lavaplayer/natives/**")
     }
 
-    //minimize()
-}
-
-tasks.processResources {
-    filesMatching("plugin.yml") {
-        expand(project.properties)
-    }
+    relocate("org.apache")
+    relocate("org.jsoup")
+    relocate("com.fasterxml")
+    relocate("org.yaml.snakeyaml")
+    relocate("org.simpleyaml")
+    relocate("org.jflac")
+    relocate("org.json")
+    relocate("org.tritonus")
+    relocate("mozilla")
+    relocate("junit")
+    relocate("javazoom")
+    relocate("certificates")
+    relocate("org.hamcrest")
+    relocate("org.junit")
+    relocate("net.sourceforge.jaad.aac")
+    relocate("net.kyori")
+    relocate("net.iharder")
+    relocate("com.tcoded")
+    relocate("com.grack")
+    relocate("dev.lavalink")
+    relocate("org.intellij")
+    relocate("org.jetbrains")
+    relocate("com.sedmelluq")
+    relocate("dev.jorel.commandapi")
 }

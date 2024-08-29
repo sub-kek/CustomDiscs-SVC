@@ -35,7 +35,7 @@ public class PlayerManager {
       false
   );
   private static PlayerManager instance;
-  private final CustomDiscs plugin = CustomDiscs.getInstance();
+  private final CustomDiscs plugin = CustomDiscs.getPlugin();
   private final Map<UUID, DiscPlayer> playerMap = new HashMap<>();
 
   public static PlayerManager getInstance() {
@@ -87,7 +87,7 @@ public class PlayerManager {
     } catch (Exception e) {
       for (ServerPlayer serverPlayer : discPlayer.playersInRange) {
         Player bukkitPlayer = (Player) serverPlayer.getPlayer();
-        plugin.sendMessage(bukkitPlayer, plugin.getLanguage().PComponent("disc-play-error"));
+        CustomDiscs.sendMessage(bukkitPlayer, plugin.getLanguage().PComponent("disc-play-error"));
       }
       return null;
     }
@@ -228,14 +228,12 @@ public class PlayerManager {
       } catch (Throwable e) {
         for (ServerPlayer serverPlayer : playersInRange) {
           Player bukkitPlayer = (Player) serverPlayer.getPlayer();
-          plugin.sendMessage(bukkitPlayer, plugin.getLanguage().PComponent("disc-play-error"));
+          CustomDiscs.sendMessage(bukkitPlayer, plugin.getLanguage().PComponent("disc-play-error"));
           plugin.getLogger().log(Level.SEVERE, "Error while playing disc: ", e);
         }
       }
     }
 
     private final Thread audioPlayerThread = new Thread(this::startTrackJob, "AudioPlayerThread");
-
-
   }
 }

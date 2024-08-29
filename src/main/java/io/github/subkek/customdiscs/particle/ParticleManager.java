@@ -14,7 +14,7 @@ import java.util.UUID;
 
 public class ParticleManager {
   private static ParticleManager instance;
-  private final CustomDiscs plugin = CustomDiscs.getInstance();
+  private final CustomDiscs plugin = CustomDiscs.getPlugin();
   private final Map<UUID, ParticleJukebox> locationParticleManager = new HashMap<>();
 
   public static ParticleManager getInstance() {
