@@ -46,7 +46,6 @@ public class CustomDiscs extends JavaPlugin {
   @Override
   public void onLoad() {
     CommandAPI.onLoad(new CommandAPIBukkitConfig(this).verboseOutput(true));
-    new CustomDiscsCommand().register("customdiscs");
   }
 
   @Override
@@ -62,23 +61,15 @@ public class CustomDiscs extends JavaPlugin {
 
     linkBStats();
 
-    BukkitVoicechatService service = getServer().getServicesManager().load(BukkitVoicechatService.class);
-
     File musicData = new File(this.getDataFolder(), "musicdata");
     if (!(musicData.exists())) {
       if (musicData.mkdir()) getLogger().info("Created music data folder");
     }
 
-    if (service != null) {
-      voicechatPlugin = new VoicePlugin();
-      service.registerPlugin(voicechatPlugin);
-      getLogger().info("Successfully enabled CustomDiscs plugin");
-    } else {
-      getLogger().severe("Failed to enable CustomDiscs plugin");
-    }
+    registerVoicechatHook();
 
-    getServer().getPluginManager().registerEvents(new JukeboxHandler(), this);
-    getServer().getPluginManager().registerEvents(HopperHandler.getInstance(), this);
+    registerEvents();
+    registerCommands();
 
     ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
     protocolManager.addPacketListener(new PacketAdapter(this, ListenerPriority.NORMAL, PacketType.Play.Server.WORLD_EVENT) {
@@ -99,6 +90,27 @@ public class CustomDiscs extends JavaPlugin {
         }
       }
     });
+  }
+
+  private void registerVoicechatHook() {
+    BukkitVoicechatService service = getServer().getServicesManager().load(BukkitVoicechatService.class);
+
+    if (service != null) {
+      voicechatPlugin = new VoicePlugin();
+      service.registerPlugin(voicechatPlugin);
+      getLogger().info("Successfully enabled voicechat hook");
+    } else {
+      getLogger().severe("Failed to enable voicechat hook");
+    }
+  }
+
+  private void registerCommands() {
+    new CustomDiscsCommand().register("customdiscs");
+  }
+
+  private void registerEvents() {
+    getServer().getPluginManager().registerEvents(new JukeboxHandler(), this);
+    getServer().getPluginManager().registerEvents(HopperHandler.getInstance(), this);
   }
 
   @Override

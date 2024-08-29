@@ -10,7 +10,7 @@ public class ReloadSubCommand extends AbstractSubCommand {
   private final CustomDiscs plugin = CustomDiscs.getPlugin();
 
   public ReloadSubCommand() {
-    super("help");
+    super("reload");
 
     this.withFullDescription(getDescription());
     this.withUsage(getSyntax());

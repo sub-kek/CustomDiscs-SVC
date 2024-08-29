@@ -2,6 +2,7 @@ package io.github.subkek.customdiscs.command.subcommand;
 
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.StringArgument;
+import dev.jorel.commandapi.arguments.TextArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
 import io.github.subkek.customdiscs.CustomDiscs;
 import io.github.subkek.customdiscs.Keys;
@@ -45,6 +46,7 @@ public class CreateSubCommand extends AbstractSubCommand {
 
       return Arrays.stream(files).filter(file -> !file.isDirectory()).map(File::getName).toList();
     })));
+    this.withArguments(new TextArgument("song_name"));
 
     this.executesPlayer(this::executePlayer);
     this.executes(this::execute);
