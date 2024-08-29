@@ -12,7 +12,7 @@ import de.maxhenkel.voicechat.api.BukkitVoicechatService;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIBukkitConfig;
 import io.github.subkek.customdiscs.command.CustomDiscsCommand;
-import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
+import io.github.subkek.customdiscs.config.CDConfig;
 import io.github.subkek.customdiscs.event.HopperHandler;
 import io.github.subkek.customdiscs.event.JukeboxHandler;
 import io.github.subkek.customdiscs.language.YamlLanguage;
@@ -22,10 +22,12 @@ import io.github.subkek.customdiscs.util.Formatter;
 import lombok.Getter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.bukkit.block.Jukebox;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 
@@ -33,11 +35,15 @@ public class CustomDiscs extends JavaPlugin {
   public static final String PLUGIN_ID = "CustomDiscs";
   private VoicePlugin voicechatPlugin;
   @Getter
-  private YamlLanguage language = null;
+  private YamlLanguage language = new YamlLanguage();
+  @Getter
+  private CDConfig cDConfig = new CDConfig(
+      new File(getDataFolder().getPath(), "config.yml"));
   @Getter
   private FoliaLib foliaLib = new FoliaLib(this);
   @Getter
   private BukkitAudiences audience;
+  public int discsPlayed = 0;
 
   public static CustomDiscs getPlugin() {
     return getPlugin(CustomDiscs.class);
@@ -52,18 +58,16 @@ public class CustomDiscs extends JavaPlugin {
   public void onEnable() {
     audience = BukkitAudiences.create(this);
 
-    if (getDataFolder().mkdir()) getLogger().info("Created plugin data folder");
+    if (getDataFolder().mkdir()) info("Created plugin data folder");
 
-    CustomDiscsConfiguration.load();
-
-    language = new YamlLanguage();
+    cDConfig.init();
     language.init();
 
     linkBStats();
 
     File musicData = new File(this.getDataFolder(), "musicdata");
     if (!(musicData.exists())) {
-      if (musicData.mkdir()) getLogger().info("Created music data folder");
+      if (musicData.mkdir()) info("Created music data folder");
     }
 
     registerVoicechatHook();
@@ -131,10 +135,10 @@ public class CustomDiscs extends JavaPlugin {
   private void linkBStats() {
     BStatsLink bstats = new BStatsLink(getPlugin(), 20077);
 
-    bstats.addCustomChart(new BStatsLink.SimplePie("plugin_language", () -> CustomDiscsConfiguration.locale));
+    bstats.addCustomChart(new BStatsLink.SimplePie("plugin_language", () -> getCDConfig().getLocale()));
     bstats.addCustomChart(new BStatsLink.SingleLineChart("discs_played", () -> {
-      int value = CustomDiscsConfiguration.discsPlayed;
-      CustomDiscsConfiguration.discsPlayed = 0;
+      int value = discsPlayed;
+      discsPlayed = 0;
       return value;
     }));
   }
@@ -144,7 +148,7 @@ public class CustomDiscs extends JavaPlugin {
   }
 
   public static void debug(@NotNull String message, Object... format) {
-    if (!CustomDiscsConfiguration.debug) return;
+    if (!getPlugin().getCDConfig().isDebug()) return;
     sendMessage(
         getPlugin().getServer().getConsoleSender(),
         getPlugin().getLanguage().deserialize(
@@ -155,5 +159,42 @@ public class CustomDiscs extends JavaPlugin {
             )
         )
     );
+  }
+
+  public static void info(@NotNull String message, Object... format) {
+    sendMessage(
+        getPlugin().getServer().getConsoleSender(),
+        getPlugin().getLanguage().deserialize(
+            Formatter.format(
+                "{0}{1}",
+                getPlugin().getLanguage().string("prefix.info"),
+                Formatter.format(message, format)
+            )
+        )
+    );
+  }
+
+  public static void error(@NotNull String message, @Nullable Throwable e, Object... format) {
+    String stackTrace = "";
+
+    if (e != null) {
+      stackTrace = ExceptionUtils.getStackTrace(e);
+    }
+
+    sendMessage(
+        getPlugin().getServer().getConsoleSender(),
+        getPlugin().getLanguage().deserialize(
+            Formatter.format(
+                "{0}{1}{2}",
+                getPlugin().getLanguage().string("prefix.error"),
+                Formatter.format(message, format),
+                stackTrace
+            )
+        )
+    );
+  }
+
+  public static void error(@NotNull String message, Object... format) {
+    error(message, null, format);
   }
 }

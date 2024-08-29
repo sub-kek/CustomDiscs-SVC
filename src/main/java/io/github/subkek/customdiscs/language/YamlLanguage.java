@@ -1,7 +1,7 @@
 package io.github.subkek.customdiscs.language;
 
 import io.github.subkek.customdiscs.CustomDiscs;
-import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
+import io.github.subkek.customdiscs.config.CDConfig;
 import io.github.subkek.customdiscs.util.Formatter;
 import io.github.subkek.customdiscs.util.Language;
 import net.kyori.adventure.text.Component;
@@ -25,12 +25,12 @@ public class YamlLanguage {
     try {
       File languageFolder = Path.of(plugin.getDataFolder().getPath(), "language").toFile();
       languageFolder.mkdir();
-      File languageFile = new File(languageFolder, Formatter.format("{0}.yml", CustomDiscsConfiguration.locale));
+      File languageFile = new File(languageFolder, Formatter.format("{0}.yml", CDConfig.locale));
       boolean isNewFile = false;
 
       if (!languageFile.exists()) {
         InputStream inputStream = plugin.getClass().getClassLoader().getResourceAsStream(Formatter.format("language/{0}.yml",
-            languageExists(CustomDiscsConfiguration.locale) ? CustomDiscsConfiguration.locale : Language.ENGLISH.getLabel()
+            languageExists(CDConfig.locale) ? CDConfig.locale : Language.ENGLISH.getLabel()
         ));
         Files.copy(inputStream, languageFile.toPath());
         isNewFile = true;
@@ -38,7 +38,7 @@ public class YamlLanguage {
 
       language.load(languageFile);
 
-      if (isNewFile && !CustomDiscsConfiguration.debug) {
+      if (isNewFile && !CDConfig.debug) {
         language.set("version", plugin.getDescription().getVersion());
         language.save(languageFile);
       }
@@ -46,10 +46,10 @@ public class YamlLanguage {
       if (!language.getString("version").equals(plugin.getDescription().getVersion()) && !isNewFile) {
         Object oldLanguage = language.get("language");
         languageFile.delete();
-        InputStream inputStream = plugin.getClass().getClassLoader().getResourceAsStream(Formatter.format("language{0}{1}.yml", File.separator, CustomDiscsConfiguration.locale));
+        InputStream inputStream = plugin.getClass().getClassLoader().getResourceAsStream(Formatter.format("language{0}{1}.yml", File.separator, CDConfig.locale));
         Files.copy(inputStream, languageFile.toPath());
         language.load(languageFile);
-        if (!CustomDiscsConfiguration.debug) language.set("version", plugin.getDescription().getVersion());
+        if (!CDConfig.debug) language.set("version", plugin.getDescription().getVersion());
         language.set("language-old", oldLanguage);
         language.save(languageFile);
       }

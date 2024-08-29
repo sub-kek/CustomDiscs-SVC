@@ -3,7 +3,6 @@ package io.github.subkek.customdiscs.command.subcommand;
 import dev.jorel.commandapi.executors.CommandArguments;
 import io.github.subkek.customdiscs.CustomDiscs;
 import io.github.subkek.customdiscs.command.AbstractSubCommand;
-import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
 import org.bukkit.command.CommandSender;
 
 public class ReloadSubCommand extends AbstractSubCommand {
@@ -39,7 +38,7 @@ public class ReloadSubCommand extends AbstractSubCommand {
       return;
     }
 
-    CustomDiscsConfiguration.load();
+    plugin.getCDConfig().init();
     plugin.getLanguage().init();
     CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("config-reloaded"));
   }

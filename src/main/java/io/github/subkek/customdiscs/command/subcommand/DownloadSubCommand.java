@@ -4,7 +4,6 @@ import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
 import io.github.subkek.customdiscs.CustomDiscs;
 import io.github.subkek.customdiscs.command.AbstractSubCommand;
-import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.command.CommandSender;
 
@@ -60,7 +59,8 @@ public class DownloadSubCommand extends AbstractSubCommand {
           return;
         }
 
-        if (!getFileExtension(filename).equals("wav") && !getFileExtension(filename).equals("mp3") && !getFileExtension(filename).equals("flac")) {
+        if (!getFileExtension(filename).equals("wav") && !getFileExtension(filename).equals("mp3") &&
+            !getFileExtension(filename).equals("flac")) {
           CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("unknown-extension-error"));
           return;
         }
@@ -73,8 +73,9 @@ public class DownloadSubCommand extends AbstractSubCommand {
 
         if (connection != null) {
           long size = connection.getContentLengthLong() / 1048576;
-          if (size > CustomDiscsConfiguration.maxDownloadSize) {
-            CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("download-file-large-error", String.valueOf(CustomDiscsConfiguration.maxDownloadSize)));
+          if (size > plugin.getCDConfig().getMaxDownloadSize()) {
+            CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("download-file-large-error",
+                String.valueOf(plugin.getCDConfig().getMaxDownloadSize())));
             return;
           }
         }
@@ -82,7 +83,8 @@ public class DownloadSubCommand extends AbstractSubCommand {
         FileUtils.copyURLToFile(fileURL, downloadFile);
 
         CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("download-successful"));
-        CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("create-disc-tooltip", plugin.getLanguage().string("create-command-syntax")));
+        CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("create-disc-tooltip",
+            plugin.getLanguage().string("create-command-syntax")));
       } catch (Throwable e) {
         plugin.getLogger().log(Level.SEVERE, "Error while download music: ", e);
         CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("download-error"));

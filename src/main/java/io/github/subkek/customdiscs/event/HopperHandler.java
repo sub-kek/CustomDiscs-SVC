@@ -1,7 +1,6 @@
 package io.github.subkek.customdiscs.event;
 
 import io.github.subkek.customdiscs.*;
-import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -17,9 +16,9 @@ import java.util.Objects;
 
 public class HopperHandler implements Listener {
   private static HopperHandler instance;
-  CustomDiscs plugin = CustomDiscs.getPlugin();
-  PlayerManager playerManager = PlayerManager.getInstance();
-  LavaPlayerManager lavaPlayerManager = LavaPlayerManager.getInstance();
+  private final CustomDiscs plugin = CustomDiscs.getPlugin();
+  private final PlayerManager playerManager = PlayerManager.getInstance();
+  private final LavaPlayerManager lavaPlayerManager = LavaPlayerManager.getInstance();
 
   public static HopperHandler getInstance() {
     if (instance == null) {
@@ -42,7 +41,7 @@ public class HopperHandler implements Listener {
     ItemMeta discMeta = LegacyUtil.getItemMeta(event.getItem());
 
     if (isCustomDisc && !LegacyUtil.isJukeboxContainsDisc(block)) {
-      CustomDiscsConfiguration.discsPlayed++;
+      plugin.discsPlayed++;
 
       String soundFileName = discMeta.getPersistentDataContainer()
           .get(Keys.CUSTOM_DISC.getKey(), Keys.CUSTOM_DISC.getDataType());
@@ -60,7 +59,7 @@ public class HopperHandler implements Listener {
     }
 
     if (isYouTubeCustomDisc && !LegacyUtil.isJukeboxContainsDisc(block)) {
-      CustomDiscsConfiguration.discsPlayed++;
+      plugin.discsPlayed++;
 
       String soundLink = discMeta.getPersistentDataContainer()
           .get(Keys.YOUTUBE_DISC.getKey(), Keys.YOUTUBE_DISC.getDataType());

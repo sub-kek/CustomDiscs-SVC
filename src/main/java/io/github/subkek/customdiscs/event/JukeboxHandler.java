@@ -1,7 +1,6 @@
 package io.github.subkek.customdiscs.event;
 
 import io.github.subkek.customdiscs.*;
-import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
 import io.github.subkek.customdiscs.particle.ParticleManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
@@ -70,7 +69,7 @@ public class JukeboxHandler implements Listener {
         return;
       }
 
-      CustomDiscsConfiguration.discsPlayed++;
+      plugin.discsPlayed++;
 
       String soundFileName = discMeta.getPersistentDataContainer()
           .get(Keys.CUSTOM_DISC.getKey(), Keys.CUSTOM_DISC.getDataType());
@@ -95,7 +94,7 @@ public class JukeboxHandler implements Listener {
         return;
       }
 
-      CustomDiscsConfiguration.discsPlayed++;
+      plugin.discsPlayed++;
 
       String soundLink = discMeta.getPersistentDataContainer().get(Keys.YOUTUBE_DISC.getKey(), Keys.YOUTUBE_DISC.getDataType());
 

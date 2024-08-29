@@ -15,7 +15,6 @@ import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
 import dev.lavalink.youtube.http.YoutubeOauth2Handler;
-import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
 import io.github.subkek.customdiscs.event.HopperHandler;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
@@ -38,7 +37,7 @@ public class LavaPlayerManager {
 
   public LavaPlayerManager() {
     YoutubeAudioSourceManager source = new YoutubeAudioSourceManager(false);
-    if (CustomDiscsConfiguration.oauth2) {
+    if (plugin.getCDConfig().isYoutubeOauth2()) {
       try {
         String oauth2token;
 
@@ -113,14 +112,30 @@ public class LavaPlayerManager {
     lavaPlayer.ytUrl = ytUrl;
     lavaPlayer.block = block;
     lavaPlayer.playerUUID = uuid;
-    lavaPlayer.audioChannel = api.createLocationalAudioChannel(UUID.randomUUID(), api.fromServerLevel(block.getWorld()), api.createPosition(block.getLocation().getX() + 0.5d, block.getLocation().getY() + 0.5d, block.getLocation().getZ() + 0.5d));
+    lavaPlayer.audioChannel = api.createLocationalAudioChannel(
+        UUID.randomUUID(),
+        api.fromServerLevel(block.getWorld()),
+        api.createPosition(
+            block.getLocation().getX() + 0.5d,
+            block.getLocation().getY() + 0.5d,
+            block.getLocation().getZ() + 0.5d
+        )
+    );
 
     if (lavaPlayer.audioChannel == null) return;
 
     lavaPlayer.audioChannel.setCategory(VoicePlugin.MUSIC_DISC_CATEGORY);
-    lavaPlayer.audioChannel.setDistance(CustomDiscsConfiguration.musicDiscDistance);
+    lavaPlayer.audioChannel.setDistance(plugin.getCDConfig().getMusicDiscDistance());
 
-    lavaPlayer.playersInRange = api.getPlayersInRange(api.fromServerLevel(block.getWorld()), api.createPosition(block.getLocation().getX() + 0.5d, block.getLocation().getY() + 0.5d, block.getLocation().getZ() + 0.5d), CustomDiscsConfiguration.musicDiscDistance);
+    lavaPlayer.playersInRange = api.getPlayersInRange(
+        api.fromServerLevel(block.getWorld()),
+        api.createPosition(
+            block.getLocation().getX() + 0.5d,
+            block.getLocation().getY() + 0.5d,
+            block.getLocation().getZ() + 0.5d
+        ),
+        plugin.getCDConfig().getMusicDiscDistance()
+    );
 
     lavaPlayer.lavaPlayerThread.start();
 
@@ -237,7 +252,7 @@ public class LavaPlayerManager {
           return;
         }
 
-        int volume = Math.round(CustomDiscsConfiguration.musicDiscVolume * 100);
+        int volume = Math.round(plugin.getCDConfig().getMusicDiscVolume() * 100);
         audioPlayer.setVolume(volume);
 
         long start = 0L;

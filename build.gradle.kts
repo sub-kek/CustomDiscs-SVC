@@ -124,7 +124,7 @@ tasks.shadowJar {
     configurations = listOf(project.configurations.shadow.get())
     mergeServiceFiles()
 
-    fun relocate(pkg: String) = relocate(pkg, "$group.customdiscs.libs.$pkg") {
+    fun relocate(pkg: String) = relocate(pkg, "${rootProject.group}.customdiscs.libs.$pkg") {
         exclude("com/sedmelluq/discord/lavaplayer/natives/**")
     }
 

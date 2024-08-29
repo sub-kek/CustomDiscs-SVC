@@ -4,7 +4,6 @@ import de.maxhenkel.voicechat.api.ServerPlayer;
 import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.audiochannel.AudioPlayer;
 import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
-import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
 import io.github.subkek.customdiscs.event.HopperHandler;
 import javazoom.spi.mpeg.sampled.convert.MpegFormatConversionProvider;
 import javazoom.spi.mpeg.sampled.file.MpegAudioFileReader;
@@ -59,14 +58,30 @@ public class PlayerManager {
     discPlayer.block = block;
     discPlayer.soundFilePath = soundFilePath;
     discPlayer.playerUUID = uuid;
-    discPlayer.audioChannel = api.createLocationalAudioChannel(uuid, api.fromServerLevel(block.getWorld()), api.createPosition(block.getLocation().getX() + 0.5d, block.getLocation().getY() + 0.5d, block.getLocation().getZ() + 0.5d));
+    discPlayer.audioChannel = api.createLocationalAudioChannel(
+        uuid,
+        api.fromServerLevel(block.getWorld()),
+        api.createPosition(
+            block.getLocation().getX() + 0.5d,
+            block.getLocation().getY() + 0.5d,
+            block.getLocation().getZ() + 0.5d
+        )
+    );
 
     if (discPlayer.audioChannel == null) return;
 
     discPlayer.audioChannel.setCategory(VoicePlugin.MUSIC_DISC_CATEGORY);
-    discPlayer.audioChannel.setDistance(CustomDiscsConfiguration.musicDiscDistance);
+    discPlayer.audioChannel.setDistance(plugin.getCDConfig().getMusicDiscDistance());
 
-    discPlayer.playersInRange = api.getPlayersInRange(api.fromServerLevel(block.getWorld()), api.createPosition(block.getLocation().getX() + 0.5d, block.getLocation().getY() + 0.5d, block.getLocation().getZ() + 0.5d), CustomDiscsConfiguration.musicDiscDistance);
+    discPlayer.playersInRange = api.getPlayersInRange(
+        api.fromServerLevel(block.getWorld()),
+        api.createPosition(
+            block.getLocation().getX() + 0.5d,
+            block.getLocation().getY() + 0.5d,
+            block.getLocation().getZ() + 0.5d
+        ),
+        plugin.getCDConfig().getMusicDiscDistance()
+    );
 
     discPlayer.audioPlayerThread.start();
 
@@ -121,11 +136,10 @@ public class PlayerManager {
 
     assert finalInputStream != null;
 
-    return adjustVolume(finalInputStream.readAllBytes(), CustomDiscsConfiguration.musicDiscVolume);
+    return adjustVolume(finalInputStream.readAllBytes(), plugin.getCDConfig().getMusicDiscVolume());
   }
 
   private byte[] adjustVolume(byte[] audioSamples, double volume) {
-
     if (volume > 1d || volume < 0d) {
       plugin.getServer().getLogger().severe("The volume must be between 0 and 1 in the config!");
       return null;

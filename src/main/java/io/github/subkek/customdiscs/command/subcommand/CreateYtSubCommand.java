@@ -7,7 +7,6 @@ import io.github.subkek.customdiscs.CustomDiscs;
 import io.github.subkek.customdiscs.Keys;
 import io.github.subkek.customdiscs.LegacyUtil;
 import io.github.subkek.customdiscs.command.AbstractSubCommand;
-import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
 import net.kyori.adventure.platform.bukkit.BukkitComponentSerializer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -84,8 +83,8 @@ public class CreateYtSubCommand extends AbstractSubCommand {
         .build();
     meta.addItemFlags(ItemFlag.values());
     meta.setLore(List.of(BukkitComponentSerializer.legacy().serialize(customLoreSong)));
-    if (CustomDiscsConfiguration.useCustomModelData)
-      meta.setCustomModelData(CustomDiscsConfiguration.customModelData);
+    if (plugin.getCDConfig().isUseCustomModelDataYoutube())
+      meta.setCustomModelData(plugin.getCDConfig().getCustomModelDataYoutube());
 
     String youtubeUrl = getArgumentValue(arguments, "url", String.class);
 
