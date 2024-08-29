@@ -126,7 +126,7 @@ public class CDConfig {
     customModelDataYoutube = getInt("command.createyt.custom-model-data.value", customModelDataYoutube);
   }
 
-  private int musicDiscDistance = 16;
+  private int musicDiscDistance = 64;
   private float musicDiscVolume = 1f;
 
   private void discSettings() {

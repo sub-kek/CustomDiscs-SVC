@@ -47,7 +47,7 @@ public class HelpSubCommand extends AbstractSubCommand {
     for (CommandAPICommand caSubCommand : cdCommand.getSubcommands()) {
       AbstractSubCommand subCommand = (AbstractSubCommand) caSubCommand;
       if (subCommand.hasPermission(sender)) {
-        CustomDiscs.sendMessage(sender, plugin.getLanguage().component("help-command", subCommand.getUsage(), subCommand.getFullDescription()));
+        CustomDiscs.sendMessage(sender, plugin.getLanguage().component("help-command", subCommand.getSyntax(), subCommand.getDescription()));
       }
     }
 

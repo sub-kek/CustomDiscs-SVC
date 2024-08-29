@@ -32,6 +32,9 @@ public class CreateSubCommand extends AbstractSubCommand {
   public CreateSubCommand() {
     super("create");
 
+    this.withFullDescription(getDescription());
+    this.withUsage(getUsage());
+
     this.withArguments(new StringArgument("filename").replaceSuggestions(ArgumentSuggestions.stringCollection((sender) -> {
       File musicDataFolder = new File(this.plugin.getDataFolder(), "musicdata");
       if (!musicDataFolder.isDirectory()) {
