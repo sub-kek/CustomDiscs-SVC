@@ -25,12 +25,12 @@ public class YamlLanguage {
     try {
       File languageFolder = Path.of(plugin.getDataFolder().getPath(), "language").toFile();
       languageFolder.mkdir();
-      File languageFile = new File(languageFolder, Formatter.format("{0}.yml", CDConfig.locale));
+      File languageFile = new File(languageFolder, Formatter.format("{0}.yml", plugin.getCDConfig().getLocale()));
       boolean isNewFile = false;
 
       if (!languageFile.exists()) {
         InputStream inputStream = plugin.getClass().getClassLoader().getResourceAsStream(Formatter.format("language/{0}.yml",
-            languageExists(CDConfig.locale) ? CDConfig.locale : Language.ENGLISH.getLabel()
+            languageExists(plugin.getCDConfig().getLocale()) ? plugin.getCDConfig().getLocale() : Language.ENGLISH.getLabel()
         ));
         Files.copy(inputStream, languageFile.toPath());
         isNewFile = true;
@@ -38,7 +38,7 @@ public class YamlLanguage {
 
       language.load(languageFile);
 
-      if (isNewFile && !CDConfig.debug) {
+      if (isNewFile && !plugin.getCDConfig().isDebug()) {
         language.set("version", plugin.getDescription().getVersion());
         language.save(languageFile);
       }
@@ -46,10 +46,10 @@ public class YamlLanguage {
       if (!language.getString("version").equals(plugin.getDescription().getVersion()) && !isNewFile) {
         Object oldLanguage = language.get("language");
         languageFile.delete();
-        InputStream inputStream = plugin.getClass().getClassLoader().getResourceAsStream(Formatter.format("language{0}{1}.yml", File.separator, CDConfig.locale));
+        InputStream inputStream = plugin.getClass().getClassLoader().getResourceAsStream(Formatter.format("language{0}{1}.yml", File.separator, plugin.getCDConfig().getLocale()));
         Files.copy(inputStream, languageFile.toPath());
         language.load(languageFile);
-        if (!CDConfig.debug) language.set("version", plugin.getDescription().getVersion());
+        if (!plugin.getCDConfig().isDebug()) language.set("version", plugin.getDescription().getVersion());
         language.set("language-old", oldLanguage);
         language.save(languageFile);
       }
