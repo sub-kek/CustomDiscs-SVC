@@ -25,7 +25,6 @@ import org.bukkit.persistence.PersistentDataType;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
-import java.util.StringJoiner;
 
 public class CreateSubCommand extends AbstractSubCommand {
   private final CustomDiscs plugin = CustomDiscs.getPlugin();

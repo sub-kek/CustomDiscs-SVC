@@ -3,8 +3,8 @@ package io.github.subkek.customdiscs.command.subcommand;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.executors.CommandArguments;
 import io.github.subkek.customdiscs.CustomDiscs;
-import io.github.subkek.customdiscs.command.CustomDiscsCommand;
 import io.github.subkek.customdiscs.command.AbstractSubCommand;
+import io.github.subkek.customdiscs.command.CustomDiscsCommand;
 import org.bukkit.command.CommandSender;
 
 public class HelpSubCommand extends AbstractSubCommand {

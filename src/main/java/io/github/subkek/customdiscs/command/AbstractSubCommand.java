@@ -10,7 +10,7 @@ public abstract class AbstractSubCommand extends CommandAPICommand {
     super(commandName);
   }
 
-  protected <T>T getArgumentValue(CommandArguments arguments, String nodeName, Class<T> argumentType) {
+  protected <T> T getArgumentValue(CommandArguments arguments, String nodeName, Class<T> argumentType) {
     T value;
     if ((value = arguments.getByClass(nodeName, argumentType)) == null)
       throw new IllegalArgumentException(Formatter.format(
@@ -20,6 +20,8 @@ public abstract class AbstractSubCommand extends CommandAPICommand {
   }
 
   public abstract String getDescription();
+
   public abstract String getSyntax();
+
   public abstract boolean hasPermission(CommandSender sender);
 }

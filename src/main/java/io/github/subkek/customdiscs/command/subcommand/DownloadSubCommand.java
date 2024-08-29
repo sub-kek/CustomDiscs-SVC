@@ -1,7 +1,6 @@
 package io.github.subkek.customdiscs.command.subcommand;
 
 import dev.jorel.commandapi.arguments.StringArgument;
-import dev.jorel.commandapi.arguments.TextArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
 import io.github.subkek.customdiscs.CustomDiscs;
 import io.github.subkek.customdiscs.command.AbstractSubCommand;
