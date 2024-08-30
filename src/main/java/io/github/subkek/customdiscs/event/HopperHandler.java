@@ -88,6 +88,8 @@ public class HopperHandler implements Listener {
   }
 
   public void discToHopper(Block block) {
+    if (!plugin.getCDConfig().isAllowHoppers()) return;
+    if (!plugin.isEnabled()) return;
     if (!block.getLocation().getChunk().isLoaded()) return;
 
     plugin.getFoliaLib().getScheduler().runAtLocation(block.getLocation(), task -> {

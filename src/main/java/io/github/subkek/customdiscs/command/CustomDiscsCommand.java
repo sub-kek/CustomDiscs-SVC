@@ -27,7 +27,7 @@ public class CustomDiscsCommand extends CommandAPICommand {
   }
 
   public void execute(CommandSender sender, CommandArguments arguments) {
-    CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("unknown-command", findSubCommand("help").getSyntax()));
+    findSubCommand("help").execute(sender, arguments);
   }
 
   @NotNull

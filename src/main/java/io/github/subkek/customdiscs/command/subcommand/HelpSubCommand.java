@@ -24,12 +24,12 @@ public class HelpSubCommand extends AbstractSubCommand {
 
   @Override
   public String getDescription() {
-    return plugin.getLanguage().string("help-command-description");
+    return plugin.getLanguage().string("command.help.description");
   }
 
   @Override
   public String getSyntax() {
-    return plugin.getLanguage().string("help-command-syntax");
+    return plugin.getLanguage().string("command.help.syntax");
   }
 
   @Override
@@ -37,20 +37,21 @@ public class HelpSubCommand extends AbstractSubCommand {
     return sender.hasPermission("customdiscs.help");
   }
 
+  @Override
   public void execute(CommandSender sender, CommandArguments arguments) {
     if (!hasPermission(sender)) {
-      CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("no-permission-error"));
+      CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("error.command.no-permission"));
       return;
     }
 
-    CustomDiscs.sendMessage(sender, plugin.getLanguage().component("help-header"));
+    CustomDiscs.sendMessage(sender, plugin.getLanguage().component("command.help.messages.header"));
     for (CommandAPICommand caSubCommand : cdCommand.getSubcommands()) {
       AbstractSubCommand subCommand = (AbstractSubCommand) caSubCommand;
       if (subCommand.hasPermission(sender)) {
-        CustomDiscs.sendMessage(sender, plugin.getLanguage().component("help-command", subCommand.getSyntax(), subCommand.getDescription()));
+        CustomDiscs.sendMessage(sender, plugin.getLanguage().component("command.help.messages.format", subCommand.getSyntax(), subCommand.getDescription()));
       }
     }
 
-    CustomDiscs.sendMessage(sender, plugin.getLanguage().component("help-footer"));
+    CustomDiscs.sendMessage(sender, plugin.getLanguage().component("command.help.messages.footer"));
   }
 }

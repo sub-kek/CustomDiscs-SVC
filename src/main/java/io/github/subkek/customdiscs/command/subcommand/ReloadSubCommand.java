@@ -19,12 +19,12 @@ public class ReloadSubCommand extends AbstractSubCommand {
 
   @Override
   public String getDescription() {
-    return plugin.getLanguage().string("reload-command-description");
+    return plugin.getLanguage().string("command.reload.description");
   }
 
   @Override
   public String getSyntax() {
-    return plugin.getLanguage().string("reload-command-syntax");
+    return plugin.getLanguage().string("command.reload.syntax");
   }
 
   @Override
@@ -32,14 +32,15 @@ public class ReloadSubCommand extends AbstractSubCommand {
     return sender.hasPermission("customdiscs.reload");
   }
 
+  @Override
   public void execute(CommandSender sender, CommandArguments arguments) {
     if (!hasPermission(sender)) {
-      CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("no-permission-error"));
+      CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("error.command.no-permission"));
       return;
     }
 
     plugin.getCDConfig().init();
     plugin.getLanguage().init();
-    CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("config-reloaded"));
+    CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("command.reload.messages.successfully"));
   }
 }

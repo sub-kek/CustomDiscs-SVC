@@ -56,12 +56,12 @@ public class CreateSubCommand extends AbstractSubCommand {
 
   @Override
   public String getDescription() {
-    return plugin.getLanguage().string("create-command-description");
+    return plugin.getLanguage().string("command.create.description");
   }
 
   @Override
   public String getSyntax() {
-    return plugin.getLanguage().string("create-command-syntax");
+    return plugin.getLanguage().string("command.create.syntax");
   }
 
   @Override
@@ -69,27 +69,28 @@ public class CreateSubCommand extends AbstractSubCommand {
     return sender.hasPermission("customdiscs.create");
   }
 
-  private void executePlayer(Player player, CommandArguments arguments) {
+  @Override
+  public void executePlayer(Player player, CommandArguments arguments) {
     if (!hasPermission(player)) {
-      CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("no-permission-error"));
+      CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("error.command.no-permission"));
       return;
     }
 
     if (!LegacyUtil.isMusicDiscInHand(player)) {
-      CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("disc-not-in-hand-error"));
+      CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("command.create.messages.error.not-holding-disc"));
       return;
     }
 
     String filename = getArgumentValue(arguments, "filename", String.class);
     if (filename.contains("../")) {
-      CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("invalid-file-name"));
+      CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("error.command.invalid-filename"));
       return;
     }
 
     String customName = getArgumentValue(arguments, "song_name", String.class);
 
     if (customName.isEmpty()) {
-      CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("write-disc-name-error"));
+      CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("error.command.disc-name-empty"));
       return;
     }
 
@@ -97,11 +98,11 @@ public class CreateSubCommand extends AbstractSubCommand {
     File songFile = new File(getDirectory.getPath(), filename);
     if (songFile.exists()) {
       if (!getFileExtension(filename).equals("wav") && !getFileExtension(filename).equals("mp3") && !getFileExtension(filename).equals("flac")) {
-        CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("unknown-extension-error"));
+        CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("error.command.unknown-extension"));
         return;
       }
     } else {
-      CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("file-not-found"));
+      CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("error.file.not-found"));
       return;
     }
 
@@ -111,7 +112,7 @@ public class CreateSubCommand extends AbstractSubCommand {
     ItemMeta meta = LegacyUtil.getItemMeta(disc);
 
     meta.setDisplayName(BukkitComponentSerializer.legacy().serialize(
-        plugin.getLanguage().component("simple-disc")));
+        plugin.getLanguage().component("disc-name.simple")));
     final TextComponent customLoreSong = Component.text()
         .decoration(TextDecoration.ITALIC, false)
         .content(customName)
@@ -130,13 +131,14 @@ public class CreateSubCommand extends AbstractSubCommand {
 
     player.getInventory().getItemInMainHand().setItemMeta(meta);
 
-    CustomDiscs.sendMessage(player, plugin.getLanguage().component("disc-file-output", filename));
-    CustomDiscs.sendMessage(player, plugin.getLanguage().component("disc-name-output", customName));
+    CustomDiscs.sendMessage(player, plugin.getLanguage().component("command.create.messages.file", filename));
+    CustomDiscs.sendMessage(player, plugin.getLanguage().component("command.create.messages.name", customName));
   }
 
 
-  private void execute(CommandSender sender, CommandArguments arguments) {
-    CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("cant-perform-command-error"));
+  @Override
+  public void execute(CommandSender sender, CommandArguments arguments) {
+    CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("error.command.cant-perform"));
   }
 
   private String getFileExtension(String s) {

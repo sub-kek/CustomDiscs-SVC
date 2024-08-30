@@ -56,7 +56,7 @@ public class CDConfig {
     try {
       yaml.save(configFile);
     } catch (IOException e) {
-      CustomDiscs.error("Error while save config: ", e);
+      CustomDiscs.error("Error saving config: ", e);
     }
   }
 
@@ -128,6 +128,7 @@ public class CDConfig {
 
   private int musicDiscDistance = 64;
   private float musicDiscVolume = 1f;
+  private boolean allowHoppers = true;
 
   private void discSettings() {
     musicDiscDistance = getInt("disc.distance", musicDiscDistance,
@@ -135,6 +136,7 @@ public class CDConfig {
     musicDiscVolume = Float.parseFloat(getString("disc.volume", String.valueOf(musicDiscVolume),
         "The master volume of music discs from 0-1.", "You can set values like 0.5 for 50% volume."
     ));
+    allowHoppers = getBoolean("disc.allow-hoppers", allowHoppers);
   }
 
   private boolean youtubeOauth2 = false;

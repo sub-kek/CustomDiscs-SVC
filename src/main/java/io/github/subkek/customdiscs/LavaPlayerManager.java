@@ -26,7 +26,6 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 
 public class LavaPlayerManager {
   private static LavaPlayerManager instance;
@@ -220,7 +219,7 @@ public class LavaPlayerManager {
                 playerUUID.toString(), ytUrl);
             for (ServerPlayer serverPlayer : playersInRange) {
               Player bukkitPlayer = (Player) serverPlayer.getPlayer();
-              CustomDiscs.sendMessage(bukkitPlayer, plugin.getLanguage().PComponent("url-no-matches-error"));
+              CustomDiscs.sendMessage(bukkitPlayer, plugin.getLanguage().PComponent("error.play.no-matches"));
             }
             stopPlaying(playerUUID, true);
           }
@@ -232,7 +231,7 @@ public class LavaPlayerManager {
                 playerUUID.toString(), ytUrl, e.getMessage());
             for (ServerPlayer serverPlayer : playersInRange) {
               Player bukkitPlayer = (Player) serverPlayer.getPlayer();
-              CustomDiscs.sendMessage(bukkitPlayer, plugin.getLanguage().PComponent("audio-load-error"));
+              CustomDiscs.sendMessage(bukkitPlayer, plugin.getLanguage().PComponent("error.play.audio-load"));
             }
             stopPlaying(playerUUID, true);
           }
@@ -286,7 +285,7 @@ public class LavaPlayerManager {
       } catch (Throwable e) {
         for (ServerPlayer serverPlayer : playersInRange) {
           Player bukkitPlayer = (Player) serverPlayer.getPlayer();
-          CustomDiscs.sendMessage(bukkitPlayer, plugin.getLanguage().PComponent("disc-play-error"));
+          CustomDiscs.sendMessage(bukkitPlayer, plugin.getLanguage().PComponent("error.play.while-playing"));
           CustomDiscs.error("Error while playing disc: ", e);
         }
       }

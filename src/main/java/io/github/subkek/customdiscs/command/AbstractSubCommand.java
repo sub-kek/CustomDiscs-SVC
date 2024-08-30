@@ -4,6 +4,7 @@ import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.executors.CommandArguments;
 import io.github.subkek.customdiscs.util.Formatter;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 public abstract class AbstractSubCommand extends CommandAPICommand {
   public AbstractSubCommand(String commandName) {
@@ -17,6 +18,12 @@ public abstract class AbstractSubCommand extends CommandAPICommand {
           "Couldn't find argument {0} with name", nodeName
       ));
     return value;
+  }
+
+  public void execute(CommandSender sender, CommandArguments arguments) {
+  }
+
+  public void executePlayer(Player player, CommandArguments arguments) {
   }
 
   public abstract String getDescription();

@@ -1,6 +1,5 @@
 package io.github.subkek.customdiscs.command.subcommand;
 
-import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.arguments.TextArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
 import io.github.subkek.customdiscs.CustomDiscs;
@@ -30,7 +29,7 @@ public class CreateYtSubCommand extends AbstractSubCommand {
     this.withFullDescription(getDescription());
     this.withUsage(getUsage());
 
-    this.withArguments(new StringArgument("url"));
+    this.withArguments(new TextArgument("url"));
     this.withArguments(new TextArgument("song_name"));
 
     this.executesPlayer(this::executePlayer);
@@ -39,12 +38,12 @@ public class CreateYtSubCommand extends AbstractSubCommand {
 
   @Override
   public String getDescription() {
-    return plugin.getLanguage().string("createyt-command-description");
+    return plugin.getLanguage().string("command.createyt.description");
   }
 
   @Override
   public String getSyntax() {
-    return plugin.getLanguage().string("createyt-command-syntax");
+    return plugin.getLanguage().string("command.createyt.syntax");
   }
 
   @Override
@@ -52,21 +51,22 @@ public class CreateYtSubCommand extends AbstractSubCommand {
     return sender.hasPermission("customdiscs.createyt");
   }
 
+  @Override
   public void executePlayer(Player player, CommandArguments arguments) {
     if (!hasPermission(player)) {
-      CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("no-permission-error"));
+      CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("error.command.no-permission"));
       return;
     }
 
     if (!LegacyUtil.isMusicDiscInHand(player)) {
-      CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("disc-not-in-hand-error"));
+      CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("command.create.messages.error.not-holding-disc"));
       return;
     }
 
     String customName = getArgumentValue(arguments, "song_name", String.class);
 
     if (customName.isEmpty()) {
-      CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("write-disc-name-error"));
+      CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("error.command.disc-name-empty"));
       return;
     }
 
@@ -75,7 +75,7 @@ public class CreateYtSubCommand extends AbstractSubCommand {
     ItemMeta meta = LegacyUtil.getItemMeta(disc);
 
     meta.setDisplayName(BukkitComponentSerializer.legacy().serialize(
-        plugin.getLanguage().component("youtube-disc")));
+        plugin.getLanguage().component("disc-name.youtube")));
     final TextComponent customLoreSong = Component.text()
         .decoration(TextDecoration.ITALIC, false)
         .content(customName)
@@ -95,11 +95,12 @@ public class CreateYtSubCommand extends AbstractSubCommand {
 
     player.getInventory().getItemInMainHand().setItemMeta(meta);
 
-    CustomDiscs.sendMessage(player, plugin.getLanguage().component("disc-youtube-link", youtubeUrl));
-    CustomDiscs.sendMessage(player, plugin.getLanguage().component("disc-name-output", customName));
+    CustomDiscs.sendMessage(player, plugin.getLanguage().component("command.createyt.messages.link", youtubeUrl));
+    CustomDiscs.sendMessage(player, plugin.getLanguage().component("command.create.messages.name", customName));
   }
 
-  private void execute(CommandSender sender, CommandArguments arguments) {
-    CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("cant-perform-command-error"));
+  @Override
+  public void execute(CommandSender sender, CommandArguments arguments) {
+    CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("error.command.cant-perform"));
   }
 }

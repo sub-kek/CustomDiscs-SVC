@@ -65,7 +65,7 @@ public class JukeboxHandler implements Listener {
 
     if (isCustomDisc && !LegacyUtil.isJukeboxContainsDisc(block)) {
       if (!player.hasPermission("customdiscs.play")) {
-        CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("play-no-permission-error"));
+        CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("error.play.no-permission"));
         return;
       }
 
@@ -84,13 +84,13 @@ public class JukeboxHandler implements Listener {
 
         PlayerManager.getInstance().playLocationalAudio(soundFilePath, block, customActionBarSongPlaying);
       } else {
-        CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("file-not-found"));
+        CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("error.file.not-found"));
       }
     }
 
     if (isYouTubeCustomDisc && !LegacyUtil.isJukeboxContainsDisc(block)) {
       if (!player.hasPermission("customdiscs.playt")) {
-        CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("play-no-permission-error"));
+        CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("error.play.no-permission"));
         return;
       }
 

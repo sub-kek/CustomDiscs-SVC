@@ -1,7 +1,6 @@
 package io.github.subkek.customdiscs.language;
 
 import io.github.subkek.customdiscs.CustomDiscs;
-import io.github.subkek.customdiscs.config.CDConfig;
 import io.github.subkek.customdiscs.util.Formatter;
 import io.github.subkek.customdiscs.util.Language;
 import net.kyori.adventure.text.Component;
@@ -13,7 +12,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
-import java.util.logging.Level;
 
 public class YamlLanguage {
   private final YamlFile language = new YamlFile();
@@ -38,18 +36,18 @@ public class YamlLanguage {
 
       language.load(languageFile);
 
-      if (isNewFile && !plugin.getCDConfig().isDebug()) {
+      if (isNewFile) {
         language.set("version", plugin.getDescription().getVersion());
         language.save(languageFile);
       }
 
-      if (!language.getString("version").equals(plugin.getDescription().getVersion()) && !isNewFile) {
+      if ((!language.getString("version").equals(plugin.getDescription().getVersion()) && !isNewFile) || plugin.getCDConfig().isDebug()) {
         Object oldLanguage = language.get("language");
         languageFile.delete();
         InputStream inputStream = plugin.getClass().getClassLoader().getResourceAsStream(Formatter.format("language{0}{1}.yml", File.separator, plugin.getCDConfig().getLocale()));
         Files.copy(inputStream, languageFile.toPath());
         language.load(languageFile);
-        if (!plugin.getCDConfig().isDebug()) language.set("version", plugin.getDescription().getVersion());
+        language.set("version", plugin.getDescription().getVersion());
         language.set("language-old", oldLanguage);
         language.save(languageFile);
       }
@@ -60,7 +58,7 @@ public class YamlLanguage {
 
   private String getFormattedString(String key, Object... replace) {
     return Formatter.format(language.getString(
-        Formatter.format("language.{0}", key), "<unknown lang key>"), replace);
+        Formatter.format("language.{0}", key), Formatter.format("<{0}>", key)), replace);
   }
 
   public Component component(String key, Object... replace) {

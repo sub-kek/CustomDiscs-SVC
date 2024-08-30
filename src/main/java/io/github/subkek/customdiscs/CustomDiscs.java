@@ -114,7 +114,8 @@ public class CustomDiscs extends JavaPlugin {
 
   private void registerEvents() {
     getServer().getPluginManager().registerEvents(new JukeboxHandler(), this);
-    getServer().getPluginManager().registerEvents(HopperHandler.getInstance(), this);
+    if (getCDConfig().isAllowHoppers())
+      getServer().getPluginManager().registerEvents(HopperHandler.getInstance(), this);
   }
 
   @Override
