@@ -20,6 +20,6 @@ public enum Language {
     for (Language language : values()) {
       labels.add(language.getLabel());
     }
-    return String.join(",", labels);
+    return String.join(", ", labels);
   }
 }

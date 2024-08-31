@@ -17,13 +17,11 @@ import io.github.subkek.customdiscs.event.HopperHandler;
 import io.github.subkek.customdiscs.event.JukeboxHandler;
 import io.github.subkek.customdiscs.language.YamlLanguage;
 import io.github.subkek.customdiscs.metrics.BStatsLink;
-import io.github.subkek.customdiscs.particle.ParticleManager;
 import io.github.subkek.customdiscs.util.Formatter;
 import io.github.subkek.customdiscs.util.LegacyUtil;
 import lombok.Getter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.bukkit.block.Jukebox;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -35,8 +33,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 public class CustomDiscs extends JavaPlugin {
-  public static final String PLUGIN_ID = "CustomDiscs";
-  private VoicePlugin voicechatPlugin;
+  public static final String PLUGIN_ID = "customdiscs";
   @Getter
   private YamlLanguage language = new YamlLanguage();
   @Getter
@@ -47,6 +44,7 @@ public class CustomDiscs extends JavaPlugin {
   @Getter
   private BukkitAudiences audience;
   public int discsPlayed = 0;
+  private boolean voicechatAddonRegistered = false;
 
   public static CustomDiscs getPlugin() {
     return getPlugin(CustomDiscs.class);
@@ -92,7 +90,7 @@ public class CustomDiscs extends JavaPlugin {
           if (LegacyUtil.isCustomDisc(jukebox.getRecord()) ||
               LegacyUtil.isCustomYouTubeDisc(jukebox.getRecord())) {
             event.setCancelled(true);
-            ParticleManager.getInstance().start(jukebox);
+            PhysicsManager.getInstance().start(jukebox);
           }
         }
       }
@@ -103,8 +101,8 @@ public class CustomDiscs extends JavaPlugin {
     BukkitVoicechatService service = getServer().getServicesManager().load(BukkitVoicechatService.class);
 
     if (service != null) {
-      voicechatPlugin = new VoicePlugin();
-      service.registerPlugin(voicechatPlugin);
+      service.registerPlugin(CDVoiceAddon.getInstance());
+      voicechatAddonRegistered = true;
       info("Successfully enabled voicechat hook");
     } else {
       error("Failed to enable voicechat hook");
@@ -126,10 +124,10 @@ public class CustomDiscs extends JavaPlugin {
     LavaPlayerManager.getInstance().stopPlayingAll();
     LavaPlayerManager.getInstance().save();
 
-    PlayerManager.getInstance().stopAll();
+    PlayerManager.getInstance().stopPlayingAll();
 
-    if (voicechatPlugin != null) {
-      getServer().getServicesManager().unregister(voicechatPlugin);
+    if (voicechatAddonRegistered) {
+      getServer().getServicesManager().unregister(CDVoiceAddon.getInstance());
       CustomDiscs.info("Successfully disabled CustomDiscs plugin");
     }
 

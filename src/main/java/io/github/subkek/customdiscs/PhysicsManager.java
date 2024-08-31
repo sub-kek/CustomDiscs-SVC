@@ -1,29 +1,29 @@
-package io.github.subkek.customdiscs.particle;
+package io.github.subkek.customdiscs;
 
 import com.tcoded.folialib.wrapper.task.WrappedTask;
-import io.github.subkek.customdiscs.CustomDiscs;
-import io.github.subkek.customdiscs.LavaPlayerManager;
-import io.github.subkek.customdiscs.PlayerManager;
-import io.github.subkek.customdiscs.util.LegacyUtil;
 import lombok.Data;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.Jukebox;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
-public class ParticleManager {
-  private static ParticleManager instance;
+public class PhysicsManager {
   private final CustomDiscs plugin = CustomDiscs.getPlugin();
-  private final Map<UUID, ParticleJukebox> locationParticleManager = new HashMap<>();
+  private final Map<UUID, ParticleJukebox> jukeboxMap = new HashMap<>();
 
-  public static ParticleManager getInstance() {
-    if (instance == null) return instance = new ParticleManager();
+  private static PhysicsManager instance;
+  public static PhysicsManager getInstance() {
+    if (instance == null) return instance = new PhysicsManager();
     return instance;
   }
 
   public ParticleJukebox get(Block block) {
     UUID uuid = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
-    ParticleJukebox particleJukebox = locationParticleManager.get(uuid);
+    ParticleJukebox particleJukebox = jukeboxMap.get(uuid);
     if (particleJukebox == null)
       throw new IllegalStateException("This ParticleJukebox doesn't exists cannot get");
     return particleJukebox;
@@ -34,7 +34,7 @@ public class ParticleManager {
 
   public NeedUpdate isNeedUpdate(Block block) {
     UUID uuid = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
-    ParticleJukebox particleJukebox = locationParticleManager.get(uuid);
+    ParticleJukebox particleJukebox = jukeboxMap.get(uuid);
     if (particleJukebox == null) {
       CustomDiscs.debug("ParticleManager return value false because ParticleJukebox is null");
       return new NeedUpdate(true, false);
@@ -42,33 +42,35 @@ public class ParticleManager {
     return new NeedUpdate(false, particleJukebox.isNeedUpdate());
   }
 
-  public void setNeedUpdate(Block block, boolean value) {
-    UUID uuid = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
-    ParticleJukebox particleJukebox = locationParticleManager.get(uuid);
+  private void discToHopper(Block block) {
+    if (!plugin.getCDConfig().isAllowHoppers()) return;
+    if (!plugin.isEnabled()) return;
+    if (!block.getLocation().getChunk().isLoaded()) return;
+    if (!block.getType().equals(Material.JUKEBOX)) return;
 
-    if (particleJukebox == null)
-      throw new IllegalStateException("This ParticleJukebox doesn't exists cannot set NeedUpdate value");
+    Block possibleHopper = block.getRelative(BlockFace.DOWN);
+    if (!possibleHopper.getType().equals(Material.HOPPER)) return;
 
-    particleJukebox.setNeedUpdate(value);
+    CustomDiscs.debug("Attempting to send a disk to the hopper using a hopper update.");
   }
 
-  public void stop(Block block) {
+  private void stop(Block block) {
     UUID uuid = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
-    if (locationParticleManager.containsKey(uuid)) {
-      ParticleJukebox particleJukebox = locationParticleManager.remove(uuid);
+    if (jukeboxMap.containsKey(uuid)) {
+      ParticleJukebox particleJukebox = jukeboxMap.remove(uuid);
       particleJukebox.task.cancel();
 
       Jukebox jukebox = (Jukebox) block.getState();
-      jukebox.update();
       jukebox.stopPlaying();
+      discToHopper(block);
     }
   }
 
   public void start(Jukebox jukebox) {
     UUID uuid = UUID.nameUUIDFromBytes(jukebox.getLocation().toString().getBytes());
-    if (locationParticleManager.containsKey(uuid)) return;
+    if (jukeboxMap.containsKey(uuid)) return;
     ParticleJukebox particleJukebox = new ParticleJukebox();
-    locationParticleManager.put(uuid, particleJukebox);
+    jukeboxMap.put(uuid, particleJukebox);
 
     plugin.getFoliaLib().getScheduler().runAtLocationTimer(jukebox.getLocation(), task -> {
       particleJukebox.setTask(task);

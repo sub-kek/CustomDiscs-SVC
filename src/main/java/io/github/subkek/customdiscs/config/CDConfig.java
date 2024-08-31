@@ -1,8 +1,8 @@
 package io.github.subkek.customdiscs.config;
 
 import io.github.subkek.customdiscs.CustomDiscs;
-import io.github.subkek.customdiscs.util.Formatter;
 import io.github.subkek.customdiscs.language.Language;
+import io.github.subkek.customdiscs.util.Formatter;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.simpleyaml.configuration.comments.CommentType;

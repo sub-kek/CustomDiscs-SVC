@@ -3,7 +3,6 @@ package io.github.subkek.customdiscs.event;
 import io.github.subkek.customdiscs.CustomDiscs;
 import io.github.subkek.customdiscs.LavaPlayerManager;
 import io.github.subkek.customdiscs.PlayerManager;
-import io.github.subkek.customdiscs.particle.ParticleManager;
 import io.github.subkek.customdiscs.util.LegacyUtil;
 import io.github.subkek.customdiscs.util.PlayUtil;
 import org.bukkit.Material;
@@ -15,14 +14,11 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class JukeboxHandler implements Listener {
-  private final CustomDiscs plugin = CustomDiscs.getPlugin();
-
   private static ItemStack getItemStack(PlayerInteractEvent event, Player player) {
     ItemStack itemInvolvedInEvent;
     if (event.getMaterial().equals(Material.AIR)) {

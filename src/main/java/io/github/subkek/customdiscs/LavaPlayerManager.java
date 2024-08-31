@@ -15,9 +15,7 @@ import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
 import dev.lavalink.youtube.http.YoutubeOauth2Handler;
-import io.github.subkek.customdiscs.event.HopperHandler;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
@@ -28,11 +26,16 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 public class LavaPlayerManager {
-  private static LavaPlayerManager instance;
   private final CustomDiscs plugin = CustomDiscs.getPlugin();
   private final AudioPlayerManager lavaPlayerManager = new DefaultAudioPlayerManager();
   private final Map<UUID, LavaPlayer> playerMap = new HashMap<>();
   File refreshTokenFile = new File(plugin.getDataFolder(), ".youtube-token");
+
+  private static LavaPlayerManager instance;
+  public static LavaPlayerManager getInstance() {
+    if (instance == null) return instance = new LavaPlayerManager();
+    return instance;
+  }
 
   public LavaPlayerManager() {
     YoutubeAudioSourceManager source = new YoutubeAudioSourceManager(false);
@@ -70,13 +73,6 @@ public class LavaPlayerManager {
     lavaPlayerManager.registerSourceManager(source);
   }
 
-  public static LavaPlayerManager getInstance() {
-    if (Objects.isNull(instance)) {
-      instance = new LavaPlayerManager();
-    }
-    return instance;
-  }
-
   public void save() {
     for (AudioSourceManager manager : lavaPlayerManager.getSourceManagers()) {
       if (!(manager instanceof YoutubeAudioSourceManager)) continue;
@@ -99,16 +95,17 @@ public class LavaPlayerManager {
     }
   }
 
-  public void playLocationalAudioYoutube(Block  block, VoicechatServerApi api, String ytUrl, Component actionbarComponent) {
+  public void play(Block block, String ytUrl, Component actionbarComponent) {
     UUID uuid = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
     CustomDiscs.debug("LavaPlayer UUID is {0}", uuid);
     if (playerMap.containsKey(uuid)) stopPlaying(uuid);
+
+    VoicechatServerApi api = CDVoiceAddon.getInstance().getVoicechatApi();
 
     LavaPlayer lavaPlayer = new LavaPlayer();
     playerMap.put(uuid, lavaPlayer);
 
     lavaPlayer.ytUrl = ytUrl;
-    lavaPlayer.block = block;
     lavaPlayer.playerUUID = uuid;
     lavaPlayer.audioChannel = api.createLocationalAudioChannel(
         UUID.randomUUID(),
@@ -122,7 +119,7 @@ public class LavaPlayerManager {
 
     if (lavaPlayer.audioChannel == null) return;
 
-    lavaPlayer.audioChannel.setCategory(VoicePlugin.MUSIC_DISC_CATEGORY);
+    lavaPlayer.audioChannel.setCategory(CDVoiceAddon.MUSIC_DISC_CATEGORY);
     lavaPlayer.audioChannel.setDistance(plugin.getCDConfig().getMusicDiscDistance());
 
     lavaPlayer.playersInRange = api.getPlayersInRange(
@@ -159,7 +156,6 @@ public class LavaPlayerManager {
       lavaPlayer.trackFuture.complete(null);
       lavaPlayer.audioPlayer.destroy();
       lavaPlayer.lavaPlayerThread.interrupt();
-      HopperHandler.getInstance().discToHopper(lavaPlayer.block);
     } else {
       CustomDiscs.debug(
           "Couldn't find LavaPlayer {0} to stop",
@@ -184,7 +180,6 @@ public class LavaPlayerManager {
     private UUID playerUUID;
     private AudioPlayer audioPlayer;
     private final Thread lavaPlayerThread = new Thread(this::startTrackJob, "LavaPlayerThread");
-    private Block block;
 
     private void startTrackJob() {
       try {

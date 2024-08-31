@@ -28,7 +28,7 @@ public class PlayUtil {
 
       Component customActionBarSongPlaying = plugin.getLanguage().component("now-playing", songName);
 
-      PlayerManager.getInstance().playLocationalAudio(soundFilePath, block, customActionBarSongPlaying);
+      PlayerManager.getInstance().play(soundFilePath, block, customActionBarSongPlaying);
     }
   }
 
@@ -45,6 +45,6 @@ public class PlayUtil {
 
     Component customActionBarSongPlaying = plugin.getLanguage().component("now-playing", songName);
 
-    LavaPlayerManager.getInstance().playLocationalAudioYoutube(block, VoicePlugin.voicechatApi, soundLink, customActionBarSongPlaying);
+    LavaPlayerManager.getInstance().play(block, soundLink, customActionBarSongPlaying);
   }
 }

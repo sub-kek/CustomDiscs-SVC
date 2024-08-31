@@ -4,11 +4,9 @@ import de.maxhenkel.voicechat.api.ServerPlayer;
 import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.audiochannel.AudioPlayer;
 import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
-import io.github.subkek.customdiscs.event.HopperHandler;
 import javazoom.spi.mpeg.sampled.convert.MpegFormatConversionProvider;
 import javazoom.spi.mpeg.sampled.file.MpegAudioFileReader;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.jflac.sound.spi.Flac2PcmAudioInputStream;
@@ -21,6 +19,8 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class PlayerManager {
   private static final AudioFormat FORMAT = new AudioFormat(
@@ -32,29 +32,26 @@ public class PlayerManager {
       48000F,
       false
   );
-  private static PlayerManager instance;
   private final CustomDiscs plugin = CustomDiscs.getPlugin();
   private final Map<UUID, DiscPlayer> playerMap = new HashMap<>();
 
+  private static PlayerManager instance;
   public static PlayerManager getInstance() {
-    if (instance == null) {
-      instance = new PlayerManager();
-    }
+    if (instance == null) return instance = new PlayerManager();
     return instance;
   }
 
-  public void playLocationalAudio(Path soundFilePath, Block block, Component actionbarComponent) {
+  public void play(Path soundFilePath, Block block, Component actionbarComponent) {
     UUID uuid = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
     CustomDiscs.debug("Player UUID is {0}", uuid);
     if (playerMap.containsKey(uuid)) stopPlaying(uuid);
     CustomDiscs.debug("Player {0} not already exists", uuid);
 
-    VoicechatServerApi api = VoicePlugin.voicechatApi;
+    VoicechatServerApi api = CDVoiceAddon.getInstance().getVoicechatApi();
 
     DiscPlayer discPlayer = new DiscPlayer();
     playerMap.put(uuid, discPlayer);
 
-    discPlayer.block = block;
     discPlayer.soundFilePath = soundFilePath;
     discPlayer.playerUUID = uuid;
     discPlayer.audioChannel = api.createLocationalAudioChannel(
@@ -69,7 +66,7 @@ public class PlayerManager {
 
     if (discPlayer.audioChannel == null) return;
 
-    discPlayer.audioChannel.setCategory(VoicePlugin.MUSIC_DISC_CATEGORY);
+    discPlayer.audioChannel.setCategory(CDVoiceAddon.MUSIC_DISC_CATEGORY);
     discPlayer.audioChannel.setDistance(plugin.getCDConfig().getMusicDiscDistance());
 
     discPlayer.playersInRange = api.getPlayersInRange(
@@ -91,11 +88,15 @@ public class PlayerManager {
   }
 
   private AudioPlayer playChannel(DiscPlayer discPlayer) {
-    VoicechatServerApi api = VoicePlugin.voicechatApi;
+    VoicechatServerApi api = CDVoiceAddon.getInstance().getVoicechatApi();
 
     try {
       short[] audio = readSoundFile(discPlayer.soundFilePath);
       AudioPlayer audioPlayer = api.createAudioPlayer(discPlayer.audioChannel, api.createEncoder(), audio);
+      if (discPlayer.audioPlayerThread.isInterrupted()) {
+        CustomDiscs.debug("Player {0} return AudioPlayer null because thread interrupted", discPlayer.playerUUID);
+        return null;
+      }
       audioPlayer.startPlaying();
       return audioPlayer;
     } catch (Exception e) {
@@ -108,7 +109,7 @@ public class PlayerManager {
   }
 
   private short[] readSoundFile(Path file) throws UnsupportedAudioFileException, IOException {
-    return VoicePlugin.voicechatApi.getAudioConverter().bytesToShorts(convertFormat(file));
+    return CDVoiceAddon.getInstance().getVoicechatApi().getAudioConverter().bytesToShorts(convertFormat(file));
   }
 
   private byte[] convertFormat(Path file) throws UnsupportedAudioFileException, IOException {
@@ -183,7 +184,6 @@ public class PlayerManager {
         playerMap.remove(uuid);
 
         discPlayer.audioPlayerThread.interrupt();
-        HopperHandler.getInstance().discToHopper(discPlayer.block);
       }
     } else {
       CustomDiscs.debug(
@@ -192,7 +192,7 @@ public class PlayerManager {
     }
   }
 
-  public void stopAll() {
+  public void stopPlayingAll() {
     Set.copyOf(playerMap.keySet()).forEach(this::stopPlaying);
   }
 
@@ -217,14 +217,18 @@ public class PlayerManager {
     private UUID playerUUID;
     private final Thread audioPlayerThread = new Thread(this::startTrackJob, "AudioPlayerThread");
     private AudioPlayer audioPlayer;
-    private Block block;
 
     private void startTrackJob() {
       try {
         audioPlayer = playChannel(this);
 
+        if (audioPlayerThread.isInterrupted()) {
+          CustomDiscs.debug("Player {0} got interrupt, return", playerUUID);
+          return;
+        }
+
         if (audioPlayer == null) {
-          CustomDiscs.debug("Player excepted AudioPlayer is null");
+          CustomDiscs.debug("Player {0} excepted AudioPlayer is null", playerUUID);
           stopPlaying(playerUUID);
           return;
         }
@@ -237,7 +241,6 @@ public class PlayerManager {
           playerMap.remove(playerUUID);
 
           audioPlayerThread.interrupt();
-          HopperHandler.getInstance().discToHopper(block);
         });
       } catch (Throwable e) {
         for (ServerPlayer serverPlayer : playersInRange) {
