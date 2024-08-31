@@ -90,12 +90,6 @@ bukkit {
         register("$pluginId.createyt") {
             default = PermDefault.TRUE
         }
-        register("$pluginId.play") {
-            default = PermDefault.TRUE
-        }
-        register("$pluginId.playt") {
-            default = PermDefault.TRUE
-        }
     }
 
     depend = listOf(

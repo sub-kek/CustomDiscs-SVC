@@ -99,11 +99,10 @@ public class LavaPlayerManager {
     }
   }
 
-  public void playLocationalAudioYoutube(Block block, VoicechatServerApi api, String ytUrl, Component actionbarComponent) {
+  public void playLocationalAudioYoutube(Block  block, VoicechatServerApi api, String ytUrl, Component actionbarComponent) {
     UUID uuid = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
-    CustomDiscs.debug("LavaPlayer UUID is {0}", uuid.toString());
-    if (playerMap.containsKey(uuid)) stopPlaying(uuid, false);
-    CustomDiscs.debug("LavaPlayer {0} not already exists", uuid.toString());
+    CustomDiscs.debug("LavaPlayer UUID is {0}", uuid);
+    if (playerMap.containsKey(uuid)) stopPlaying(uuid);
 
     LavaPlayer lavaPlayer = new LavaPlayer();
     playerMap.put(uuid, lavaPlayer);
@@ -144,12 +143,12 @@ public class LavaPlayerManager {
     }
   }
 
-  public void stopPlaying(Block block, boolean includeBlock) {
+  public void stopPlaying(Block block) {
     UUID uuid = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
-    stopPlaying(uuid, includeBlock);
+    stopPlaying(uuid);
   }
 
-  public void stopPlaying(UUID uuid, boolean includeBlock) {
+  public void stopPlaying(UUID uuid) {
     if (playerMap.containsKey(uuid)) {
       CustomDiscs.debug(
           "Stopping LavaPlayer {0}",
@@ -160,9 +159,7 @@ public class LavaPlayerManager {
       lavaPlayer.trackFuture.complete(null);
       lavaPlayer.audioPlayer.destroy();
       lavaPlayer.lavaPlayerThread.interrupt();
-      if (includeBlock) {
-        HopperHandler.getInstance().discToHopper(lavaPlayer.block);
-      }
+      HopperHandler.getInstance().discToHopper(lavaPlayer.block);
     } else {
       CustomDiscs.debug(
           "Couldn't find LavaPlayer {0} to stop",
@@ -171,12 +168,11 @@ public class LavaPlayerManager {
   }
 
   public void stopPlayingAll() {
-    Set.copyOf(playerMap.keySet()).forEach(uuid -> stopPlaying(uuid, true));
+    Set.copyOf(playerMap.keySet()).forEach(this::stopPlaying);
   }
 
-  public boolean isAudioPlayerPlaying(Location blockLocation) {
-    UUID id = UUID.nameUUIDFromBytes(blockLocation.toString().getBytes());
-    //CustomDiscs.debug("Checking is playing {0}", id.toString());
+  public boolean isPlaying(Block block) {
+    UUID id = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
     return playerMap.containsKey(id);
   }
 
@@ -221,7 +217,7 @@ public class LavaPlayerManager {
               Player bukkitPlayer = (Player) serverPlayer.getPlayer();
               CustomDiscs.sendMessage(bukkitPlayer, plugin.getLanguage().PComponent("error.play.no-matches"));
             }
-            stopPlaying(playerUUID, true);
+            stopPlaying(playerUUID);
           }
 
           @Override
@@ -233,7 +229,7 @@ public class LavaPlayerManager {
               Player bukkitPlayer = (Player) serverPlayer.getPlayer();
               CustomDiscs.sendMessage(bukkitPlayer, plugin.getLanguage().PComponent("error.play.audio-load"));
             }
-            stopPlaying(playerUUID, true);
+            stopPlaying(playerUUID);
           }
         });
 
@@ -247,7 +243,7 @@ public class LavaPlayerManager {
               "LavaPlayer {0} excepted track is null, interrupting and return",
               playerUUID.toString());
           if (!lavaPlayerThread.isInterrupted())
-            stopPlaying(playerUUID, true);
+            stopPlaying(playerUUID);
           return;
         }
 
@@ -274,14 +270,14 @@ public class LavaPlayerManager {
             }
           }
         } catch (InterruptedException e) {
-          CustomDiscs.debug("LavaPlayer {0} got InterruptedException its stop most likely", playerUUID.toString());
+          CustomDiscs.debug("LavaPlayer {0} got InterruptedException its stop most likely", playerUUID);
           lavaPlayerThread.interrupt();
           return;
         } catch (Throwable e) {
-          CustomDiscs.debug("LavaPlayer {0} got Throwable Exception: {1}", playerUUID.toString(), e.getMessage());
+          CustomDiscs.error("LavaPlayer {0} got Throwable Exception: {1}", e, playerUUID);
         }
 
-        stopPlaying(playerUUID, true);
+        stopPlaying(playerUUID);
       } catch (Throwable e) {
         for (ServerPlayer serverPlayer : playersInRange) {
           Player bukkitPlayer = (Player) serverPlayer.getPlayer();

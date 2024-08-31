@@ -19,6 +19,7 @@ import io.github.subkek.customdiscs.language.YamlLanguage;
 import io.github.subkek.customdiscs.metrics.BStatsLink;
 import io.github.subkek.customdiscs.particle.ParticleManager;
 import io.github.subkek.customdiscs.util.Formatter;
+import io.github.subkek.customdiscs.util.LegacyUtil;
 import lombok.Getter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
@@ -30,6 +31,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 public class CustomDiscs extends JavaPlugin {
   public static final String PLUGIN_ID = "CustomDiscs";
@@ -179,7 +182,9 @@ public class CustomDiscs extends JavaPlugin {
     String stackTrace = "";
 
     if (e != null) {
-      stackTrace = ExceptionUtils.getStackTrace(e);
+      StringWriter sw = new StringWriter();
+      e.printStackTrace(new PrintWriter(sw, true));
+      stackTrace = sw.toString();
     }
 
     sendMessage(

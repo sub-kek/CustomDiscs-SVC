@@ -4,13 +4,12 @@ import com.tcoded.folialib.wrapper.task.WrappedTask;
 import io.github.subkek.customdiscs.CustomDiscs;
 import io.github.subkek.customdiscs.LavaPlayerManager;
 import io.github.subkek.customdiscs.PlayerManager;
+import io.github.subkek.customdiscs.util.LegacyUtil;
 import lombok.Data;
 import org.bukkit.block.Block;
 import org.bukkit.block.Jukebox;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class ParticleManager {
   private static ParticleManager instance;
@@ -22,23 +21,46 @@ public class ParticleManager {
     return instance;
   }
 
-  public boolean isNeedUpdate(Block block) {
+  public ParticleJukebox get(Block block) {
+    UUID uuid = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
+    ParticleJukebox particleJukebox = locationParticleManager.get(uuid);
+    if (particleJukebox == null)
+      throw new IllegalStateException("This ParticleJukebox doesn't exists cannot get");
+    return particleJukebox;
+  }
+
+  public record NeedUpdate(boolean returnForced, boolean value) {
+  }
+
+  public NeedUpdate isNeedUpdate(Block block) {
     UUID uuid = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
     ParticleJukebox particleJukebox = locationParticleManager.get(uuid);
     if (particleJukebox == null) {
-      CustomDiscs.debug("particleJukebox returning needUpdate false");
-      return false;
+      CustomDiscs.debug("ParticleManager return value false because ParticleJukebox is null");
+      return new NeedUpdate(true, false);
     }
-    return particleJukebox.isNeedUpdate();
+    return new NeedUpdate(false, particleJukebox.isNeedUpdate());
+  }
+
+  public void setNeedUpdate(Block block, boolean value) {
+    UUID uuid = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
+    ParticleJukebox particleJukebox = locationParticleManager.get(uuid);
+
+    if (particleJukebox == null)
+      throw new IllegalStateException("This ParticleJukebox doesn't exists cannot set NeedUpdate value");
+
+    particleJukebox.setNeedUpdate(value);
   }
 
   public void stop(Block block) {
     UUID uuid = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
     if (locationParticleManager.containsKey(uuid)) {
       ParticleJukebox particleJukebox = locationParticleManager.remove(uuid);
-      particleJukebox.setNeedUpdate(true);
       particleJukebox.task.cancel();
-      particleJukebox.setCancelled(true);
+
+      Jukebox jukebox = (Jukebox) block.getState();
+      jukebox.update();
+      jukebox.stopPlaying();
     }
   }
 
@@ -50,29 +72,26 @@ public class ParticleManager {
 
     plugin.getFoliaLib().getScheduler().runAtLocationTimer(jukebox.getLocation(), task -> {
       particleJukebox.setTask(task);
-      if (!LavaPlayerManager.getInstance().isAudioPlayerPlaying(jukebox.getLocation()) &&
-          !PlayerManager.getInstance().isAudioPlayerPlaying(jukebox.getLocation())) {
+      if (!LavaPlayerManager.getInstance().isPlaying(jukebox.getBlock()) &&
+          !PlayerManager.getInstance().isPlaying(jukebox.getBlock())) {
 
         stop(jukebox.getBlock());
         return;
       }
 
-      if (!particleJukebox.isUpdatedFirst()) {
-        particleJukebox.setUpdatedFirst(true);
-        particleJukebox.setNeedUpdate(true);
+      if (!jukebox.isPlaying()) {
+        jukebox.update();
       }
 
-      jukebox.stopPlaying();
-      jukebox.update(true, false);
-      particleJukebox.setNeedUpdate(false);
+      particleJukebox.lastUpdateTick = jukebox.getWorld().getTime() - 1; // Может быть... есть вариант получше? Я серьезно!
     }, 1, 20);
   }
 
   @Data
-  private static final class ParticleJukebox {
-    private boolean needUpdate = false;
+  public static final class ParticleJukebox {
+    private boolean needUpdate = true;
     private boolean updatedFirst = false;
     private WrappedTask task;
-    private boolean cancelled;
+    private long lastUpdateTick = 0;
   }
 }

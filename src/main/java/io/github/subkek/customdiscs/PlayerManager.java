@@ -45,9 +45,9 @@ public class PlayerManager {
 
   public void playLocationalAudio(Path soundFilePath, Block block, Component actionbarComponent) {
     UUID uuid = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
-    CustomDiscs.debug("Player UUID is {0}", uuid.toString());
+    CustomDiscs.debug("Player UUID is {0}", uuid);
     if (playerMap.containsKey(uuid)) stopPlaying(uuid);
-    CustomDiscs.debug("Player {0} not already exists", uuid.toString());
+    CustomDiscs.debug("Player {0} not already exists", uuid);
 
     VoicechatServerApi api = VoicePlugin.voicechatApi;
 
@@ -196,8 +196,8 @@ public class PlayerManager {
     Set.copyOf(playerMap.keySet()).forEach(this::stopPlaying);
   }
 
-  public boolean isAudioPlayerPlaying(Location blockLocation) {
-    UUID id = UUID.nameUUIDFromBytes(blockLocation.toString().getBytes());
+  public boolean isPlaying(Block block) {
+    UUID id = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
     return playerMap.containsKey(id);
   }
 
@@ -224,14 +224,14 @@ public class PlayerManager {
         audioPlayer = playChannel(this);
 
         if (audioPlayer == null) {
-          CustomDiscs.debug("Excepted audioPlayer is null");
+          CustomDiscs.debug("Player excepted AudioPlayer is null");
           stopPlaying(playerUUID);
           return;
         }
 
         audioPlayer.setOnStopped(() -> {
           CustomDiscs.debug(
-              "VoiceChat AudioPlayer {0} got stop",
+              "Player AudioPlayer {0} got stop",
               playerUUID.toString());
 
           playerMap.remove(playerUUID);

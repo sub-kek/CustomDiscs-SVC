@@ -1,8 +1,11 @@
 package io.github.subkek.customdiscs.event;
 
-import io.github.subkek.customdiscs.*;
+import io.github.subkek.customdiscs.CustomDiscs;
+import io.github.subkek.customdiscs.LavaPlayerManager;
+import io.github.subkek.customdiscs.PlayerManager;
 import io.github.subkek.customdiscs.particle.ParticleManager;
-import net.kyori.adventure.text.Component;
+import io.github.subkek.customdiscs.util.LegacyUtil;
+import io.github.subkek.customdiscs.util.PlayUtil;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Jukebox;
@@ -16,10 +19,6 @@ import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-
-import java.nio.file.Path;
-import java.util.Objects;
 
 public class JukeboxHandler implements Listener {
   private final CustomDiscs plugin = CustomDiscs.getPlugin();
@@ -44,67 +43,28 @@ public class JukeboxHandler implements Listener {
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void onInsert(PlayerInteractEvent event) {
-    Player player = event.getPlayer();
     Block block = event.getClickedBlock();
 
-    if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+    if (!event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return;
     if (event.getClickedBlock() == null) return;
     if (event.getItem() == null) return;
     if (!event.getItem().hasItemMeta()) return;
     if (block == null) return;
     if (!block.getType().equals(Material.JUKEBOX)) return;
+    if (LegacyUtil.isJukeboxContainsDisc(block)) return;
 
     boolean isCustomDisc = LegacyUtil.isCustomDisc(event.getItem());
     boolean isYouTubeCustomDisc = LegacyUtil.isCustomYouTubeDisc(event.getItem());
 
     if (!isCustomDisc && !isYouTubeCustomDisc) return;
 
-    CustomDiscs.debug("On insert");
+    CustomDiscs.debug("Jukebox insert by Player event");
 
-    ItemMeta discMeta = LegacyUtil.getItemMeta(event.getItem());
+    if (isCustomDisc)
+      PlayUtil.playStandard(block, event.getItem());
 
-    if (isCustomDisc && !LegacyUtil.isJukeboxContainsDisc(block)) {
-      if (!player.hasPermission("customdiscs.play")) {
-        CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("error.play.no-permission"));
-        return;
-      }
-
-      plugin.discsPlayed++;
-
-      String soundFileName = discMeta.getPersistentDataContainer()
-          .get(Keys.CUSTOM_DISC.getKey(), Keys.CUSTOM_DISC.getDataType());
-
-      Path soundFilePath = Path.of(plugin.getDataFolder().getPath(), "musicdata", soundFileName);
-
-      if (soundFilePath.toFile().exists()) {
-        String songName = Objects.requireNonNull(discMeta.getLore()).get(0);
-        songName = songName.replace("§7", "<gray>");
-
-        Component customActionBarSongPlaying = plugin.getLanguage().component("now-playing", songName);
-
-        PlayerManager.getInstance().playLocationalAudio(soundFilePath, block, customActionBarSongPlaying);
-      } else {
-        CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("error.file.not-found"));
-      }
-    }
-
-    if (isYouTubeCustomDisc && !LegacyUtil.isJukeboxContainsDisc(block)) {
-      if (!player.hasPermission("customdiscs.playt")) {
-        CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("error.play.no-permission"));
-        return;
-      }
-
-      plugin.discsPlayed++;
-
-      String soundLink = discMeta.getPersistentDataContainer().get(Keys.YOUTUBE_DISC.getKey(), Keys.YOUTUBE_DISC.getDataType());
-
-      String songName = Objects.requireNonNull(discMeta.getLore()).get(0);
-      songName = songName.replace("§7", "<gray>");
-
-      Component customActionBarSongPlaying = plugin.getLanguage().component("now-playing", songName);
-
-      LavaPlayerManager.getInstance().playLocationalAudioYoutube(block, VoicePlugin.voicechatApi, soundLink, customActionBarSongPlaying);
-    }
+    if (isYouTubeCustomDisc)
+      PlayUtil.playLava(block, event.getItem());
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -122,12 +82,10 @@ public class JukeboxHandler implements Listener {
     if (!LegacyUtil.isCustomDisc(jukebox.getRecord()) &&
         !LegacyUtil.isCustomYouTubeDisc(jukebox.getRecord())) return;
 
-    CustomDiscs.debug("On eject");
-
-    ParticleManager.getInstance().stop(block);
+    CustomDiscs.debug("Jukebox eject by Player event");
 
     PlayerManager.getInstance().stopPlaying(block);
-    LavaPlayerManager.getInstance().stopPlaying(block, true);
+    LavaPlayerManager.getInstance().stopPlaying(block);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -138,7 +96,7 @@ public class JukeboxHandler implements Listener {
     if (block.getType() != Material.JUKEBOX) return;
 
     PlayerManager.getInstance().stopPlaying(block);
-    LavaPlayerManager.getInstance().stopPlaying(block, true);
+    LavaPlayerManager.getInstance().stopPlaying(block);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -146,21 +104,8 @@ public class JukeboxHandler implements Listener {
     for (Block explodedBlock : event.blockList()) {
       if (explodedBlock.getType() == Material.JUKEBOX) {
         PlayerManager.getInstance().stopPlaying(explodedBlock);
-        LavaPlayerManager.getInstance().stopPlaying(explodedBlock, true);
+        LavaPlayerManager.getInstance().stopPlaying(explodedBlock);
       }
     }
-  }
-
-  @EventHandler
-  public void onPhysics(BlockPhysicsEvent event) {
-    if (!event.getSourceBlock().getType().equals(Material.JUKEBOX)) return;
-    Block block = event.getSourceBlock();
-
-    if (!LavaPlayerManager.getInstance().isAudioPlayerPlaying(block.getLocation())
-        && !PlayerManager.getInstance().isAudioPlayerPlaying(block.getLocation())) return;
-
-    if (ParticleManager.getInstance().isNeedUpdate(block)) return;
-
-    event.setCancelled(true);
   }
 }

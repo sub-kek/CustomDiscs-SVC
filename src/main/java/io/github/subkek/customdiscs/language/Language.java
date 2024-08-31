@@ -1,4 +1,4 @@
-package io.github.subkek.customdiscs.util;
+package io.github.subkek.customdiscs.language;
 
 import lombok.Getter;
 

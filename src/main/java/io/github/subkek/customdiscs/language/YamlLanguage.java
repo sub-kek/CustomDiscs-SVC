@@ -2,7 +2,6 @@ package io.github.subkek.customdiscs.language;
 
 import io.github.subkek.customdiscs.CustomDiscs;
 import io.github.subkek.customdiscs.util.Formatter;
-import io.github.subkek.customdiscs.util.Language;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.simpleyaml.configuration.file.YamlFile;
@@ -41,7 +40,7 @@ public class YamlLanguage {
         language.save(languageFile);
       }
 
-      if ((!language.getString("version").equals(plugin.getDescription().getVersion()) && !isNewFile) || plugin.getCDConfig().isDebug()) {
+      if (!language.getString("version").equals(plugin.getDescription().getVersion()) || plugin.getCDConfig().isDebug()) {
         Object oldLanguage = language.get("language");
         languageFile.delete();
         InputStream inputStream = plugin.getClass().getClassLoader().getResourceAsStream(Formatter.format("language{0}{1}.yml", File.separator, plugin.getCDConfig().getLocale()));

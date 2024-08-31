@@ -6,7 +6,7 @@ import dev.jorel.commandapi.arguments.TextArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
 import io.github.subkek.customdiscs.CustomDiscs;
 import io.github.subkek.customdiscs.Keys;
-import io.github.subkek.customdiscs.LegacyUtil;
+import io.github.subkek.customdiscs.util.LegacyUtil;
 import io.github.subkek.customdiscs.command.AbstractSubCommand;
 import net.kyori.adventure.platform.bukkit.BukkitComponentSerializer;
 import net.kyori.adventure.text.Component;
