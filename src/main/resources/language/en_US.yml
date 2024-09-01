@@ -49,7 +49,7 @@ language:
         name: '<white>Disc name: <dark_aqua>{0}'
         file: '<white>Filename: <dark_aqua>{0}'
     distance:
-      syntax: '<dark_aqua>/cd distance <радиус>'
+      syntax: '<dark_aqua>/cd distance <radius>'
       description: '<white>Sets the radius for the jukebox.'
       messages:
         error:
