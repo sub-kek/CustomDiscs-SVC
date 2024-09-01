@@ -5,6 +5,7 @@ import io.github.subkek.customdiscs.language.Language;
 import io.github.subkek.customdiscs.util.Formatter;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.simpleyaml.configuration.comments.CommentType;
 import org.simpleyaml.configuration.file.YamlFile;
 
@@ -21,6 +22,7 @@ import java.util.List;
 public class CDConfig {
   private final YamlFile yaml = new YamlFile();
   private final File configFile;
+  private String configVersion;
 
   public void init() {
     if (configFile.exists()) {
@@ -31,10 +33,15 @@ public class CDConfig {
       }
     }
 
-    getString("info", "It's really needed only for the comment");
+    configVersion = getString("info.version", "1.1", "Don't change this value");
     setComment("info",
         "CustomDiscs Configuration",
         "Join our Discord for support: https://discord.gg/eRvwvmEXWz");
+
+    if (configVersion.equals("1.0")) {
+      debug = getBoolean("debug", false);
+      migrateV1_0toV1_1();
+    }
 
     for (Method method : this.getClass().getDeclaredMethods()) {
       if (Modifier.isPrivate(method.getModifiers()) &&
@@ -143,5 +150,59 @@ public class CDConfig {
 
   private void providersSettings() {
     youtubeOauth2 = getBoolean("providers.youtube.use-oauth2", youtubeOauth2);
+  }
+
+  private void debug(@NotNull String message, Object... format) {
+    if (!debug) return;
+    CustomDiscs.sendMessage(
+        CustomDiscs.getPlugin().getServer().getConsoleSender(),
+        CustomDiscs.getPlugin().getLanguage().deserialize(
+            Formatter.format(
+                "<yellow>[CustomDiscs Debug] {0}",
+                Formatter.format(message, format)
+            )
+        )
+    );
+  }
+
+  private void setConfigVersion(String version) {
+    yaml.set("info.version", version);
+    configVersion = version;
+  }
+
+  private void removeValue(String key) {
+    if (yaml.contains(key)) {
+      yaml.remove(key);
+      debug("Config successfully removed value {0}", key);
+      return;
+    }
+    debug("Config not found value {0} to remove", key);
+  }
+
+  private void migrateValue(String key, String newKey) {
+    if (yaml.contains(key)) {
+      Object value = yaml.get(key);
+      yaml.remove(key);
+      yaml.set(newKey, value);
+      debug("Config successfully migrated value {0} to {1}", key, newKey);
+      return;
+    }
+    debug("Config not found value {0} to migrate to {1}", key, newKey);
+  }
+
+  private void migrateV1_0toV1_1() {
+    debug("Config migrating v1.0 to v1.1");
+    migrateValue("music-disc-distance", "disc.distance");
+    migrateValue("music-disc-volume", "disc.volume");
+    migrateValue("max-download-size", "command.download.max-size");
+    migrateValue("custom-model-data.enable", "command.create.custom-model-data.enable");
+    migrateValue("custom-model-data.value", "command.create.custom-model-data.value");
+    removeValue("custom-model-data");
+    removeValue("providers.youtube.email");
+    removeValue("providers.youtube.password");
+    migrateValue("locale", "global.locale");
+    migrateValue("debug", "global.debug");
+    removeValue("cleaning-disc");
+    setConfigVersion("1.1");
   }
 }

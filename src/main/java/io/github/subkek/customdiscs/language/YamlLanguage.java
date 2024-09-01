@@ -10,6 +10,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Objects;
 
 public class YamlLanguage {
@@ -41,13 +43,17 @@ public class YamlLanguage {
       }
 
       if (!language.getString("version").equals(plugin.getDescription().getVersion()) || plugin.getCDConfig().isDebug()) {
-        Object oldLanguage = language.get("language");
-        languageFile.delete();
+        File oldLanguage = Path.of(languageFolder.getPath(), Formatter.format(
+            "{0}-{1}.backup",
+            languageFile.getName(),
+            new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(new Date())
+        )).toFile();
+        if (oldLanguage.exists()) oldLanguage.delete();
+        Files.move(languageFile.toPath(), oldLanguage.toPath());
         InputStream inputStream = plugin.getClass().getClassLoader().getResourceAsStream(Formatter.format("language{0}{1}.yml", File.separator, plugin.getCDConfig().getLocale()));
         Files.copy(inputStream, languageFile.toPath());
         language.load(languageFile);
         language.set("version", plugin.getDescription().getVersion());
-        language.set("language-old", oldLanguage);
         language.save(languageFile);
       }
     } catch (Throwable e) {

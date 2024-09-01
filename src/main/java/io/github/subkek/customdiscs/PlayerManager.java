@@ -235,7 +235,7 @@ public class PlayerManager {
 
         audioPlayer.setOnStopped(() -> {
           CustomDiscs.debug(
-              "Player AudioPlayer {0} got stop",
+              "Player {0} AudioPlayer got stop",
               playerUUID.toString());
 
           playerMap.remove(playerUUID);
