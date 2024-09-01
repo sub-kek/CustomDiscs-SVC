@@ -19,8 +19,6 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class PlayerManager {
   private static final AudioFormat FORMAT = new AudioFormat(
@@ -36,6 +34,7 @@ public class PlayerManager {
   private final Map<UUID, DiscPlayer> playerMap = new HashMap<>();
 
   private static PlayerManager instance;
+
   public static PlayerManager getInstance() {
     if (instance == null) return instance = new PlayerManager();
     return instance;

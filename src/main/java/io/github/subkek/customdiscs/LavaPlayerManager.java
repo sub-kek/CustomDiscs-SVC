@@ -32,6 +32,7 @@ public class LavaPlayerManager {
   File refreshTokenFile = new File(plugin.getDataFolder(), ".youtube-token");
 
   private static LavaPlayerManager instance;
+
   public static LavaPlayerManager getInstance() {
     if (instance == null) return instance = new LavaPlayerManager();
     return instance;

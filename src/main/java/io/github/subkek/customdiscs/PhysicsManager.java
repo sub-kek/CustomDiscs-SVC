@@ -16,6 +16,7 @@ public class PhysicsManager {
   private final Map<UUID, ParticleJukebox> jukeboxMap = new HashMap<>();
 
   private static PhysicsManager instance;
+
   public static PhysicsManager getInstance() {
     if (instance == null) return instance = new PhysicsManager();
     return instance;

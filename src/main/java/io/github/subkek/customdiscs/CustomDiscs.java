@@ -181,8 +181,9 @@ public class CustomDiscs extends JavaPlugin {
 
     if (e != null) {
       StringWriter sw = new StringWriter();
-      e.printStackTrace(new PrintWriter(sw, true));
-      stackTrace = sw.toString();
+      PrintWriter pw = new PrintWriter(sw, true);
+      e.printStackTrace(pw);
+      stackTrace = sw.getBuffer().toString();
     }
 
     sendMessage(

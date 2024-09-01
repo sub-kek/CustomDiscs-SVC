@@ -2,7 +2,7 @@ package io.github.subkek.customdiscs.util;
 
 public class Formatter {
   public static String format(String str, Object... replace) {
-    for (int i = 0; i <= replace.length - 1; i++) {
+    for (int i = 0; i < replace.length; i++) {
       str = str.replace("{%d}".formatted(i), replace[i].toString());
     }
     return str;

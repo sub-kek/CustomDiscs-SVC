@@ -21,6 +21,7 @@ public class CDVoiceAddon implements VoicechatPlugin {
   private VolumeCategory musicDiscsCategory;
 
   private static CDVoiceAddon instance;
+
   public static CDVoiceAddon getInstance() {
     if (instance == null) return instance = new CDVoiceAddon();
     return instance;

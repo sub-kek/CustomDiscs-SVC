@@ -43,18 +43,32 @@ public class YamlLanguage {
       }
 
       if (!language.getString("version").equals(plugin.getDescription().getVersion()) || plugin.getCDConfig().isDebug()) {
-        File oldLanguage = Path.of(languageFolder.getPath(), Formatter.format(
+        File oldLanguageFile = new File(languageFolder.getPath(), Formatter.format(
             "{0}-{1}.backup",
             languageFile.getName(),
             new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(new Date())
-        )).toFile();
-        if (oldLanguage.exists()) oldLanguage.delete();
-        Files.move(languageFile.toPath(), oldLanguage.toPath());
+        ));
+        if (oldLanguageFile.exists()) oldLanguageFile.delete();
+        Files.copy(languageFile.toPath(), oldLanguageFile.toPath());
+        languageFile.delete();
+
         InputStream inputStream = plugin.getClass().getClassLoader().getResourceAsStream(Formatter.format("language{0}{1}.yml", File.separator, plugin.getCDConfig().getLocale()));
         Files.copy(inputStream, languageFile.toPath());
+
+        Object oldLanguage = language.getMapValues(true).get("language");
+
         language.load(languageFile);
         language.set("version", plugin.getDescription().getVersion());
         language.save(languageFile);
+
+        Object newLanguage = language.getMapValues(true).get("language");
+
+        if (oldLanguage.equals(newLanguage)) {
+          CustomDiscs.debug("Ich habe es geschafft! Die Variablen sind identisch.");
+          oldLanguageFile.delete();
+        } else {
+          CustomDiscs.debug("Nein, das ist nicht gut.");
+        }
       }
     } catch (Throwable e) {
       CustomDiscs.error("Error while loading language: ", e);
