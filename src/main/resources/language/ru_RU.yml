@@ -48,6 +48,14 @@ language:
           not-holding-disc: 'Сначала возьмите диск в руку!'
         name: '<white>Имя диска: <dark_aqua>{0}'
         file: '<white>Имя файла: <dark_aqua>{0}'
+    distance:
+      syntax: '<dark_aqua>/cd distance <радиус>'
+      description: '<white>Устанавливает радиус для проигрывателя.'
+      messages:
+        error:
+          not-jukebox: 'Вы кликнули не на проигрыватель!'
+        success: 'Радиус проигрывателя установлен на {0}.'
+        click: 'Кликните на проигрыватель которому хотите установить радиус.'
     help:
       syntax: '<dark_aqua>/cd help'
       description: '<white>Показывает помощь по командам'

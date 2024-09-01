@@ -9,8 +9,6 @@ import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 public class CustomDiscsCommand extends CommandAPICommand {
-  private final CustomDiscs plugin = CustomDiscs.getPlugin();
-
   public CustomDiscsCommand() {
     super("customdiscs");
 
@@ -22,6 +20,7 @@ public class CustomDiscsCommand extends CommandAPICommand {
     this.withSubcommand(new DownloadSubCommand());
     this.withSubcommand(new CreateSubCommand());
     this.withSubcommand(new CreateYtSubCommand());
+    this.withSubcommand(new DistanceSubCommand());
 
     this.executes(this::execute);
   }

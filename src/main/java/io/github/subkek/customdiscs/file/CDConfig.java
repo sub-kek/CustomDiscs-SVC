@@ -1,4 +1,4 @@
-package io.github.subkek.customdiscs.config;
+package io.github.subkek.customdiscs.file;
 
 import io.github.subkek.customdiscs.CustomDiscs;
 import io.github.subkek.customdiscs.language.Language;
@@ -29,7 +29,7 @@ public class CDConfig {
       try {
         yaml.load(configFile);
       } catch (IOException e) {
-        CustomDiscs.error("Error loading config: ", e);
+        CustomDiscs.error("Error loading file: ", e);
       }
     }
 
@@ -63,7 +63,7 @@ public class CDConfig {
     try {
       yaml.save(configFile);
     } catch (IOException e) {
-      CustomDiscs.error("Error saving config: ", e);
+      CustomDiscs.error("Error saving file: ", e);
     }
   }
 
@@ -123,6 +123,7 @@ public class CDConfig {
   private int customModelData = 0;
   private boolean useCustomModelDataYoutube = false;
   private int customModelDataYoutube = 0;
+  private int distanceCommandMaxDistance = 64;
 
   private void commandSettings() {
     maxDownloadSize = getInt("command.download.max-size", maxDownloadSize,
@@ -131,6 +132,7 @@ public class CDConfig {
     customModelData = getInt("command.create.custom-model-data.value", customModelData);
     useCustomModelDataYoutube = getBoolean("command.createyt.custom-model-data.enable", useCustomModelDataYoutube);
     customModelDataYoutube = getInt("command.createyt.custom-model-data.value", customModelDataYoutube);
+    distanceCommandMaxDistance = getInt("command.distance.max", distanceCommandMaxDistance);
   }
 
   private int musicDiscDistance = 64;

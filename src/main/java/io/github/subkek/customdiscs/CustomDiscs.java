@@ -12,12 +12,15 @@ import de.maxhenkel.voicechat.api.BukkitVoicechatService;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIBukkitConfig;
 import io.github.subkek.customdiscs.command.CustomDiscsCommand;
-import io.github.subkek.customdiscs.config.CDConfig;
 import io.github.subkek.customdiscs.event.HopperHandler;
 import io.github.subkek.customdiscs.event.JukeboxHandler;
+import io.github.subkek.customdiscs.event.PlayerHandler;
+import io.github.subkek.customdiscs.file.CDConfig;
+import io.github.subkek.customdiscs.file.CDData;
 import io.github.subkek.customdiscs.language.YamlLanguage;
 import io.github.subkek.customdiscs.metrics.BStatsLink;
 import io.github.subkek.customdiscs.util.Formatter;
+import io.github.subkek.customdiscs.util.JavaScheduler;
 import io.github.subkek.customdiscs.util.LegacyUtil;
 import lombok.Getter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
@@ -40,6 +43,9 @@ public class CustomDiscs extends JavaPlugin {
   private CDConfig cDConfig = new CDConfig(
       new File(getDataFolder().getPath(), "config.yml"));
   @Getter
+  private CDData cDData = new CDData(
+      new File(getDataFolder().getPath(), "data.yml"));
+  @Getter
   private FoliaLib foliaLib = new FoliaLib(this);
   @Getter
   private BukkitAudiences audience;
@@ -52,7 +58,7 @@ public class CustomDiscs extends JavaPlugin {
 
   @Override
   public void onLoad() {
-    CommandAPI.onLoad(new CommandAPIBukkitConfig(this).verboseOutput(true));
+    CommandAPI.onLoad(new CommandAPIBukkitConfig(this));
   }
 
   @Override
@@ -63,6 +69,8 @@ public class CustomDiscs extends JavaPlugin {
 
     cDConfig.init();
     language.init();
+    cDData.load();
+    cDData.startAutosave();
 
     linkBStats();
 
@@ -97,6 +105,25 @@ public class CustomDiscs extends JavaPlugin {
     });
   }
 
+  @Override
+  public void onDisable() {
+    LavaPlayerManager.getInstance().stopPlayingAll();
+    LavaPlayerManager.getInstance().save();
+
+    PlayerManager.getInstance().stopPlayingAll();
+
+    cDData.stopAutosave();
+    cDData.save();
+
+    if (voicechatAddonRegistered) {
+      getServer().getServicesManager().unregister(CDVoiceAddon.getInstance());
+      CustomDiscs.info("Successfully disabled CustomDiscs plugin");
+    }
+
+    JavaScheduler.getInstance().shutdown();
+    foliaLib.getScheduler().cancelAllTasks();
+  }
+
   private void registerVoicechatHook() {
     BukkitVoicechatService service = getServer().getServicesManager().load(BukkitVoicechatService.class);
 
@@ -115,23 +142,9 @@ public class CustomDiscs extends JavaPlugin {
 
   private void registerEvents() {
     getServer().getPluginManager().registerEvents(new JukeboxHandler(), this);
+    getServer().getPluginManager().registerEvents(PlayerHandler.getInstance(), this);
     if (getCDConfig().isAllowHoppers())
       getServer().getPluginManager().registerEvents(HopperHandler.getInstance(), this);
-  }
-
-  @Override
-  public void onDisable() {
-    LavaPlayerManager.getInstance().stopPlayingAll();
-    LavaPlayerManager.getInstance().save();
-
-    PlayerManager.getInstance().stopPlayingAll();
-
-    if (voicechatAddonRegistered) {
-      getServer().getServicesManager().unregister(CDVoiceAddon.getInstance());
-      CustomDiscs.info("Successfully disabled CustomDiscs plugin");
-    }
-
-    foliaLib.getScheduler().cancelAllTasks();
   }
 
   private void linkBStats() {

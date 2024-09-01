@@ -15,6 +15,7 @@ import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
 import dev.lavalink.youtube.http.YoutubeOauth2Handler;
+import io.github.subkek.customdiscs.event.PlayerHandler;
 import net.kyori.adventure.text.Component;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -121,7 +122,7 @@ public class LavaPlayerManager {
     if (lavaPlayer.audioChannel == null) return;
 
     lavaPlayer.audioChannel.setCategory(CDVoiceAddon.MUSIC_DISC_CATEGORY);
-    lavaPlayer.audioChannel.setDistance(plugin.getCDConfig().getMusicDiscDistance());
+    lavaPlayer.audioChannel.setDistance(plugin.getCDData().getJukeboxDistance(block));
 
     lavaPlayer.playersInRange = api.getPlayersInRange(
         api.fromServerLevel(block.getWorld()),
@@ -130,7 +131,7 @@ public class LavaPlayerManager {
             block.getLocation().getY() + 0.5d,
             block.getLocation().getZ() + 0.5d
         ),
-        plugin.getCDConfig().getMusicDiscDistance()
+        plugin.getCDData().getJukeboxDistance(block)
     );
 
     lavaPlayer.lavaPlayerThread.start();

@@ -48,6 +48,14 @@ language:
           not-holding-disc: 'First, take a disc in your hand!'
         name: '<white>Disc name: <dark_aqua>{0}'
         file: '<white>Filename: <dark_aqua>{0}'
+    distance:
+      syntax: '<dark_aqua>/cd distance <радиус>'
+      description: '<white>Sets the radius for the jukebox.'
+      messages:
+        error:
+          not-jukebox: 'You didn''t click on the jukebox'
+        success: 'The radius of the jukebox was set to {0}.'
+        click: 'Click on the jukebox to which you want to set the radius.'
     help:
       syntax: '<dark_aqua>/cd help'
       description: '<white>Shows command help'

@@ -90,6 +90,9 @@ bukkit {
         register("$pluginId.createyt") {
             default = PermDefault.TRUE
         }
+        register("$pluginId.distance") {
+            default = PermDefault.TRUE
+        }
     }
 
     depend = listOf(

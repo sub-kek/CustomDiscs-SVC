@@ -66,7 +66,7 @@ public class PlayerManager {
     if (discPlayer.audioChannel == null) return;
 
     discPlayer.audioChannel.setCategory(CDVoiceAddon.MUSIC_DISC_CATEGORY);
-    discPlayer.audioChannel.setDistance(plugin.getCDConfig().getMusicDiscDistance());
+    discPlayer.audioChannel.setDistance(plugin.getCDData().getJukeboxDistance(block));
 
     discPlayer.playersInRange = api.getPlayersInRange(
         api.fromServerLevel(block.getWorld()),
@@ -75,7 +75,7 @@ public class PlayerManager {
             block.getLocation().getY() + 0.5d,
             block.getLocation().getZ() + 0.5d
         ),
-        plugin.getCDConfig().getMusicDiscDistance()
+        plugin.getCDData().getJukeboxDistance(block)
     );
 
     discPlayer.audioPlayerThread.start();
