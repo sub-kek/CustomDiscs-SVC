@@ -84,7 +84,7 @@ public class PhysicsManager {
       if (!jukebox.isPlaying()) {
         jukebox.update();
       }
-      if (particleJukebox.lastUpdateTick != jukebox.getWorld()getTime())
+      if (particleJukebox.lastUpdateTick != jukebox.getWorld().getTime())
         particleJukebox.lastUpdateTick = jukebox.getWorld().getTime() - 1; // Может быть... есть вариант получше? Я серьезно!
     }, 1, 20);
   }
