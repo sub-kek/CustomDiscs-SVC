@@ -52,10 +52,12 @@ public class PhysicsManager {
     Block possibleHopper = block.getRelative(BlockFace.DOWN);
     if (!possibleHopper.getType().equals(Material.HOPPER)) return;
 
+    possibleHopper.getState().update();
+
     CustomDiscs.debug("Attempting to send a disk to the hopper using a hopper update.");
   }
 
-  private void stop(Block block) {
+  private synchronized void stop(Block block) {
     UUID uuid = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
     if (jukeboxMap.containsKey(uuid)) {
       ParticleJukebox particleJukebox = jukeboxMap.remove(uuid);
@@ -75,6 +77,8 @@ public class PhysicsManager {
 
     plugin.getFoliaLib().getScheduler().runAtLocationTimer(jukebox.getLocation(), task -> {
       particleJukebox.setTask(task);
+      if (task.isCancelled()) return;
+
       if (!LavaPlayerManager.getInstance().isPlaying(jukebox.getBlock()) &&
           !PlayerManager.getInstance().isPlaying(jukebox.getBlock())) {
 
@@ -82,11 +86,13 @@ public class PhysicsManager {
         return;
       }
 
+      if (task.isCancelled()) return;
+
       if (!jukebox.isPlaying()) {
         jukebox.update();
       }
-      if (particleJukebox.lastUpdateTick != jukebox.getWorld().getTime())
-        particleJukebox.lastUpdateTick = jukebox.getWorld().getTime() - 1; // Может быть... есть вариант получше? Я серьезно!
+
+      particleJukebox.lastUpdateTick = jukebox.getWorld().getTime() - 1; // Может быть... есть вариант получше? Я серьезно!
     }, 1, 20);
   }
 
