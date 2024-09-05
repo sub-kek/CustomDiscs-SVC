@@ -1,4 +1,4 @@
-package io.github.subkek.customdiscs.util;
+package io.github.subkek.customdiscs.language;
 
 import lombok.Getter;
 
@@ -20,6 +20,6 @@ public enum Language {
     for (Language language : values()) {
       labels.add(language.getLabel());
     }
-    return String.join(",", labels);
+    return String.join(", ", labels);
   }
 }

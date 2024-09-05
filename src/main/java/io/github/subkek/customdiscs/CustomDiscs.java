@@ -9,85 +9,80 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.tcoded.folialib.FoliaLib;
 import de.maxhenkel.voicechat.api.BukkitVoicechatService;
+import dev.jorel.commandapi.CommandAPI;
+import dev.jorel.commandapi.CommandAPIBukkitConfig;
 import io.github.subkek.customdiscs.command.CustomDiscsCommand;
-import io.github.subkek.customdiscs.command.CustomDiscsTabCompleter;
-import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
 import io.github.subkek.customdiscs.event.HopperHandler;
 import io.github.subkek.customdiscs.event.JukeboxHandler;
+import io.github.subkek.customdiscs.event.PlayerHandler;
+import io.github.subkek.customdiscs.file.CDConfig;
+import io.github.subkek.customdiscs.file.CDData;
 import io.github.subkek.customdiscs.language.YamlLanguage;
 import io.github.subkek.customdiscs.metrics.BStatsLink;
-import io.github.subkek.customdiscs.particle.ParticleManager;
 import io.github.subkek.customdiscs.util.Formatter;
+import io.github.subkek.customdiscs.util.JavaScheduler;
+import io.github.subkek.customdiscs.util.LegacyUtil;
 import lombok.Getter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import org.bukkit.block.Jukebox;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 public class CustomDiscs extends JavaPlugin {
-  public static final String PLUGIN_ID = "CustomDiscs";
+  public static final String PLUGIN_ID = "customdiscs";
   @Getter
-  private static CustomDiscs instance = null;
-  private VoicePlugin voicechatPlugin;
+  private YamlLanguage language = new YamlLanguage();
   @Getter
-  private YamlLanguage language = null;
+  private CDConfig cDConfig = new CDConfig(
+      new File(getDataFolder().getPath(), "config.yml"));
+  @Getter
+  private CDData cDData = new CDData(
+      new File(getDataFolder().getPath(), "data.yml"));
   @Getter
   private FoliaLib foliaLib = new FoliaLib(this);
   @Getter
   private BukkitAudiences audience;
+  public int discsPlayed = 0;
+  private boolean voicechatAddonRegistered = false;
 
-  public static void debug(String message, String... format) {
-    if (!CustomDiscsConfiguration.debug) return;
+  public static CustomDiscs getPlugin() {
+    return getPlugin(CustomDiscs.class);
+  }
 
-    CustomDiscs plugin = getInstance();
-
-    plugin.getAudience().sender(plugin.getServer().getConsoleSender())
-        .sendMessage(plugin.getLanguage().deserialize(
-            Formatter.format("<yellow>[CustomDiscs Debug] {0}", message),
-            format
-        ));
+  @Override
+  public void onLoad() {
+    CommandAPI.onLoad(new CommandAPIBukkitConfig(this));
   }
 
   @Override
   public void onEnable() {
-    CustomDiscs.instance = this;
-
     audience = BukkitAudiences.create(this);
 
-    if (getDataFolder().mkdir()) getLogger().info("Created plugin data folder");
+    if (getDataFolder().mkdir()) info("Created plugin data folder");
 
-    CustomDiscsConfiguration.load();
-
-    language = new YamlLanguage();
+    cDConfig.init();
     language.init();
+    cDData.load();
+    cDData.startAutosave();
 
     linkBStats();
 
-    BukkitVoicechatService service = getServer().getServicesManager().load(BukkitVoicechatService.class);
-
     File musicData = new File(this.getDataFolder(), "musicdata");
     if (!(musicData.exists())) {
-      if (musicData.mkdir()) getLogger().info("Created music data folder");
+      if (musicData.mkdir()) info("Created music data folder");
     }
 
-    if (service != null) {
-      voicechatPlugin = new VoicePlugin();
-      service.registerPlugin(voicechatPlugin);
-      getLogger().info("Successfully enabled CustomDiscs plugin");
-    } else {
-      getLogger().severe("Failed to enable CustomDiscs plugin");
-    }
+    registerVoicechatHook();
 
-    getServer().getPluginManager().registerEvents(new JukeboxHandler(), this);
-    getServer().getPluginManager().registerEvents(HopperHandler.getInstance(), this);
-
-    CustomDiscsCommand customDiscsCommand = new CustomDiscsCommand();
-    getCommand("customdisc").setExecutor(customDiscsCommand);
-    getCommand("customdisc").setTabCompleter(new CustomDiscsTabCompleter(customDiscsCommand));
-
+    registerEvents();
+    registerCommands();
 
     ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
     protocolManager.addPacketListener(new PacketAdapter(this, ListenerPriority.NORMAL, PacketType.Play.Server.WORLD_EVENT) {
@@ -95,7 +90,7 @@ public class CustomDiscs extends JavaPlugin {
       public void onPacketSending(PacketEvent event) {
         PacketContainer packet = event.getPacket();
 
-        if (packet.getIntegers().read(0).toString().equals("1010")) {
+        if (packet.getIntegers().read(0).equals(1010)) {
           Jukebox jukebox = (Jukebox) packet.getBlockPositionModifier().read(0).toLocation(event.getPlayer().getWorld()).getBlock().getState();
 
           if (!jukebox.getRecord().hasItemMeta()) return;
@@ -103,7 +98,7 @@ public class CustomDiscs extends JavaPlugin {
           if (LegacyUtil.isCustomDisc(jukebox.getRecord()) ||
               LegacyUtil.isCustomYouTubeDisc(jukebox.getRecord())) {
             event.setCancelled(true);
-            ParticleManager.getInstance().start(jukebox);
+            PhysicsManager.getInstance().start(jukebox);
           }
         }
       }
@@ -115,28 +110,109 @@ public class CustomDiscs extends JavaPlugin {
     LavaPlayerManager.getInstance().stopPlayingAll();
     LavaPlayerManager.getInstance().save();
 
-    PlayerManager.getInstance().stopAll();
+    PlayerManager.getInstance().stopPlayingAll();
 
-    if (voicechatPlugin != null) {
-      getServer().getServicesManager().unregister(voicechatPlugin);
-      getLogger().info("Successfully disabled CustomDiscs plugin");
+    cDData.stopAutosave();
+    cDData.save();
+
+    if (voicechatAddonRegistered) {
+      getServer().getServicesManager().unregister(CDVoiceAddon.getInstance());
+      CustomDiscs.info("Successfully disabled CustomDiscs plugin");
     }
 
+    JavaScheduler.getInstance().shutdown();
     foliaLib.getScheduler().cancelAllTasks();
   }
 
-  private void linkBStats() {
-    BStatsLink bstats = new BStatsLink(getInstance(), 20077);
+  private void registerVoicechatHook() {
+    BukkitVoicechatService service = getServer().getServicesManager().load(BukkitVoicechatService.class);
 
-    bstats.addCustomChart(new BStatsLink.SimplePie("plugin_language", () -> CustomDiscsConfiguration.locale));
+    if (service != null) {
+      service.registerPlugin(CDVoiceAddon.getInstance());
+      voicechatAddonRegistered = true;
+      info("Successfully enabled voicechat hook");
+    } else {
+      error("Failed to enable voicechat hook");
+    }
+  }
+
+  private void registerCommands() {
+    new CustomDiscsCommand().register("customdiscs");
+  }
+
+  private void registerEvents() {
+    getServer().getPluginManager().registerEvents(new JukeboxHandler(), this);
+    getServer().getPluginManager().registerEvents(PlayerHandler.getInstance(), this);
+    if (getCDConfig().isAllowHoppers())
+      getServer().getPluginManager().registerEvents(HopperHandler.getInstance(), this);
+  }
+
+  private void linkBStats() {
+    BStatsLink bstats = new BStatsLink(getPlugin(), 20077);
+
+    bstats.addCustomChart(new BStatsLink.SimplePie("plugin_language", () -> getCDConfig().getLocale()));
     bstats.addCustomChart(new BStatsLink.SingleLineChart("discs_played", () -> {
-      int value = CustomDiscsConfiguration.discsPlayed;
-      CustomDiscsConfiguration.discsPlayed = 0;
+      int value = discsPlayed;
+      discsPlayed = 0;
       return value;
     }));
   }
 
-  public void sendMessage(CommandSender sender, Component component) {
-    audience.sender(sender).sendMessage(component);
+  public static void sendMessage(CommandSender sender, Component component) {
+    getPlugin().getAudience().sender(sender).sendMessage(component);
+  }
+
+  public static void debug(@NotNull String message, Object... format) {
+    if (!getPlugin().getCDConfig().isDebug()) return;
+    sendMessage(
+        getPlugin().getServer().getConsoleSender(),
+        getPlugin().getLanguage().deserialize(
+            Formatter.format(
+                "{0}{1}",
+                getPlugin().getLanguage().string("prefix.debug"),
+                Formatter.format(message, format)
+            )
+        )
+    );
+  }
+
+  public static void info(@NotNull String message, Object... format) {
+    sendMessage(
+        getPlugin().getServer().getConsoleSender(),
+        getPlugin().getLanguage().deserialize(
+            Formatter.format(
+                "{0}{1}",
+                getPlugin().getLanguage().string("prefix.info"),
+                Formatter.format(message, format)
+            )
+        )
+    );
+  }
+
+  public static void error(@NotNull String message, @Nullable Throwable e, Object... format) {
+    String stackTrace = "";
+
+    if (e != null) {
+      StringWriter sw = new StringWriter();
+      PrintWriter pw = new PrintWriter(sw, true);
+      e.printStackTrace(pw);
+      stackTrace = sw.getBuffer().toString();
+    }
+
+    sendMessage(
+        getPlugin().getServer().getConsoleSender(),
+        getPlugin().getLanguage().deserialize(
+            Formatter.format(
+                "{0}{1}{2}",
+                getPlugin().getLanguage().string("prefix.error"),
+                Formatter.format(message, format),
+                stackTrace
+            )
+        )
+    );
+  }
+
+  public static void error(@NotNull String message, Object... format) {
+    error(message, null, format);
   }
 }

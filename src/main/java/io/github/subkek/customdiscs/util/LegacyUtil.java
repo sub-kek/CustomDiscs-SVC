@@ -1,5 +1,6 @@
-package io.github.subkek.customdiscs;
+package io.github.subkek.customdiscs.util;
 
+import io.github.subkek.customdiscs.Keys;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Jukebox;

@@ -15,7 +15,7 @@ public class Keys {
     private final PersistentDataType<T, T> dataType;
 
     public Key(String key, PersistentDataType<T, T> dataType) {
-      this.key = new NamespacedKey(CustomDiscs.getInstance(), key);
+      this.key = new NamespacedKey(CustomDiscs.getPlugin(), key);
       this.dataType = dataType;
     }
   }

@@ -1,25 +1,23 @@
 package io.github.subkek.customdiscs.event;
 
-import io.github.subkek.customdiscs.*;
-import io.github.subkek.customdiscs.config.CustomDiscsConfiguration;
-import net.kyori.adventure.text.Component;
+import io.github.subkek.customdiscs.CustomDiscs;
+import io.github.subkek.customdiscs.LavaPlayerManager;
+import io.github.subkek.customdiscs.PhysicsManager;
+import io.github.subkek.customdiscs.PlayerManager;
+import io.github.subkek.customdiscs.util.LegacyUtil;
+import io.github.subkek.customdiscs.util.PlayUtil;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.Jukebox;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
-import org.bukkit.inventory.meta.ItemMeta;
-
-import java.nio.file.Path;
-import java.util.Objects;
 
 public class HopperHandler implements Listener {
   private static HopperHandler instance;
-  CustomDiscs plugin = CustomDiscs.getInstance();
-  PlayerManager playerManager = PlayerManager.getInstance();
-  LavaPlayerManager lavaPlayerManager = LavaPlayerManager.getInstance();
+  private final PlayerManager playerManager = PlayerManager.getInstance();
+  private final LavaPlayerManager lavaPlayerManager = LavaPlayerManager.getInstance();
 
   public static HopperHandler getInstance() {
     if (instance == null) {
@@ -30,48 +28,23 @@ public class HopperHandler implements Listener {
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void onJukeboxInsertFromHopper(InventoryMoveItemEvent event) {
-
     if (event.getDestination().getLocation() == null) return;
-    if (!event.getDestination().getLocation().getBlock().getType().equals(Material.JUKEBOX)) return;
+    Block block = event.getDestination().getLocation().getBlock();
+    if (!block.getType().equals(Material.JUKEBOX)) return;
+    if (LegacyUtil.isJukeboxContainsDisc(block)) return;
 
     boolean isCustomDisc = LegacyUtil.isCustomDisc(event.getItem());
     boolean isYouTubeCustomDisc = LegacyUtil.isCustomYouTubeDisc(event.getItem());
 
-    Block block = event.getDestination().getLocation().getBlock();
+    if (!isCustomDisc && !isYouTubeCustomDisc) return;
 
-    ItemMeta discMeta = LegacyUtil.getItemMeta(event.getItem());
+    CustomDiscs.debug("Jukebox insert by hopper/dropper event");
 
-    if (isCustomDisc && !LegacyUtil.isJukeboxContainsDisc(block)) {
-      CustomDiscsConfiguration.discsPlayed++;
+    if (isCustomDisc)
+      PlayUtil.playStandard(block, event.getItem());
 
-      String soundFileName = discMeta.getPersistentDataContainer()
-          .get(Keys.CUSTOM_DISC.getKey(), Keys.CUSTOM_DISC.getDataType());
-
-      Path soundFilePath = Path.of(plugin.getDataFolder().getPath(), "musicdata", soundFileName);
-
-      if (soundFilePath.toFile().exists()) {
-        String songName = Objects.requireNonNull(discMeta.getLore()).get(0);
-        songName = songName.replace("§7", "<gray>");
-
-        Component customActionBarSongPlaying = plugin.getLanguage().component("now-playing", songName);
-
-        playerManager.playLocationalAudio(soundFilePath, block, customActionBarSongPlaying);
-      }
-    }
-
-    if (isYouTubeCustomDisc && !LegacyUtil.isJukeboxContainsDisc(block)) {
-      CustomDiscsConfiguration.discsPlayed++;
-
-      String soundLink = discMeta.getPersistentDataContainer()
-          .get(Keys.YOUTUBE_DISC.getKey(), Keys.YOUTUBE_DISC.getDataType());
-
-      String songName = Objects.requireNonNull(discMeta.getLore()).get(0);
-      songName = songName.replace("§7", "<gray>");
-
-      Component customActionBarSongPlaying = plugin.getLanguage().component("now-playing", songName);
-
-      lavaPlayerManager.playLocationalAudioYoutube(block, VoicePlugin.voicechatApi, soundLink, customActionBarSongPlaying);
-    }
+    if (isYouTubeCustomDisc)
+      PlayUtil.playLava(block, event.getItem());
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -82,25 +55,38 @@ public class HopperHandler implements Listener {
     if (!event.getItem().hasItemMeta()) return;
     if (!LegacyUtil.isCustomDisc(event.getItem()) && !LegacyUtil.isCustomYouTubeDisc(event.getItem())) return;
 
-    // CustomDiscs.debug("Hopper try move dicsc");
+    event.setCancelled(playerManager.isPlaying(block) ||
+        lavaPlayerManager.isPlaying(block));
 
-    event.setCancelled(playerManager.isAudioPlayerPlaying(block.getLocation()) ||
-        lavaPlayerManager.isAudioPlayerPlaying(block.getLocation()));
+    if (!event.isCancelled()) CustomDiscs.debug("Jukebox eject by hopper event");
   }
 
-  public void discToHopper(Block block) {
-    if (!block.getLocation().getChunk().isLoaded()) return;
+  @EventHandler
+  public void onPhysics(BlockPhysicsEvent event) {
+    if (!event.getSourceBlock().getType().equals(Material.JUKEBOX)) return;
+    Block block = event.getSourceBlock();
 
-    plugin.getFoliaLib().getScheduler().runAtLocation(block.getLocation(), task -> {
-      if (!block.getType().equals(Material.JUKEBOX)) return;
+    if (!LavaPlayerManager.getInstance().isPlaying(block)
+        && !PlayerManager.getInstance().isPlaying(block)) return;
 
-      CustomDiscs.debug("Disc to hopper send");
+    PhysicsManager.NeedUpdate needUpdate = PhysicsManager.getInstance().isNeedUpdate(block);
 
-      Jukebox jukebox = (Jukebox) block.getState();
+    boolean reallyNeed = false;
+    PhysicsManager.ParticleJukebox particleJukebox = null;
+    long time = block.getWorld().getTime();
+    if (!needUpdate.returnForced()) {
+      particleJukebox = PhysicsManager.getInstance().get(block);
+      reallyNeed = particleJukebox.getLastUpdateTick() == time;
+    }
 
-      block.setType(Material.JUKEBOX);
-      jukebox.update(true, true);
-      jukebox.stopPlaying();
-    });
+    if (needUpdate.value() || reallyNeed) {
+      assert particleJukebox != null;
+      particleJukebox.setNeedUpdate(false);
+      particleJukebox.setLastUpdateTick(time);
+      CustomDiscs.debug("Updating physics on {0} by jukebox", event.getBlock().getType());
+      return;
+    }
+
+    event.setCancelled(true);
   }
 }

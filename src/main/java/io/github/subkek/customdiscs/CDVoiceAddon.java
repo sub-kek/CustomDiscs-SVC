@@ -6,18 +6,26 @@ import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.VolumeCategory;
 import de.maxhenkel.voicechat.api.events.EventRegistration;
 import de.maxhenkel.voicechat.api.events.VoicechatServerStartedEvent;
+import lombok.Getter;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.Enumeration;
-import java.util.logging.Level;
 
-public class VoicePlugin implements VoicechatPlugin {
-  public static String MUSIC_DISC_CATEGORY = "music_discs";
+@Getter
+public class CDVoiceAddon implements VoicechatPlugin {
+  public static final String MUSIC_DISC_CATEGORY = "music_discs";
 
-  public static VoicechatServerApi voicechatApi;
-  public static VolumeCategory musicDiscs;
+  private VoicechatServerApi voicechatApi;
+  private VolumeCategory musicDiscsCategory;
+
+  private static CDVoiceAddon instance;
+
+  public static CDVoiceAddon getInstance() {
+    if (instance == null) return instance = new CDVoiceAddon();
+    return instance;
+  }
 
   @Override
   public String getPluginId() {
@@ -32,12 +40,12 @@ public class VoicePlugin implements VoicechatPlugin {
   @Override
   public void registerEvents(EventRegistration registration) {
     registration.registerEvent(VoicechatServerStartedEvent.class, event -> {
-      musicDiscs = voicechatApi.volumeCategoryBuilder()
+      musicDiscsCategory = voicechatApi.volumeCategoryBuilder()
           .setId(MUSIC_DISC_CATEGORY)
           .setName("Music Discs")
           .setIcon(getMusicDiscIcon())
           .build();
-      voicechatApi.registerVolumeCategory(musicDiscs);
+      voicechatApi.registerVolumeCategory(musicDiscsCategory);
     });
   }
 
@@ -62,7 +70,7 @@ public class VoicePlugin implements VoicechatPlugin {
         return image;
       }
     } catch (Throwable e) {
-      CustomDiscs.getInstance().getLogger().log(Level.SEVERE, "Error getting music discs icon");
+      CustomDiscs.error("Error getting music discs icon: ", e);
     }
     return null;
   }
