@@ -62,7 +62,7 @@ language:
       messages:
         header: '<white>Кастомные пластинки'
         format: '{0}<white>: {1}'
-        footer: ''
+        footer: 'Некоторые агрументы должны быть написаны в двойных кавычках "строка"'
   disc-name:
     simple: '<white>Музыкальная пластинка'
     youtube: '<white>YouTube пластинка'
