@@ -62,7 +62,7 @@ language:
       messages:
         header: '<white>Custom discs'
         format: '{0}<white>: {1}'
-        footer: ''
+        footer: 'Some agruments must be written in double quotes "string"'
   disc-name:
     simple: '<white>Music disc'
     youtube: '<white>YouTube disc'
