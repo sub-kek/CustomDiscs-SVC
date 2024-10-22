@@ -1,11 +1,9 @@
 package io.github.subkek.customdiscs.util;
 
-import io.github.subkek.customdiscs.CustomDiscs;
-import io.github.subkek.customdiscs.Keys;
-import io.github.subkek.customdiscs.LavaPlayerManager;
-import io.github.subkek.customdiscs.PlayerManager;
+import io.github.subkek.customdiscs.*;
 import net.kyori.adventure.text.Component;
 import org.bukkit.block.Block;
+import org.bukkit.block.Jukebox;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -17,6 +15,8 @@ public class PlayUtil {
 
   public static void playStandard(Block block, ItemStack disc) {
     plugin.discsPlayed++;
+
+    PhysicsManager.getInstance().start((Jukebox) block.getState());
 
     ItemMeta discMeta = LegacyUtil.getItemMeta(disc);
 
@@ -37,6 +37,8 @@ public class PlayUtil {
 
   public static void playLava(Block block, ItemStack disc) {
     plugin.discsPlayed++;
+
+    PhysicsManager.getInstance().start((Jukebox) block.getState());
 
     ItemMeta discMeta = LegacyUtil.getItemMeta(disc);
 

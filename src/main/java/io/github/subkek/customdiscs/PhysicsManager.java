@@ -37,7 +37,7 @@ public class PhysicsManager {
     UUID uuid = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
     ParticleJukebox particleJukebox = jukeboxMap.get(uuid);
     if (particleJukebox == null) {
-      CustomDiscs.debug("ParticleManager return value false because ParticleJukebox is null");
+      CustomDiscs.debug("PhysicsManager return needUpdate false because ParticleJukebox is null");
       return new NeedUpdate(true, false);
     }
     return new NeedUpdate(false, particleJukebox.isNeedUpdate());
@@ -47,14 +47,13 @@ public class PhysicsManager {
     if (!plugin.getCDConfig().isAllowHoppers()) return;
     if (!plugin.isEnabled()) return;
     if (!block.getLocation().getChunk().isLoaded()) return;
-    if (!block.getType().equals(Material.JUKEBOX)) return;
 
     Block possibleHopper = block.getRelative(BlockFace.DOWN);
     if (!possibleHopper.getType().equals(Material.HOPPER)) return;
 
     possibleHopper.getState().update();
 
-    CustomDiscs.debug("Attempting to send a disk to the hopper using a hopper update.");
+    CustomDiscs.debug("Attempting to send a disk to the hopper using a update.");
   }
 
   private synchronized void stop(Block block) {
@@ -63,7 +62,10 @@ public class PhysicsManager {
       ParticleJukebox particleJukebox = jukeboxMap.remove(uuid);
       particleJukebox.task.cancel();
 
+      if (!block.getType().equals(Material.JUKEBOX)) return;
+
       Jukebox jukebox = (Jukebox) block.getState();
+      jukebox.update();
       jukebox.stopPlaying();
       discToHopper(block);
     }
@@ -92,7 +94,7 @@ public class PhysicsManager {
         jukebox.update();
       }
 
-      particleJukebox.lastUpdateTick = jukebox.getWorld().getTime() - 1; // Может быть... есть вариант получше? Я серьезно!
+      particleJukebox.lastUpdateTick = -1; // Может быть... есть вариант получше? Я серьезно!
     }, 1, 20);
   }
 

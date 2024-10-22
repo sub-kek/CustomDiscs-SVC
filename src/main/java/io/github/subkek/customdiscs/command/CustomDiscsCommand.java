@@ -2,7 +2,6 @@ package io.github.subkek.customdiscs.command;
 
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.executors.CommandArguments;
-import io.github.subkek.customdiscs.CustomDiscs;
 import io.github.subkek.customdiscs.command.subcommand.*;
 import io.github.subkek.customdiscs.util.Formatter;
 import org.bukkit.command.CommandSender;

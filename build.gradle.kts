@@ -34,14 +34,14 @@ dependencies {
     //compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
  
     compileOnly("de.maxhenkel.voicechat:voicechat-api:2.5.0")
-    compileOnly("com.comphenix.protocol:ProtocolLib:5.3.0-SNAPSHOT")
+    compileOnly("com.comphenix.protocol:ProtocolLib:5.3.0")
 
     shadow("com.googlecode.soundlibs:mp3spi:1.9.5.4")
     shadow("org.jflac:jflac-codec:1.5.2")
     shadow("commons-io:commons-io:2.16.1")
     shadow("com.github.technicallycoded:FoliaLib:0.4.3")
-    shadow("dev.lavalink.youtube:common:1.7.2")
-    shadow("dev.arbjerg:lavaplayer:2.2.1") {
+    shadow("dev.lavalink.youtube:common:1.8.3")
+    shadow("dev.arbjerg:lavaplayer:2.2.2") {
         exclude("org.slf4j")
     }
 

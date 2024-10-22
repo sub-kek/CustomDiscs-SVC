@@ -9,6 +9,7 @@ public class JavaScheduler {
   private final ScheduledExecutorService scheduler;
 
   private static JavaScheduler instance;
+
   public static JavaScheduler getInstance() {
     if (instance == null) return instance = new JavaScheduler();
     return instance;

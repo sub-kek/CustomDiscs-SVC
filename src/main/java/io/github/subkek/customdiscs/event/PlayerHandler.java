@@ -5,6 +5,7 @@ import lombok.Getter;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -24,7 +25,7 @@ public class PlayerHandler implements Listener {
     return instance;
   }
 
-  @EventHandler
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void onClickJukebox(PlayerInteractEvent event) {
     UUID playerUUID = event.getPlayer().getUniqueId();
     if (!playersSelecting.containsKey(playerUUID)) return;

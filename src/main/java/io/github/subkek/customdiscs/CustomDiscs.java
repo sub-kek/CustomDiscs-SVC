@@ -98,7 +98,6 @@ public class CustomDiscs extends JavaPlugin {
           if (LegacyUtil.isCustomDisc(jukebox.getRecord()) ||
               LegacyUtil.isCustomYouTubeDisc(jukebox.getRecord())) {
             event.setCancelled(true);
-            PhysicsManager.getInstance().start(jukebox);
           }
         }
       }
