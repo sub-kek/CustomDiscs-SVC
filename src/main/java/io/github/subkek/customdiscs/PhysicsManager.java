@@ -13,7 +13,7 @@ import java.util.UUID;
 
 public class PhysicsManager {
   private final CustomDiscs plugin = CustomDiscs.getPlugin();
-  private final Map<UUID, ParticleJukebox> jukeboxMap = new HashMap<>();
+  private final Map<UUID, PhysicsJukebox> jukeboxMap = new HashMap<>();
 
   private static PhysicsManager instance;
 
@@ -22,12 +22,12 @@ public class PhysicsManager {
     return instance;
   }
 
-  public ParticleJukebox get(Block block) {
+  public PhysicsJukebox get(Block block) {
     UUID uuid = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
-    ParticleJukebox particleJukebox = jukeboxMap.get(uuid);
-    if (particleJukebox == null)
-      throw new IllegalStateException("This ParticleJukebox doesn't exists cannot get");
-    return particleJukebox;
+    PhysicsJukebox physicsJukebox = jukeboxMap.get(uuid);
+    if (physicsJukebox == null)
+      throw new IllegalStateException("This PhysicsJukebox doesn't exists cannot get");
+    return physicsJukebox;
   }
 
   public record NeedUpdate(boolean returnForced, boolean value) {
@@ -35,12 +35,12 @@ public class PhysicsManager {
 
   public NeedUpdate isNeedUpdate(Block block) {
     UUID uuid = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
-    ParticleJukebox particleJukebox = jukeboxMap.get(uuid);
-    if (particleJukebox == null) {
+    PhysicsJukebox physicsJukebox = jukeboxMap.get(uuid);
+    if (physicsJukebox == null) {
       CustomDiscs.debug("PhysicsManager return needUpdate false because ParticleJukebox is null");
       return new NeedUpdate(true, false);
     }
-    return new NeedUpdate(false, particleJukebox.isNeedUpdate());
+    return new NeedUpdate(false, physicsJukebox.isNeedUpdate());
   }
 
   private void discToHopper(Block block) {
@@ -59,8 +59,8 @@ public class PhysicsManager {
   private synchronized void stop(Block block) {
     UUID uuid = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
     if (jukeboxMap.containsKey(uuid)) {
-      ParticleJukebox particleJukebox = jukeboxMap.remove(uuid);
-      particleJukebox.task.cancel();
+      PhysicsJukebox physicsJukebox = jukeboxMap.remove(uuid);
+      physicsJukebox.task.cancel();
 
       if (!block.getType().equals(Material.JUKEBOX)) return;
 
@@ -74,11 +74,11 @@ public class PhysicsManager {
   public void start(Jukebox jukebox) {
     UUID uuid = UUID.nameUUIDFromBytes(jukebox.getLocation().toString().getBytes());
     if (jukeboxMap.containsKey(uuid)) return;
-    ParticleJukebox particleJukebox = new ParticleJukebox();
-    jukeboxMap.put(uuid, particleJukebox);
+    PhysicsJukebox physicsJukebox = new PhysicsJukebox();
+    jukeboxMap.put(uuid, physicsJukebox);
 
     plugin.getFoliaLib().getScheduler().runAtLocationTimer(jukebox.getLocation(), task -> {
-      particleJukebox.setTask(task);
+      physicsJukebox.setTask(task);
       if (task.isCancelled()) return;
 
       if (!LavaPlayerManager.getInstance().isPlaying(jukebox.getBlock()) &&
@@ -94,12 +94,12 @@ public class PhysicsManager {
         jukebox.update();
       }
 
-      particleJukebox.lastUpdateTick = -1; // Может быть... есть вариант получше? Я серьезно!
+      physicsJukebox.lastUpdateTick = -1; // Может быть... есть вариант получше? Я серьезно!
     }, 1, 20);
   }
 
   @Data
-  public static final class ParticleJukebox {
+  public static final class PhysicsJukebox {
     private boolean needUpdate = true;
     private boolean updatedFirst = false;
     private WrappedTask task;

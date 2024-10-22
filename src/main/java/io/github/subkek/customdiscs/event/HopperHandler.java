@@ -26,7 +26,7 @@ public class HopperHandler implements Listener {
     return instance;
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void onJukeboxInsertFromHopper(InventoryMoveItemEvent event) {
     if (event.getDestination().getLocation() == null) return;
     Block block = event.getDestination().getLocation().getBlock();
@@ -47,7 +47,7 @@ public class HopperHandler implements Listener {
       PlayUtil.playLava(block, event.getItem());
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void onJukeboxEjectToHopper(InventoryMoveItemEvent event) {
     if (event.getSource().getLocation() == null) return;
     Block block = event.getSource().getLocation().getBlock();
@@ -72,17 +72,17 @@ public class HopperHandler implements Listener {
     PhysicsManager.NeedUpdate needUpdate = PhysicsManager.getInstance().isNeedUpdate(block);
 
     boolean reallyNeed = false;
-    PhysicsManager.ParticleJukebox particleJukebox = null;
+    PhysicsManager.PhysicsJukebox physicsJukebox = null;
     long time = block.getWorld().getTime();
     if (!needUpdate.returnForced()) {
-      particleJukebox = PhysicsManager.getInstance().get(block);
-      reallyNeed = particleJukebox.getLastUpdateTick() == time;
+      physicsJukebox = PhysicsManager.getInstance().get(block);
+      reallyNeed = physicsJukebox.getLastUpdateTick() == time;
     }
 
     if (needUpdate.value() || reallyNeed) {
-      assert particleJukebox != null;
-      particleJukebox.setNeedUpdate(false);
-      particleJukebox.setLastUpdateTick(time);
+      assert physicsJukebox != null;
+      physicsJukebox.setNeedUpdate(false);
+      physicsJukebox.setLastUpdateTick(time);
       CustomDiscs.debug("Updating physics on {0} by jukebox", event.getBlock().getType());
       return;
     }

@@ -37,7 +37,7 @@ public class JukeboxHandler implements Listener {
     return itemInvolvedInEvent;
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void onInsert(PlayerInteractEvent event) {
     Block block = event.getClickedBlock();
 
@@ -63,7 +63,7 @@ public class JukeboxHandler implements Listener {
       PlayUtil.playLava(block, event.getItem());
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void onEject(PlayerInteractEvent event) {
     Player player = event.getPlayer();
     Block block = event.getClickedBlock();
@@ -84,7 +84,7 @@ public class JukeboxHandler implements Listener {
     LavaPlayerManager.getInstance().stopPlaying(block);
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void onJukeboxBreak(BlockBreakEvent event) {
 
     Block block = event.getBlock();
@@ -95,7 +95,7 @@ public class JukeboxHandler implements Listener {
     LavaPlayerManager.getInstance().stopPlaying(block);
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void onJukeboxExplode(EntityExplodeEvent event) {
     for (Block explodedBlock : event.blockList()) {
       if (explodedBlock.getType() == Material.JUKEBOX) {

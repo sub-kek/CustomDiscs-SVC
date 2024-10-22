@@ -25,7 +25,7 @@ public class PlayerHandler implements Listener {
     return instance;
   }
 
-  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void onClickJukebox(PlayerInteractEvent event) {
     UUID playerUUID = event.getPlayer().getUniqueId();
     if (!playersSelecting.containsKey(playerUUID)) return;

@@ -16,8 +16,6 @@ public class PlayUtil {
   public static void playStandard(Block block, ItemStack disc) {
     plugin.discsPlayed++;
 
-    PhysicsManager.getInstance().start((Jukebox) block.getState());
-
     ItemMeta discMeta = LegacyUtil.getItemMeta(disc);
 
     String soundFileName = discMeta.getPersistentDataContainer()
@@ -37,8 +35,6 @@ public class PlayUtil {
 
   public static void playLava(Block block, ItemStack disc) {
     plugin.discsPlayed++;
-
-    PhysicsManager.getInstance().start((Jukebox) block.getState());
 
     ItemMeta discMeta = LegacyUtil.getItemMeta(disc);
 
