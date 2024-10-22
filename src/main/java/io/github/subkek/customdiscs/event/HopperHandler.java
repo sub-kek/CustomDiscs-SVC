@@ -16,8 +16,6 @@ import org.bukkit.event.inventory.InventoryMoveItemEvent;
 
 public class HopperHandler implements Listener {
   private static HopperHandler instance;
-  private final PlayerManager playerManager = PlayerManager.getInstance();
-  private final LavaPlayerManager lavaPlayerManager = LavaPlayerManager.getInstance();
 
   public static HopperHandler getInstance() {
     if (instance == null) {
@@ -55,8 +53,8 @@ public class HopperHandler implements Listener {
     if (!event.getItem().hasItemMeta()) return;
     if (!LegacyUtil.isCustomDisc(event.getItem()) && !LegacyUtil.isCustomYouTubeDisc(event.getItem())) return;
 
-    event.setCancelled(playerManager.isPlaying(block) ||
-        lavaPlayerManager.isPlaying(block));
+    event.setCancelled(PlayerManager.getInstance().isPlaying(block) ||
+        LavaPlayerManager.getInstance().isPlaying(block));
 
     if (!event.isCancelled()) CustomDiscs.debug("Jukebox eject by hopper event");
   }
