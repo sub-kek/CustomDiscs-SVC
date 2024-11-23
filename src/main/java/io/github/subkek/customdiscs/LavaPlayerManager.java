@@ -14,13 +14,13 @@ import de.maxhenkel.voicechat.api.ServerPlayer;
 import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
-import dev.lavalink.youtube.http.YoutubeOauth2Handler;
+import dev.lavalink.youtube.clients.AndroidVr;
+import dev.lavalink.youtube.clients.Web;
 import net.kyori.adventure.text.Component;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 import java.io.*;
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -39,8 +39,10 @@ public class LavaPlayerManager {
   }
 
   public LavaPlayerManager() {
-    YoutubeAudioSourceManager source = new YoutubeAudioSourceManager(false);
-    if (plugin.getCDConfig().isYoutubeOauth2()) {
+    YoutubeAudioSourceManager source = new YoutubeAudioSourceManager(false, new Web());
+    if (!plugin.getCDConfig().getPoToken().isBlank() && !plugin.getCDConfig().getPoVisitorData().isBlank()) {
+      Web.setPoTokenAndVisitorData(plugin.getCDConfig().getPoToken(), plugin.getCDConfig().getPoVisitorData());
+    } else if (plugin.getCDConfig().isYoutubeOauth2()) {
       try {
         String oauth2token;
 
@@ -57,16 +59,6 @@ public class LavaPlayerManager {
         }
 
         source.useOauth2(oauth2token, false);
-
-        if (oauth2token != null) {
-          Field oauth2HandlerField = YoutubeAudioSourceManager.class.getDeclaredField("oauth2Handler");
-          oauth2HandlerField.setAccessible(true);
-          YoutubeOauth2Handler oauth2Handler = (YoutubeOauth2Handler) oauth2HandlerField.get(source);
-
-          Field enabledField = YoutubeOauth2Handler.class.getDeclaredField("enabled");
-          enabledField.setAccessible(true);
-          enabledField.set(oauth2Handler, true);
-        }
       } catch (Throwable e) {
         CustomDiscs.error("Error load Youtube OAuth2 token: ", e);
       }
@@ -226,6 +218,7 @@ public class LavaPlayerManager {
               CustomDiscs.sendMessage(bukkitPlayer, plugin.getLanguage().PComponent("error.play.audio-load"));
             }
             stopPlaying(playerUUID);
+            trackFuture.completeExceptionally(e);
           }
         });
 

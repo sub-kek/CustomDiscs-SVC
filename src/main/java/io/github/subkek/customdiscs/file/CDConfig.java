@@ -149,9 +149,22 @@ public class CDConfig {
   }
 
   private boolean youtubeOauth2 = false;
+  private String poToken = "";
+  private String poVisitorData = "";
 
   private void providersSettings() {
-    youtubeOauth2 = getBoolean("providers.youtube.use-oauth2", youtubeOauth2);
+    youtubeOauth2 = getBoolean("providers.youtube.use-oauth2", youtubeOauth2, """
+        This may help if the plugin is not working properly.
+        When you first play the disc after the server starts, you will see an authorization request in the console. Use a secondary account for security purposes.
+        """);
+
+    poToken = getString("providers.youtube.po-token.token", poToken);
+    poVisitorData = getString("providers.youtube.po-token.visitor-data", poVisitorData);
+
+    setComment("providers.youtube.po-token", """
+        This may help if the plugin is not working properly.
+        https://github.com/lavalink-devs/youtube-source?tab=readme-ov-file#using-a-potoken
+        """);
   }
 
   private void debug(@NotNull String message, Object... format) {
