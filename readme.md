@@ -1,4 +1,14 @@
 # Custom discs for SVC Addon
+<br>
+
+![Badge Workflow] 
+[![Badge License]][License] 
+![Badge Language] 
+[![Badge Pull Requests]][Pull Requests] 
+[![Badge Issues]][Issues] 
+![Badge Hi Mom]<br>
+
+<br>
 ## Special thanks
 [Navoei CustomDiscs](https://github.com/Navoei/CustomDiscs) | [henkelmax AudioPlayer](https://github.com/henkelmax/audio-player) | [sedmelluq lavaplayer](https://github.com/sedmelluq/lavaplayer)
 
