@@ -14,8 +14,9 @@ import de.maxhenkel.voicechat.api.ServerPlayer;
 import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
-import dev.lavalink.youtube.clients.AndroidVr;
+import dev.lavalink.youtube.clients.TvHtml5Embedded;
 import dev.lavalink.youtube.clients.Web;
+import dev.lavalink.youtube.clients.skeleton.Client;
 import net.kyori.adventure.text.Component;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -39,9 +40,9 @@ public class LavaPlayerManager {
   }
 
   public LavaPlayerManager() {
-    YoutubeAudioSourceManager source = new YoutubeAudioSourceManager(false, new Web());
-    if (!plugin.getCDConfig().getPoToken().isBlank() && !plugin.getCDConfig().getPoVisitorData().isBlank()) {
-      Web.setPoTokenAndVisitorData(plugin.getCDConfig().getPoToken(), plugin.getCDConfig().getPoVisitorData());
+    YoutubeAudioSourceManager source = getYoutubeAudioSourceManager();
+    if (!plugin.getCDConfig().getYoutubePoToken().isBlank() && !plugin.getCDConfig().getYoutubePoVisitorData().isBlank()) {
+      Web.setPoTokenAndVisitorData(plugin.getCDConfig().getYoutubePoToken(), plugin.getCDConfig().getYoutubePoVisitorData());
     } else if (plugin.getCDConfig().isYoutubeOauth2()) {
       try {
         String oauth2token;
@@ -64,6 +65,15 @@ public class LavaPlayerManager {
       }
     }
     lavaPlayerManager.registerSourceManager(source);
+  }
+
+  private static YoutubeAudioSourceManager getYoutubeAudioSourceManager() {
+    Client[] clients = {
+        new TvHtml5Embedded(),
+        new Web()
+    };
+
+    return new YoutubeAudioSourceManager(false, clients);
   }
 
   public void save() {
