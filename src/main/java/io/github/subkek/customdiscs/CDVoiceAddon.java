@@ -22,7 +22,7 @@ public class CDVoiceAddon implements VoicechatPlugin {
 
   private static CDVoiceAddon instance;
 
-  public static CDVoiceAddon getInstance() {
+  public synchronized static CDVoiceAddon getInstance() {
     if (instance == null) return instance = new CDVoiceAddon();
     return instance;
   }

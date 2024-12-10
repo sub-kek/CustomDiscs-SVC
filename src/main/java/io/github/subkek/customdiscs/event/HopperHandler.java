@@ -17,7 +17,7 @@ import org.bukkit.event.inventory.InventoryMoveItemEvent;
 public class HopperHandler implements Listener {
   private static HopperHandler instance;
 
-  public static HopperHandler getInstance() {
+  public synchronized static HopperHandler getInstance() {
     if (instance == null) {
       instance = new HopperHandler();
     }

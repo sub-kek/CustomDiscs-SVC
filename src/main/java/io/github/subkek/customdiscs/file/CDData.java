@@ -1,7 +1,7 @@
 package io.github.subkek.customdiscs.file;
 
 import io.github.subkek.customdiscs.CustomDiscs;
-import io.github.subkek.customdiscs.util.JavaScheduler;
+import io.github.subkek.customdiscs.util.TaskScheduler;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.block.Block;
@@ -12,7 +12,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.UUID;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 @Getter
@@ -21,7 +20,7 @@ public class CDData {
   private final YamlFile yaml = new YamlFile();
   private final File dataFile;
 
-  private ScheduledFuture<?> autosaveTask;
+  private TaskScheduler.Task autosaveTask;
 
   private final HashMap<UUID, Integer> jukeboxDistanceMap = new HashMap<>();
 
@@ -49,16 +48,16 @@ public class CDData {
   }
 
   public void startAutosave() {
-    if (autosaveTask != null) CustomDiscs.error("Autosave data task already exists");
-    autosaveTask = JavaScheduler.getInstance().runAtFixedRate(
-        this::save,
+    if (autosaveTask != null) throw new IllegalStateException("Autosave data task already exists");
+    autosaveTask = CustomDiscs.getPlugin().getScheduler().runAtFixedRate(
+        task -> save(),
         60, 60,
         TimeUnit.SECONDS
     );
   }
 
   public void stopAutosave() {
-    autosaveTask.cancel(true);
+    autosaveTask.cancel();
     autosaveTask = null;
   }
 

@@ -20,7 +20,7 @@ public class PlayerHandler implements Listener {
 
   private static PlayerHandler instance;
 
-  public static PlayerHandler getInstance() {
+  public synchronized static PlayerHandler getInstance() {
     if (instance == null) return instance = new PlayerHandler();
     return instance;
   }

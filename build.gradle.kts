@@ -40,7 +40,7 @@ dependencies {
     shadow("org.jflac:jflac-codec:1.5.2")
     shadow("commons-io:commons-io:2.16.1")
     shadow("com.github.technicallycoded:FoliaLib:0.4.3")
-    shadow("dev.lavalink.youtube:common:008faf9f7a39c3f98d24fc1d5c98a9dc960a377c-SNAPSHOT")
+    shadow("dev.lavalink.youtube:common:4316acce5ab053cbf5135682f1e69bc3962fc125-SNAPSHOT")
     shadow("dev.arbjerg:lavaplayer:2.2.2") {
         exclude("org.slf4j")
     }
@@ -57,8 +57,8 @@ dependencies {
         exclude(group="org.yaml", module="snakeyaml")
     }
 
-    compileOnly("org.projectlombok:lombok:1.18.34")
-    annotationProcessor("org.projectlombok:lombok:1.18.34")
+    compileOnly("org.projectlombok:lombok:1.18.36")
+    annotationProcessor("org.projectlombok:lombok:1.18.36")
 }
 
 val pluginId = properties["plugin_id"]

@@ -17,7 +17,7 @@ public class PhysicsManager {
 
   private static PhysicsManager instance;
 
-  public static PhysicsManager getInstance() {
+  public synchronized static PhysicsManager getInstance() {
     if (instance == null) return instance = new PhysicsManager();
     return instance;
   }

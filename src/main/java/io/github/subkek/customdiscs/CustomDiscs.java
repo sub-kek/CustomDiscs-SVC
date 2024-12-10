@@ -20,8 +20,8 @@ import io.github.subkek.customdiscs.file.CDData;
 import io.github.subkek.customdiscs.language.YamlLanguage;
 import io.github.subkek.customdiscs.metrics.BStatsLink;
 import io.github.subkek.customdiscs.util.Formatter;
-import io.github.subkek.customdiscs.util.JavaScheduler;
 import io.github.subkek.customdiscs.util.LegacyUtil;
+import io.github.subkek.customdiscs.util.TaskScheduler;
 import lombok.Getter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
@@ -49,6 +49,8 @@ public class CustomDiscs extends JavaPlugin {
   private FoliaLib foliaLib = new FoliaLib(this);
   @Getter
   private BukkitAudiences audience;
+  @Getter
+  private TaskScheduler scheduler;
   public int discsPlayed = 0;
   private boolean voicechatAddonRegistered = false;
 
@@ -63,6 +65,9 @@ public class CustomDiscs extends JavaPlugin {
 
   @Override
   public void onEnable() {
+    scheduler = new TaskScheduler(1);
+    scheduler.setLogger(CustomDiscs::error);
+
     audience = BukkitAudiences.create(this);
 
     if (getDataFolder().mkdir()) info("Created plugin data folder");
@@ -109,8 +114,6 @@ public class CustomDiscs extends JavaPlugin {
   @Override
   public void onDisable() {
     LavaPlayerManager.getInstance().stopPlayingAll();
-    LavaPlayerManager.getInstance().save();
-
     PlayerManager.getInstance().stopPlayingAll();
 
     cDData.stopAutosave();
@@ -121,7 +124,7 @@ public class CustomDiscs extends JavaPlugin {
       CustomDiscs.info("Successfully disabled CustomDiscs plugin");
     }
 
-    JavaScheduler.getInstance().shutdown();
+    scheduler.shutdown();
     foliaLib.getScheduler().cancelAllTasks();
   }
 

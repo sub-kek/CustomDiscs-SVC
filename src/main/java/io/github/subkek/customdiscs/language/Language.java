@@ -22,4 +22,11 @@ public enum Language {
     }
     return String.join(", ", labels);
   }
+
+  public static boolean isExists(String label) {
+    for (Language language : values()) {
+      if (language.label.equals(label)) return true;
+    }
+    return false;
+  }
 }

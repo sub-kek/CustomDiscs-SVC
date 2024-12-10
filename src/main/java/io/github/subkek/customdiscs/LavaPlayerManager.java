@@ -34,7 +34,7 @@ public class LavaPlayerManager {
 
   private static LavaPlayerManager instance;
 
-  public static LavaPlayerManager getInstance() {
+  public synchronized static LavaPlayerManager getInstance() {
     if (instance == null) return instance = new LavaPlayerManager();
     return instance;
   }
@@ -60,6 +60,7 @@ public class LavaPlayerManager {
         }
 
         source.useOauth2(oauth2token, false);
+        if (oauth2token == null) listenForTokenChange(source);
       } catch (Throwable e) {
         CustomDiscs.error("Error load Youtube OAuth2 token: ", e);
       }
@@ -76,7 +77,7 @@ public class LavaPlayerManager {
     return new YoutubeAudioSourceManager(false, clients);
   }
 
-  public void save() {
+  private void save() {
     for (AudioSourceManager manager : lavaPlayerManager.getSourceManagers()) {
       if (!(manager instanceof YoutubeAudioSourceManager)) continue;
 
@@ -96,6 +97,23 @@ public class LavaPlayerManager {
         CustomDiscs.error("Error save Youtube OAuth2 token: ", e);
       }
     }
+  }
+
+  private void listenForTokenChange(YoutubeAudioSourceManager source) {
+    final String currentToken = source.getOauth2RefreshToken() != null
+        ? source.getOauth2RefreshToken()
+        : "null";
+
+    CustomDiscs.getPlugin().getScheduler().runAtFixedRate(task -> {
+      CustomDiscs.debug("Trying to handle token change.");
+
+      String newToken = source.getOauth2RefreshToken();
+      if (newToken == null) return;
+      if (currentToken.equals(newToken)) return;
+
+      save();
+      task.cancel();
+    }, 5, 5, TimeUnit.SECONDS);
   }
 
   public void play(Block block, String ytUrl, Component actionbarComponent) {

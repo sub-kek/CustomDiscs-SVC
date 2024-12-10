@@ -33,14 +33,19 @@ public class CDConfig {
       }
     }
 
-    configVersion = getString("info.version", "1.1", "Don't change this value");
+    configVersion = getString("info.version", "1.2", "Don't change this value");
     setComment("info",
         "CustomDiscs Configuration",
         "Join our Discord for support: https://discord.gg/eRvwvmEXWz");
 
+    debug = getBoolean("debug", false);
+
     if (configVersion.equals("1.0")) {
-      debug = getBoolean("debug", false);
       migrateV1_0toV1_1();
+    }
+
+    if (configVersion.equals("1.1")) {
+      migrateV1_1toV1_2();
     }
 
     for (Method method : this.getClass().getDeclaredMethods()) {
@@ -111,10 +116,13 @@ public class CDConfig {
   private void globalSettings() {
     locale = getString("global.locale", locale, "Language of the plugin",
         Formatter.format(
-            "Supported: {0}",
-            Language.getAllSeparatedComma()
+            """
+                Supported: {0}
+                Unknown languages will be replaced with {1}""",
+            Language.getAllSeparatedComma(), Language.ENGLISH.getLabel()
         )
     );
+    if (!Language.isExists(locale)) locale = Language.ENGLISH.getLabel();
     debug = getBoolean("global.debug", debug);
   }
 
@@ -149,7 +157,6 @@ public class CDConfig {
   }
 
   private boolean youtubeOauth2 = false;
-  private boolean youtubePoTokenAuto = false;
   private String youtubePoToken = "";
   private String youtubePoVisitorData = "";
 
@@ -158,11 +165,11 @@ public class CDConfig {
         This may help if the plugin is not working properly.
         When you first play the disc after the server starts, you will see an authorization request in the console. Use a secondary account for security purposes.""");
 
-    youtubePoTokenAuto = getBoolean("providers.youtube.po-token.auto", youtubePoTokenAuto, "Experimental");
     youtubePoToken = getString("providers.youtube.po-token.token", youtubePoToken);
     youtubePoVisitorData = getString("providers.youtube.po-token.visitor-data", youtubePoVisitorData);
 
     setComment("providers.youtube.po-token", """
+        If you have oauth2 enabled, leave these fields blank.
         This may help if the plugin is not working properly.
         https://github.com/lavalink-devs/youtube-source?tab=readme-ov-file#using-a-potoken""");
   }
@@ -206,7 +213,7 @@ public class CDConfig {
   }
 
   private void migrateV1_0toV1_1() {
-    debug("Config migrating v1.0 to v1.1");
+    debug("Config migrating from v1.0 to v1.1");
     migrateValue("music-disc-distance", "disc.distance");
     migrateValue("music-disc-volume", "disc.volume");
     migrateValue("max-download-size", "command.download.max-size");
@@ -219,5 +226,11 @@ public class CDConfig {
     migrateValue("debug", "global.debug");
     removeValue("cleaning-disc");
     setConfigVersion("1.1");
+  }
+
+  private void migrateV1_1toV1_2() {
+    debug("Config migrating from v1.1 to v1.2");
+    removeValue("providers.youtube.po-token.auto");
+    setConfigVersion("1.2");
   }
 }
