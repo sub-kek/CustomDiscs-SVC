@@ -15,7 +15,6 @@ repositories {
     mavenCentral()
     maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
     maven("https://repo.papermc.io/repository/maven-public/")
-    maven("https://repo.dmulloy2.net/repository/public/")
     maven("https://maven.maxhenkel.de/repository/public")
     maven("https://jitpack.io") {
         content {
@@ -27,6 +26,9 @@ repositories {
     }
     maven("https://maven.lavalink.dev/releases")
     maven("https://maven.lavalink.dev/snapshots")
+    maven("https://repo.subkek.space/maven-public/") {
+        name = "subkek"
+    }
 }
 
 dependencies {
