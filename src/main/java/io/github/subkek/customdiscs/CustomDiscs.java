@@ -60,7 +60,7 @@ public class CustomDiscs extends JavaPlugin {
 
   @Override
   public void onLoad() {
-    CommandAPI.onLoad(new CommandAPIBukkitConfig(this).verboseOutput(true));
+    CommandAPI.onLoad(new CommandAPIBukkitConfig(this).silentLogs(true).skipReloadDatapacks(true));
   }
 
   @Override
