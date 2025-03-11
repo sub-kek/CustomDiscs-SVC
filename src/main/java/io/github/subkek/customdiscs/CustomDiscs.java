@@ -65,6 +65,8 @@ public class CustomDiscs extends JavaPlugin {
 
   @Override
   public void onEnable() {
+    CommandAPI.onEnable();
+
     scheduler = new TaskScheduler(1);
     scheduler.setLogger(CustomDiscs::error);
 
@@ -113,6 +115,8 @@ public class CustomDiscs extends JavaPlugin {
 
   @Override
   public void onDisable() {
+    CommandAPI.onDisable();
+
     LavaPlayerManager.getInstance().stopPlayingAll();
     PlayerManager.getInstance().stopPlayingAll();
 
