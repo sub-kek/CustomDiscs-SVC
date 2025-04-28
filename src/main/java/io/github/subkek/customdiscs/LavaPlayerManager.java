@@ -40,6 +40,11 @@ public class LavaPlayerManager {
   }
 
   public LavaPlayerManager() {
+    if (!plugin.getCDConfig().isYoutubeOauth2()) {
+      CustomDiscs.info("Enable use-oauth2 in config.yml and restart server to make YouTube discs work!");
+      return;
+    }
+
     YoutubeAudioSourceManager source = getYoutubeAudioSourceManager();
     if (!plugin.getCDConfig().getYoutubePoToken().isBlank() && !plugin.getCDConfig().getYoutubePoVisitorData().isBlank()) {
       Web.setPoTokenAndVisitorData(plugin.getCDConfig().getYoutubePoToken(), plugin.getCDConfig().getYoutubePoVisitorData());
