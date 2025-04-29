@@ -42,7 +42,7 @@ dependencies {
     shadow("org.jflac:jflac-codec:1.5.2")
     shadow("commons-io:commons-io:2.16.1")
     shadow("com.github.technicallycoded:FoliaLib:0.4.3")
-    shadow("dev.lavalink.youtube:common:edbd600c03f81b6b6dfb7150095d22a74042a4bb-SNAPSHOT")
+    shadow("dev.lavalink.youtube:common:b4f2c98ce72ff7fc2affa449456d47757352f5a5-SNAPSHOT")
     shadow("dev.arbjerg:lavaplayer:2.2.2") {
         exclude("org.slf4j")
     }
