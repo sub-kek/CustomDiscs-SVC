@@ -30,6 +30,15 @@ language:
         error:
           while-download: 'Error while downloading file.'
           file-too-large: 'File size larger than {0}mb.'
+    downloadyt:
+      syntax: '<dark_aqua>/cd downloadyt <youtube link> <filename.mp3>'
+      description: '<white>Downloads music from YouTube as MP3.'
+      messages:
+        downloading: '<gray>Downloading YouTube video as MP3...'
+        successfully: 'YouTube video successfully downloaded as MP3!'
+        create-tooltip: 'Create disc, using command {0}'
+        error:
+          while-download: 'Error while downloading YouTube video.'
     reload:
       syntax: '<dark_aqua>/cd reload'
       description: '<white>Reloads configuration files.'
