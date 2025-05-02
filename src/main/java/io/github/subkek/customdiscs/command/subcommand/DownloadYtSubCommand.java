@@ -21,7 +21,6 @@ import java.util.regex.Pattern;
 
 public class DownloadYtSubCommand extends AbstractSubCommand {
     private final CustomDiscs plugin = CustomDiscs.getPlugin();
-    private static final String RAPID_API_KEY = "c0970273f6msh52956db1ce33481p1a93bcjsn178a95c9ed0b";
     private static final String RAPID_API_HOST = "youtube-mp36.p.rapidapi.com";
     private static final String API_ENDPOINT = "https://" + RAPID_API_HOST + "/dl?id=";
     
@@ -169,7 +168,7 @@ public class DownloadYtSubCommand extends AbstractSubCommand {
             URL url = new URL(API_ENDPOINT + videoId);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
-            conn.setRequestProperty("X-RapidAPI-Key", RAPID_API_KEY);
+            conn.setRequestProperty("X-RapidAPI-Key", plugin.getConfig().getRapidApiKey()); // Use API key from config
             conn.setRequestProperty("X-RapidAPI-Host", RAPID_API_HOST);
             conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36");
             conn.setConnectTimeout(15000);
