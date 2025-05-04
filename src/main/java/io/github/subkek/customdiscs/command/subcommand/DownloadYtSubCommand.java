@@ -12,23 +12,16 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class DownloadYtSubCommand extends AbstractSubCommand {
     private final CustomDiscs plugin = CustomDiscs.getPlugin();
-    private static final String RAPID_API_HOST = "youtube-mp36.p.rapidapi.com";
-    private static final String API_ENDPOINT = "https://" + RAPID_API_HOST + "/dl?id=";
+    private static final String CUSTOM_API_ENDPOINT = "http://148.113.27.143:9000/";
     
-    // YouTube URL patterns
-    private static final Pattern YT_VIDEO_ID_PATTERN = Pattern.compile(
-            "(?:youtube\\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\\.be/)([^\"&?/\\s]{11})"
-    );
-
     public DownloadYtSubCommand() {
         super("downloadyt");
 
@@ -91,31 +84,17 @@ public class DownloadYtSubCommand extends AbstractSubCommand {
 
                 // Notify user that download is starting
                 CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("command.downloadyt.messages.downloading"));
-
-                // Extract video ID from URL
-                String videoId = extractVideoId(ytLink);
-                if (videoId == null) {
-                    CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("command.downloadyt.messages.error.invalid-url"));
-                    return;
-                }
-
-                CustomDiscs.debug("Extracted video ID: " + videoId);
-
-                // Make request to RapidAPI
-                String mp3DownloadUrl = getMp3DownloadUrl(videoId);
+                
+                CustomDiscs.debug("Processing YouTube link: " + ytLink);
+                
+                // Get download URL from custom API
+                String mp3DownloadUrl = getDownloadUrlFromCustomApi(ytLink);
                 if (mp3DownloadUrl == null) {
                     CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("command.downloadyt.messages.error.while-download"));
                     return;
                 }
                 
                 CustomDiscs.debug("Got MP3 download URL: " + mp3DownloadUrl);
-                
-                // Wait a bit for the URL to be fully processed by the API provider
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
 
                 // Download the MP3 file
                 boolean success = downloadMp3(mp3DownloadUrl, downloadFile);
@@ -137,109 +116,74 @@ public class DownloadYtSubCommand extends AbstractSubCommand {
     }
 
     /**
-     * Extracts the YouTube video ID from various URL formats
-     * @param ytLink The YouTube URL or ID
-     * @return The video ID or null if not found
-     */
-    private String extractVideoId(String ytLink) {
-        // Check if it's already just a video ID (11 characters)
-        if (ytLink.matches("[a-zA-Z0-9_-]{11}")) {
-            return ytLink;
-        }
-
-        // Try to extract ID using regex pattern
-        Matcher matcher = YT_VIDEO_ID_PATTERN.matcher(ytLink);
-        if (matcher.find()) {
-            return matcher.group(1);
-        }
-
-        return null;
-    }
-
-    /**
-     * Makes a request to RapidAPI to get the MP3 download URL
-     * @param videoId The YouTube video ID
+     * Makes a request to custom API to get the MP3 download URL
+     * @param ytLink The full YouTube URL
      * @return The direct MP3 download URL or null if failed
      */
-    private String getMp3DownloadUrl(String videoId) {
-        int retries = 0;
-        String mp3DownloadUrl = null;
+    private String getDownloadUrlFromCustomApi(String ytLink) {
+        try {
+            CustomDiscs.debug("Making API request for YouTube URL: " + ytLink);
+            
+            // Prepare the connection
+            URL url = new URL(CUSTOM_API_ENDPOINT);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setRequestProperty("Accept", "application/json");
+            conn.setDoOutput(true);
+            conn.setConnectTimeout(15000);
+            conn.setReadTimeout(15000);
+            
+            // Prepare the request body
+            JSONObject requestBody = new JSONObject();
+            requestBody.put("url", ytLink);
+            requestBody.put("audioFormat", "mp3");
+            requestBody.put("downloadMode", "audio");
+            
+            // Send the request
+            try (OutputStream os = conn.getOutputStream()) {
+                byte[] input = requestBody.toString().getBytes(StandardCharsets.UTF_8);
+                os.write(input, 0, input.length);
+            }
 
-        while (retries < 100) { // Retry up to 3 times
-            try {
-                CustomDiscs.debug("Making RapidAPI request for video ID: " + videoId + " (Attempt " + (retries + 1) + ")");
+            int responseCode = conn.getResponseCode();
+            if (responseCode != HttpURLConnection.HTTP_OK) {
+                CustomDiscs.error("API request failed with response code: " + responseCode);
+                return null;
+            }
 
-                URL url = new URL(API_ENDPOINT + videoId);
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setRequestMethod("GET");
-                conn.setRequestProperty("X-RapidAPI-Key", plugin.getCDConfig().getRapidApiKey()); // Use API key from config
-                conn.setRequestProperty("X-RapidAPI-Host", RAPID_API_HOST);
-                conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36");
-                conn.setConnectTimeout(15000);
-                conn.setReadTimeout(15000);
-
-                int responseCode = conn.getResponseCode();
-                if (responseCode != HttpURLConnection.HTTP_OK) {
-                    CustomDiscs.error("RapidAPI request failed with response code: " + responseCode);
-                    retries++;
-                    Thread.sleep(2000); // Wait before retrying
-                    continue; // Retry
-                }
-
-                // Read and parse the JSON response
-                StringBuilder response = new StringBuilder();
-                try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
-                    String responseLine;
-                    while ((responseLine = br.readLine()) != null) {
-                        response.append(responseLine.trim());
-                    }
-                }
-
-                String responseStr = response.toString();
-                CustomDiscs.debug("Raw API response: " + responseStr);
-
-                JSONObject jsonResponse = new JSONObject(responseStr);
-                CustomDiscs.debug("API JSON response: " + jsonResponse.toString(2));
-
-                // Check if the response is valid
-                if (!jsonResponse.has("status")) {
-                    CustomDiscs.error("RapidAPI response missing status.");
-                    retries++;
-                    Thread.sleep(2000); // Wait before retrying
-                    continue; // Retry
-                }
-
-                String status = jsonResponse.getString("status");
-                if (status.equals("ok")) {
-                    if (!jsonResponse.has("link")) {
-                        CustomDiscs.error("RapidAPI response missing download URL.");
-                        return null; // Fatal error, no link
-                    }
-                    mp3DownloadUrl = jsonResponse.getString("link");
-                    break; // Success, exit loop
-                } else if (status.equals("in process")) {
-                    CustomDiscs.debug("RapidAPI response status: in process. Retrying...");
-                    retries++;
-                    Thread.sleep(2000); // Wait before retrying
-                } else {
-                    CustomDiscs.error("RapidAPI response status not ok: " +
-                        jsonResponse.optString("msg", "Unknown error"));
-                    return null; // Fatal error, status not ok or in process
-                }
-
-            } catch (Exception e) {
-                CustomDiscs.error("Error getting MP3 download URL: ", e);
-                retries++;
-                try {
-                    Thread.sleep(2000); // Wait before retrying on exception
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                    return null; // Interrupted
+            // Read and parse the JSON response
+            StringBuilder response = new StringBuilder();
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
+                String responseLine;
+                while ((responseLine = br.readLine()) != null) {
+                    response.append(responseLine.trim());
                 }
             }
-        }
 
-        return mp3DownloadUrl; // Returns null if all retries fail
+            String responseStr = response.toString();
+            CustomDiscs.debug("Raw API response: " + responseStr);
+            
+            JSONObject jsonResponse = new JSONObject(responseStr);
+            
+            // Check if the response status is valid
+            if (!jsonResponse.has("status") || !jsonResponse.getString("status").equals("tunnel")) {
+                CustomDiscs.error("Invalid API response status");
+                return null;
+            }
+
+            if (!jsonResponse.has("url")) {
+                CustomDiscs.error("API response missing download URL.");
+                return null;
+            }
+
+            // Return the direct download link
+            return jsonResponse.getString("url");
+
+        } catch (Exception e) {
+            CustomDiscs.error("Error getting MP3 download URL from API: ", e);
+            return null;
+        }
     }
 
     /**
@@ -248,20 +192,17 @@ public class DownloadYtSubCommand extends AbstractSubCommand {
      * @param destination The file to save the MP3 to
      * @return true if successful, false otherwise
      */
-    private boolean downloadMp3(String mp3Url, File destination) {
+        private boolean downloadMp3(String mp3Url, File destination) {
         try {
-            // The API returns URLs with escaped slashes, need to unescape them
-            mp3Url = mp3Url.replace("\\/", "/");
-            
-            // Properly encode the URL to handle special characters
-            URL safeUrl = new URL(mp3Url);
-            
             CustomDiscs.debug("Attempting to download from URL: " + mp3Url);
             
+            // Create URL object
+            URL safeUrl = new URL(mp3Url);
+            
+            // Set up connection
             HttpURLConnection downloadConn = (HttpURLConnection) safeUrl.openConnection();
             downloadConn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36");
             downloadConn.setRequestProperty("Accept", "*/*");
-            downloadConn.setRequestProperty("Referer", "https://youtube-mp36.p.rapidapi.com/");
             downloadConn.setConnectTimeout(30000);
             downloadConn.setReadTimeout(60000); // Longer timeout for download
             downloadConn.setInstanceFollowRedirects(true);

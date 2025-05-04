@@ -159,8 +159,7 @@ public class CDConfig {
   private boolean youtubeOauth2 = false;
   private String youtubePoToken = "";
   private String youtubePoVisitorData = "";
-  private String rapidApiKey = ""; // Add field for RapidAPI key
-
+ 
   private void providersSettings() {
     youtubeOauth2 = getBoolean("providers.youtube.use-oauth2", youtubeOauth2, """
         This may help if the plugin is not working properly.
@@ -168,10 +167,6 @@ public class CDConfig {
 
     youtubePoToken = getString("providers.youtube.po-token.token", youtubePoToken);
     youtubePoVisitorData = getString("providers.youtube.po-token.visitor-data", youtubePoVisitorData);
-    rapidApiKey = getString("providers.youtube.rapid-api-key", rapidApiKey, // Add RapidAPI key setting
-        "Your RapidAPI key for /downloadyt.",
-        "Get one here: https://rapidapi.com/ytjar/api/youtube-mp36"
-    );
 
     setComment("providers.youtube.po-token", """
         If you have oauth2 enabled, leave these fields blank.
@@ -179,9 +174,6 @@ public class CDConfig {
         https://github.com/lavalink-devs/youtube-source?tab=readme-ov-file#using-a-potoken""");
   }
 
-  public String getRapidApiKey() { // Add getter for RapidAPI key
-    return rapidApiKey;
-  }
 
   private void debug(@NotNull String message, Object... format) {
     if (!debug) return;
