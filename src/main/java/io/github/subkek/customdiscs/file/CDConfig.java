@@ -159,7 +159,7 @@ public class CDConfig {
   private boolean youtubeOauth2 = false;
   private String youtubePoToken = "";
   private String youtubePoVisitorData = "";
-
+ 
   private void providersSettings() {
     youtubeOauth2 = getBoolean("providers.youtube.use-oauth2", youtubeOauth2, """
         This may help if the plugin is not working properly.
@@ -173,6 +173,7 @@ public class CDConfig {
         This may help if the plugin is not working properly.
         https://github.com/lavalink-devs/youtube-source?tab=readme-ov-file#using-a-potoken""");
   }
+
 
   private void debug(@NotNull String message, Object... format) {
     if (!debug) return;
