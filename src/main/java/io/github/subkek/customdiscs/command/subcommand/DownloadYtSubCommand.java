@@ -20,7 +20,7 @@ import java.nio.file.Path;
 
 public class DownloadYtSubCommand extends AbstractSubCommand {
     private final CustomDiscs plugin = CustomDiscs.getPlugin();
-    private static final String CUSTOM_API_ENDPOINT = "http://148.113.27.143:9000/";
+    private static final String CUSTOM_API_ENDPOINT = "http://130.250.191.235:9000/";
     
     public DownloadYtSubCommand() {
         super("downloadyt");
