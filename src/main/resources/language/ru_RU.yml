@@ -31,6 +31,15 @@ language:
         error:
           while-download: 'При загрузке произошла ошибка.'
           file-too-large: 'Размер файла превышает {0}мб.'
+    downloadyt:
+      syntax: '<dark_aqua>/cd downloadyt <ссылка на YouTube> <имя_файла.mp3>'
+      description: '<white>Загружает музыку с YouTube в формате MP3.'
+      messages:
+        downloading: '<gray>Загрузка видео с YouTube в формате MP3...'
+        successfully: 'Видео с YouTube успешно загружено в формате MP3!'
+        create-tooltip: 'Создайте диск, выполнив команду {0}'
+        error:
+          while-download: 'При загрузке видео с YouTube произошла ошибка.'
     reload:
       syntax: '<dark_aqua>/cd reload'
       description: '<white>Перезагружает конфигурационные файлы.'
