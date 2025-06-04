@@ -76,7 +76,7 @@ public class CreateSubCommand extends AbstractSubCommand {
       return;
     }
 
-    if (!LegacyUtil.isMusicDiscInHand(player)) {
+    if (plugin.getCDConfig().getDiscRequired() && !LegacyUtil.isMusicDiscInHand(player)) {
       CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("command.create.messages.error.not-holding-disc"));
       return;
     }
