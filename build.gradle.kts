@@ -16,7 +16,7 @@ repositories {
     maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
     maven("https://repo.papermc.io/repository/maven-public/")
     maven("https://maven.maxhenkel.de/repository/public")
-    maven("https://jitpack.io") {
+     maven("https://jitpack.io") {
         content {
             includeModule("me.carleslc.Simple-YAML", "Simple-Yaml")
             includeModule("me.carleslc.Simple-YAML", "Simple-Configuration")
@@ -58,6 +58,7 @@ dependencies {
 
     compileOnly("org.projectlombok:lombok:1.18.36")
     annotationProcessor("org.projectlombok:lombok:1.18.36")
+    shadow("org.json:json:20231013")
 }
 
 val pluginId = properties["plugin_id"]
