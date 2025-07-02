@@ -16,9 +16,11 @@ import java.util.Enumeration;
 @Getter
 public class CDVoiceAddon implements VoicechatPlugin {
   public static final String MUSIC_DISC_CATEGORY = "music_discs";
+  public static final String CUSTOM_HORN_CATEGORY = "custom_horns";
 
   private VoicechatServerApi voicechatApi;
   private VolumeCategory musicDiscsCategory;
+  private VolumeCategory customHornsCategory;
 
   private static CDVoiceAddon instance;
 
@@ -46,6 +48,13 @@ public class CDVoiceAddon implements VoicechatPlugin {
           .setIcon(getMusicDiscIcon())
           .build();
       voicechatApi.registerVolumeCategory(musicDiscsCategory);
+      
+      customHornsCategory = voicechatApi.volumeCategoryBuilder()
+          .setId(CUSTOM_HORN_CATEGORY)
+          .setName("Goat Horns")
+          .setIcon(getCustomHornIcon())
+          .build();
+      voicechatApi.registerVolumeCategory(customHornsCategory);
     });
   }
 
@@ -73,5 +82,32 @@ public class CDVoiceAddon implements VoicechatPlugin {
       CustomDiscs.error("Error getting music discs icon: ", e);
     }
     return null;
+  }
+
+  private int[][] getCustomHornIcon() {
+    try {
+      Enumeration<URL> resources = this.getClass().getClassLoader().getResources("custom_horn_category.png");
+
+      while (resources.hasMoreElements()) {
+        BufferedImage bufferedImage = ImageIO.read(resources.nextElement().openStream());
+        if (bufferedImage.getWidth() != 16) {
+          continue;
+        }
+        if (bufferedImage.getHeight() != 16) {
+          continue;
+        }
+        int[][] image = new int[16][16];
+        for (int x = 0; x < bufferedImage.getWidth(); x++) {
+          for (int y = 0; y < bufferedImage.getHeight(); y++) {
+            image[x][y] = bufferedImage.getRGB(x, y);
+          }
+        }
+        return image;
+      }
+    } catch (Throwable e) {
+      CustomDiscs.error("Error getting goat horn icon: ", e);
+    }
+    // Fallback to music disc icon if goat horn icon not found
+    return getMusicDiscIcon();
   }
 }
