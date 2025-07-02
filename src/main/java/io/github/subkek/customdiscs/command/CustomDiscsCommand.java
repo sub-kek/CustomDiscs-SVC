@@ -19,6 +19,8 @@ public class CustomDiscsCommand extends CommandAPICommand {
     this.withSubcommand(new DownloadSubCommand());
     this.withSubcommand(new CreateSubCommand());
     this.withSubcommand(new CreateYtSubCommand());
+    this.withSubcommand(new CreateHornSubCommand());
+    this.withSubcommand(new CreateYtHornSubCommand());
     this.withSubcommand(new DistanceSubCommand());
 
     this.executes(this::execute);

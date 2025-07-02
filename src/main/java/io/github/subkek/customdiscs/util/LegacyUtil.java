@@ -25,6 +25,16 @@ public class LegacyUtil {
         .has(Keys.YOUTUBE_DISC.getKey(), Keys.YOUTUBE_DISC.getDataType());
   }
 
+  public static boolean isCustomHorn(@NotNull ItemStack item) {
+    return getItemMeta(item).getPersistentDataContainer()
+        .has(Keys.CUSTOM_HORN.getKey(), Keys.CUSTOM_HORN.getDataType());
+  }
+
+  public static boolean isCustomYouTubeHorn(@NotNull ItemStack item) {
+    return getItemMeta(item).getPersistentDataContainer()
+        .has(Keys.YOUTUBE_HORN.getKey(), Keys.YOUTUBE_HORN.getDataType());
+  }
+
   public static boolean isMusicDiscInHand(Player player) {
     return player.getInventory().getItemInMainHand().getType().toString().contains("MUSIC_DISC");
   }

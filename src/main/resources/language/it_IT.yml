@@ -1,4 +1,4 @@
-version: 'plugin version'
+version: 'versione plugin'
 language:
   prefix:
     normal: '<dark_aqua>CustomDiscs <white>- '
@@ -8,7 +8,7 @@ language:
   error:
     command:
       cant-perform: 'Non puoi eseguire quel comando!'
-      no-permission: 'Non hai il permesso per farlo!'
+      no-permission: 'Non hai il permesso per eseguire quel comando!'
       unknown-extension: 'L''estensione del file deve essere <dark_aqua>wav<white>, <dark_aqua>flac <white>oppure <dark_aqua>mp3<white>!'
       invalid-filename: 'Nome file non valido!'
       disc-name-empty: 'Devi specificare il nome del disco.'
@@ -37,13 +37,13 @@ language:
       messages:
         successfully: 'Plugin ricaricato con successo.'
     createyt:
-      syntax: '<dark_aqua>/cd createyt <url video> <nome disco>'
+      syntax: '<dark_aqua>/cd createyt <youtube url> <nome disco>'
       description: '<white>Crea un disco con la musica da YouTube.'
       messages:
         link: '<white>URL dell''audio: <dark_aqua>{0}'
     create:
       syntax: '<dark_aqua>/cd create <nome file> <nome disco>'
-      description: '<white>Crea un disco musicale.'
+      description: '<white>Crea un disco da un file audio locale.'
       messages:
         error:
           not-holding-disc: 'Prima prendi un disco in mano!'
@@ -59,12 +59,29 @@ language:
         click: 'Clicca sul jukebox a cui vuoi impostare il raggio.'
     help:
       syntax: '<dark_aqua>/cd help'
-      description: '<white>Mostra l''aiuto dei comandi'
+      description: '<white>Mostra l''aiuto dei comandi.'
       messages:
-        header: '<white>Dischi personalizzati'
+        header: '<white>Dischi Personalizzati'
         format: '{0}<white>: {1}'
         footer: 'Alcuni argomenti devono essere scritti tra virgolette "stringa"'
+    createhorn:
+      syntax: '<dark_aqua>/cd createhorn <nome file> <nome corno>'
+      description: '<white>Crea un corno personalizzato da un file audio locale.'
+      messages:
+        error:
+          not-holding-horn: 'Devi tenere in mano un corno di capra!'
+          horn-name-empty: 'Il nome del corno non può essere vuoto!'
+        name: '<white>Nome corno: <dark_aqua>{0}'
+        file: '<white>Nome file: <dark_aqua>{0}'
+    createythorn:
+      syntax: '<dark_aqua>/cd createythorn <youtube url> <nome corno>'
+      description: '<white>Crea un corno personalizzato da YouTube.'
+      messages:
+        link: '<white>URL dell''audio: <dark_aqua>{0}'
   disc-name:
-    simple: '<white>Disco musicale'
-    youtube: '<white>Disco YouTube'
+    simple: '<white>Disco Musicale Personalizzato'
+    youtube: '<white>Disco YouTube Personalizzato'
+  horn-name:
+    simple: '<white>Corno Personalizzato'
+    youtube: '<white>Corno YouTube Personalizzato'
   now-playing: '<gold>In riproduzione: {0}'
