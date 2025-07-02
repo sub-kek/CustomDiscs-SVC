@@ -1,4 +1,4 @@
-# Custom discs for SVC Addon
+# SVC Addon for Custom Music Discs and Horns
 
 Create music discs and custom horns using mp3, wav and flac files, and play audio from YouTube. Enhance and create a unique atmosphere in your game world.
 
