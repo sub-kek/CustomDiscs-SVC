@@ -13,10 +13,12 @@ import io.github.subkek.lavaplayer.libs.com.sedmelluq.discord.lavaplayer.track.p
 import de.maxhenkel.voicechat.api.ServerPlayer;
 import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
+import de.maxhenkel.voicechat.api.audiochannel.EntityAudioChannel;
 import io.github.subkek.lavaplayer.libs.dev.lavalink.youtube.YoutubeAudioSourceManager;
 import io.github.subkek.lavaplayer.libs.dev.lavalink.youtube.clients.TvHtml5Embedded;
 import io.github.subkek.lavaplayer.libs.dev.lavalink.youtube.clients.Web;
 import io.github.subkek.lavaplayer.libs.dev.lavalink.youtube.clients.skeleton.Client;
+import com.tcoded.folialib.wrapper.task.WrappedTask;
 import net.kyori.adventure.text.Component;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -116,6 +118,44 @@ public class LavaPlayerManager {
     }, 5, 5, TimeUnit.SECONDS);
   }
 
+  public synchronized void playHorn(Player player, String ytUrl, Component actionbarComponent) {
+    UUID uuid = player.getUniqueId();
+    CustomDiscs.debug("LavaPlayerHorn UUID is {0}", uuid);
+    if (playerMap.containsKey(uuid)) stopPlaying(uuid);
+
+    VoicechatServerApi api = CDVoiceAddon.getInstance().getVoicechatApi();
+
+    LavaPlayer lavaPlayer = new LavaPlayer();
+    playerMap.put(uuid, lavaPlayer);
+
+    lavaPlayer.ytUrl = ytUrl;
+    lavaPlayer.playerUUID = uuid;
+    lavaPlayer.isHorn = true;
+    
+    // Create entity audio channel that follows the player
+    lavaPlayer.entityAudioChannel = api.createEntityAudioChannel(
+        UUID.randomUUID(),
+        api.fromServerPlayer(player)
+    );
+
+    if (lavaPlayer.entityAudioChannel == null) return;
+
+    lavaPlayer.entityAudioChannel.setCategory(CDVoiceAddon.CUSTOM_HORN_CATEGORY);
+    lavaPlayer.entityAudioChannel.setDistance(plugin.getCDConfig().getHornDistance());
+
+    lavaPlayer.lavaPlayerThread.start();
+
+    // Send actionbar message to the player
+    plugin.getAudience().sender(player).sendActionBar(actionbarComponent);
+    
+    // Schedule automatic stop after configured horn duration
+    int hornTimeout = plugin.getCDConfig().getHornTimeout();
+    lavaPlayer.autoStopTask = plugin.getFoliaLib().getScheduler().runLaterAsync(() -> {
+      CustomDiscs.debug("Auto-stopping YouTube horn for player {0} after {1} seconds", uuid, hornTimeout);
+      stopPlaying(uuid);
+    }, hornTimeout * 20L); // Convert seconds to ticks
+  }
+
   public void play(Block block, String ytUrl, Component actionbarComponent) {
     UUID uuid = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
     CustomDiscs.debug("LavaPlayer UUID is {0}", uuid);
@@ -166,13 +206,18 @@ public class LavaPlayerManager {
     stopPlaying(uuid);
   }
 
-  public void stopPlaying(UUID uuid) {
+  public synchronized void stopPlaying(UUID uuid) {
     if (playerMap.containsKey(uuid)) {
       CustomDiscs.debug(
           "Stopping LavaPlayer {0}",
           uuid.toString());
 
       LavaPlayer lavaPlayer = playerMap.remove(uuid);
+
+      // Cancel auto-stop task if it exists (for horns)
+      if (lavaPlayer.autoStopTask != null && !lavaPlayer.autoStopTask.isCancelled()) {
+        lavaPlayer.autoStopTask.cancel();
+      }
 
       lavaPlayer.trackFuture.complete(null);
       lavaPlayer.audioPlayer.destroy();
@@ -197,10 +242,13 @@ public class LavaPlayerManager {
     private final CompletableFuture<AudioTrack> trackFuture = new CompletableFuture<>();
     private String ytUrl;
     private LocationalAudioChannel audioChannel;
+    private EntityAudioChannel entityAudioChannel;
     private Collection<ServerPlayer> playersInRange;
     private UUID playerUUID;
     private AudioPlayer audioPlayer;
+    private boolean isHorn = false;
     private final Thread lavaPlayerThread = new Thread(this::startTrackJob, "LavaPlayerThread");
+    private WrappedTask autoStopTask; // Reference to the auto-stop task for horns
 
     private void startTrackJob() {
       try {
@@ -278,7 +326,11 @@ public class LavaPlayerManager {
             AudioFrame frame;
             if (Objects.isNull(frame = audioPlayer.provide(5L, TimeUnit.MILLISECONDS))) continue;
 
-            audioChannel.send(frame.getData());
+            if (isHorn && entityAudioChannel != null) {
+              entityAudioChannel.send(frame.getData());
+            } else if (audioChannel != null) {
+              audioChannel.send(frame.getData());
+            }
 
             if (start == 0L) start = System.currentTimeMillis();
             long wait = (start + frame.getTimecode()) - System.currentTimeMillis();

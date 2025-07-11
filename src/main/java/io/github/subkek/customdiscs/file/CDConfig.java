@@ -156,6 +156,20 @@ public class CDConfig {
     allowHoppers = getBoolean("disc.allow-hoppers", allowHoppers);
   }
 
+  private int hornDistance = 32;
+  private float hornVolume = 1f;
+  private int hornTimeout = 5;
+
+  private void hornSettings() {
+    hornDistance = getInt("horn.distance", hornDistance,
+        "The distance from which custom horns can be heard in blocks.");
+    hornVolume = Float.parseFloat(getString("horn.volume", String.valueOf(hornVolume),
+        "The master volume of custom horns from 0-1.", "You can set values like 0.5 for 50% volume."
+    ));
+    hornTimeout = getInt("horn.timeout", hornTimeout,
+        "The duration in seconds after which custom horns will automatically stop playing.");
+  }
+
   private boolean youtubeOauth2 = false;
   private String youtubePoToken = "";
   private String youtubePoVisitorData = "";

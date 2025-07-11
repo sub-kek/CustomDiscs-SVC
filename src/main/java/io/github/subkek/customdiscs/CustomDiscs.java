@@ -13,6 +13,7 @@ import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIBukkitConfig;
 import io.github.subkek.customdiscs.command.CustomDiscsCommand;
 import io.github.subkek.customdiscs.event.HopperHandler;
+import io.github.subkek.customdiscs.event.HornHandler;
 import io.github.subkek.customdiscs.event.JukeboxHandler;
 import io.github.subkek.customdiscs.event.PlayerHandler;
 import io.github.subkek.customdiscs.file.CDConfig;
@@ -128,6 +129,7 @@ public class CustomDiscs extends JavaPlugin {
 
     LavaPlayerManager.getInstance().stopPlayingAll();
     PlayerManager.getInstance().stopPlayingAll();
+    HornPlayerManager.getInstance().stopPlayingAll();
 
     cDData.stopAutosave();
     cDData.save();
@@ -160,6 +162,7 @@ public class CustomDiscs extends JavaPlugin {
   private void registerEvents() {
     getServer().getPluginManager().registerEvents(new JukeboxHandler(), this);
     getServer().getPluginManager().registerEvents(PlayerHandler.getInstance(), this);
+    getServer().getPluginManager().registerEvents(new HornHandler(), this);
     if (getCDConfig().isAllowHoppers())
       getServer().getPluginManager().registerEvents(HopperHandler.getInstance(), this);
   }
