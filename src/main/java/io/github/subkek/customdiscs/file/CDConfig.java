@@ -132,6 +132,7 @@ public class CDConfig {
   private boolean useCustomModelDataYoutube = false;
   private int customModelDataYoutube = 0;
   private int distanceCommandMaxDistance = 64;
+  private boolean discRequired = true;
 
   private void commandSettings() {
     maxDownloadSize = getInt("command.download.max-size", maxDownloadSize,
@@ -141,6 +142,7 @@ public class CDConfig {
     useCustomModelDataYoutube = getBoolean("command.createyt.custom-model-data.enable", useCustomModelDataYoutube);
     customModelDataYoutube = getInt("command.createyt.custom-model-data.value", customModelDataYoutube);
     distanceCommandMaxDistance = getInt("command.distance.max", distanceCommandMaxDistance);
+    discRequired = getBoolean("command.create.disc-required", discRequired);
   }
 
   private int musicDiscDistance = 64;
